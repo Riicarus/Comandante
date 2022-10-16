@@ -15,3 +15,32 @@ version: 1.1
 
 如果一个 `action` 后有多个 `option` 且都为短 `option`, 那么他们可以合并为一个部分.  
 
+指令结构搭配:  
+- `exe` 后可以搭配 `action` 或 `option`
+- `action` 后可以搭配 `subaction` 或 `option`
+- `subaction` 只能在 `action` 后, 可搭配 `option`
+- `option` 后可以搭配 `option` 或 `argument`
+- `argument` 后可以搭配 `option`
+
+### 简单使用
+先获取 `SkyCommand` 单例:  
+```java
+public static final SkyCommand skyCommand = SkyCommand.startSkyCommand();
+```
+然后进行指令注册:  
+```java
+public static void defineCommand() {
+    skyCommand.register()
+            .execution("plugin")
+            .action("load")
+            .option("dir", "d")
+            .argument("dir", new StringCommandArgumentType())
+            .executor(
+            (args) -> System.out.println("load plugin from dir: " + args[0])
+    );
+}
+```
+最后调用指令方法完成注册:  
+```java
+defineCommand();
+```

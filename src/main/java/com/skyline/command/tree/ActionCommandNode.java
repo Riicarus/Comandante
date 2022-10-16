@@ -22,7 +22,7 @@ public class ActionCommandNode extends CommandNode {
                              final boolean isSubAction) {
         super(name, null, null,
                 new HashMap<>(), new HashMap<>(),
-                new HashMap<>(), commandExecutor);
+                null, commandExecutor);
 
         this.isSubAction = isSubAction;
     }

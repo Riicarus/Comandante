@@ -23,7 +23,7 @@ public class ArgumentCommandNode<T> extends CommandNode {
                                final CommandArgumentType<T> type) {
         super(name, null, null,
                 null, new HashMap<>(),
-                new HashMap<>(), commandExecutor);
+                null, commandExecutor);
 
         this.type = type;
     }

@@ -109,9 +109,7 @@ public class CommandBuilder {
     }
 
     public <T> CommandBuilder argument(String name, CommandArgumentType<T> type) {
-        if (currentNode instanceof ActionCommandNode ||
-                currentNode instanceof OptionCommandNode ||
-                currentNode instanceof ArgumentCommandNode) {
+        if (currentNode instanceof OptionCommandNode) {
             ArgumentCommandNode<T> argumentCommandNode =
                     new ArgumentCommandNode<>(name, null, type);
 

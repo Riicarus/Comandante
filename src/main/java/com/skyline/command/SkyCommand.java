@@ -61,8 +61,6 @@ public class SkyCommand {
     public static SkyCommand startSkyCommand() {
         SkyCommand skyCommand = createSkyCommand();
 
-        // skyCommand.commandRegister.getRootCommandNode().getChildren().get("plugin").getChildren().get("unload").getChildren().get("dir").getChildren().get("args").getCommandExecutor().execute("hello");
-
         Thread thread = new Thread(new InnerRunner(skyCommand));
         thread.start();
 
@@ -90,7 +88,11 @@ public class SkyCommand {
             String commandStr;
 
             while ((commandStr = skyCommand.ioHandler.doGetCommand()) != null) {
-                skyCommand.commandDispatcher.dispatch(commandStr);
+                try {
+                    skyCommand.commandDispatcher.dispatch(commandStr);
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
         }
     }

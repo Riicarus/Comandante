@@ -25,8 +25,13 @@ public class DemoCommand {
                 (args) -> System.out.println("list all plugin info of dir: " + args[0])
         );
 
-
-        skyCommand.getCommandRegister().getRootCommandNode().getChildren().get("plugin").getChildren().get("list").getChildren().get("info").getChildren().get("all").getChildren().get("dir").getChildren().get("dir").getCommandExecutor().execute("D:\\tmp\\jars");
+        skyCommand.register().execution("plugin").action("move")
+                .option("from", "f").argument("from", new StringCommandArgumentType())
+                .option("to", "t").argument("to", new StringCommandArgumentType())
+                .executor(
+                (args) -> System.out.println("move plugin from dir: " + args[0] + " to dir: " + args[1])
+        );
+        // skyCommand.getCommandRegister().getRootCommandNode().getChildren().get("plugin").getChildren().get("list").getChildren().get("info").getChildren().get("all").getChildren().get("dir").getChildren().get("dir").getCommandExecutor().execute("D:\\tmp\\jars");
 
     }
 

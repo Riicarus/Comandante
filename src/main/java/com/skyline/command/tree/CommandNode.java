@@ -166,9 +166,7 @@ public abstract class CommandNode {
     }
 
     public final HashMap<String, ArgumentCommandNode<?>> getArguments() {
-        if (this instanceof ActionCommandNode ||
-                this instanceof OptionCommandNode ||
-                this instanceof ArgumentCommandNode) {
+        if (this instanceof OptionCommandNode) {
             return arguments;
         }
 
