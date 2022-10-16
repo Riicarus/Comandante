@@ -1,9 +1,9 @@
 package com.skyline.command.tree;
 
+import com.skyline.command.argument.CommandArgumentType;
 import com.skyline.command.executor.CommandExecutor;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -14,18 +14,18 @@ import java.util.Objects;
  * @create 2022-10-14 23:49
  * @since 1.0.0
  */
-public class ArgumentCommandNode extends CommandNode {
+public class ArgumentCommandNode<T> extends CommandNode {
 
-    public static final String ARGUMENT_NAME = "args";
+    private final CommandArgumentType<T> type;
 
-    private final List<CommandArgument<?>> argumentList;
+    public ArgumentCommandNode(final String name,
+                               final CommandExecutor commandExecutor,
+                               final CommandArgumentType<T> type) {
+        super(name, null, null,
+                null, new HashMap<>(),
+                new HashMap<>(), commandExecutor);
 
-    public ArgumentCommandNode(final CommandExecutor commandExecutor, final List<CommandArgument<?>> argumentList) {
-        super(ARGUMENT_NAME, null, null,
-                null, null,
-                null, commandExecutor);
-
-        this.argumentList = argumentList;
+        this.type = type;
     }
 
     @Override
@@ -33,15 +33,15 @@ public class ArgumentCommandNode extends CommandNode {
         return null;
     }
 
-    public List<CommandArgument<?>> getArgumentList() {
-        return argumentList;
+    public CommandArgumentType<T> getType() {
+        return type;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArgumentCommandNode that = (ArgumentCommandNode) o;
+        ArgumentCommandNode<?> that = (ArgumentCommandNode<?>) o;
         return Objects.equals(getName(), that.getName());
     }
 

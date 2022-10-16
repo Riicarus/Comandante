@@ -19,7 +19,7 @@ public class OptionCommandNode extends CommandNode {
 
     public OptionCommandNode(final CommandExecutor commandExecutor, final String name, final String alias) {
         super(name, null, null,
-                null, null,
+                null, new HashMap<>(),
                 new HashMap<>(), commandExecutor);
 
         this.alias = alias;

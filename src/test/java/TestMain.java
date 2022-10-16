@@ -1,5 +1,3 @@
-import com.skyline.command.SkyCommand;
-
 /**
  * [FEATURE INFO]<br/>
  *
@@ -10,7 +8,8 @@ import com.skyline.command.SkyCommand;
 public class TestMain {
 
     public static void main(String[] args) {
-        SkyCommand.startSkyCommand("");
+
+        DemoCommand.defineCommand();
     }
 
 }

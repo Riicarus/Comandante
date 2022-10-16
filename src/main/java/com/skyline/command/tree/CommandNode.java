@@ -27,7 +27,7 @@ public abstract class CommandNode {
 
     private final HashMap<String, OptionCommandNode> options;
 
-    private final HashMap<String, ArgumentCommandNode> arguments;
+    private final HashMap<String, ArgumentCommandNode<?>> arguments;
 
     private CommandExecutor commandExecutor;
 
@@ -36,7 +36,7 @@ public abstract class CommandNode {
                        HashMap<String, ActionCommandNode> actions,
                        HashMap<String, ActionCommandNode> subActions,
                        HashMap<String, OptionCommandNode> options,
-                       HashMap<String, ArgumentCommandNode> arguments,
+                       HashMap<String, ArgumentCommandNode<?>> arguments,
                        CommandExecutor commandExecutor) {
         this.name = name;
         this.executions = executions;
@@ -53,7 +53,7 @@ public abstract class CommandNode {
                 getChildren().put(node.getName(), node);
             }
         } else {
-            throw new CommandBuildException("Node not fit.", null);
+            throw new CommandBuildException("Node not fit. Name: " + (node == null ? "" : node.getName()), null);
         }
 
     }
@@ -66,7 +66,7 @@ public abstract class CommandNode {
                 getExecutions().put(node.getName(), node);
             }
         } else {
-            throw new CommandBuildException("Node not fit.", null);
+            throw new CommandBuildException("Node not fit. Name: " + (node == null ? "" : node.getName()), null);
         }
     }
 
@@ -79,7 +79,7 @@ public abstract class CommandNode {
                 getActions().put(node.getName(), node);
             }
         } else {
-            throw new CommandBuildException("Node not fit.", null);
+            throw new CommandBuildException("Node not fit. Name: " + (node == null ? "" : node.getName()), null);
         }
     }
 
@@ -92,7 +92,7 @@ public abstract class CommandNode {
                 getSubActions().put(node.getName(), node);
             }
         } else {
-            throw new CommandBuildException("Node not fit.", null);
+            throw new CommandBuildException("Node not fit. Name: " + (node == null ? "" : node.getName()), null);
         }
     }
 
@@ -104,11 +104,11 @@ public abstract class CommandNode {
                 getOptions().put(node.getName(), node);
             }
         } else {
-            throw new CommandBuildException("Node not fit.", null);
+            throw new CommandBuildException("Node not fit. Name: " + (node == null ? "" : node.getName()), null);
         }
     }
 
-    public final void addArgumentNode(ArgumentCommandNode node) {
+    public final void addArgumentNode(ArgumentCommandNode<?> node) {
         if (getArguments() != null &&
                 node != null &&
                 !node.getName().trim().isEmpty()) {
@@ -116,12 +116,8 @@ public abstract class CommandNode {
                 getArguments().put(node.getName(), node);
             }
         } else {
-            throw new CommandBuildException("Node not fit.", null);
+            throw new CommandBuildException("Node not fit. Name: " + (node == null ? "" : node.getName()), null);
         }
-    }
-
-    public void setCommandExecutor(CommandExecutor commandExecutor) {
-        this.commandExecutor = commandExecutor;
     }
 
     public String getName() {
@@ -159,15 +155,20 @@ public abstract class CommandNode {
     }
 
     public final HashMap<String, OptionCommandNode> getOptions() {
-        if (this instanceof ActionCommandNode) {
+        if (this instanceof ExecutionCommandNode ||
+                this instanceof ActionCommandNode ||
+                this instanceof OptionCommandNode ||
+                this instanceof ArgumentCommandNode) {
             return options;
         }
 
         return null;
     }
 
-    public final HashMap<String, ArgumentCommandNode> getArguments() {
-        if (this instanceof ActionCommandNode || this instanceof OptionCommandNode) {
+    public final HashMap<String, ArgumentCommandNode<?>> getArguments() {
+        if (this instanceof ActionCommandNode ||
+                this instanceof OptionCommandNode ||
+                this instanceof ArgumentCommandNode) {
             return arguments;
         }
 
@@ -176,5 +177,9 @@ public abstract class CommandNode {
 
     public CommandExecutor getCommandExecutor() {
         return commandExecutor;
+    }
+
+    public void setCommandExecutor(CommandExecutor commandExecutor) {
+        this.commandExecutor = commandExecutor;
     }
 }

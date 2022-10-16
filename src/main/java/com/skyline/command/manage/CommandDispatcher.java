@@ -12,21 +12,21 @@ import com.skyline.command.tree.RootCommandNode;
  */
 public class CommandDispatcher {
 
-    private RootCommandNode rootCommandNode;
+    private final CommandRegister commandRegister;
 
     public CommandDispatcher() {
+        this.commandRegister = new CommandRegister();
     }
 
-    public CommandDispatcher(RootCommandNode rootCommandNode) {
-        this.rootCommandNode = rootCommandNode;
-    }
-
-    public void setRootCommandNode(RootCommandNode rootCommandNode) {
-        this.rootCommandNode = rootCommandNode;
+    public CommandDispatcher(CommandRegister commandRegister) {
+        this.commandRegister = commandRegister;
     }
 
     public void dispatch(final String commandStr) {
 
     }
 
+    public CommandRegister getCommandRegister() {
+        return commandRegister;
+    }
 }

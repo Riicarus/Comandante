@@ -1,5 +1,6 @@
 package com.skyline.command;
 
+import com.skyline.command.manage.CommandBuilder;
 import com.skyline.command.manage.CommandDispatcher;
 import com.skyline.command.manage.CommandRegister;
 import com.skyline.command.manage.IOHandler;
@@ -14,10 +15,6 @@ import com.skyline.command.manage.IOHandler;
  */
 public class SkyCommand {
     /**
-     * 指令注册器
-     */
-    private final CommandRegister commandRegister;
-    /**
      * 指令输入管理
      */
     private final IOHandler ioHandler;
@@ -26,23 +23,19 @@ public class SkyCommand {
      */
     private final CommandDispatcher commandDispatcher;
     /**
-     * 指令定义包路径
-     */
-    private final String commandDefinitionPackage;
-    /**
      * 单例
      */
     private volatile static SkyCommand SKY_COMMAND;
 
-    private static SkyCommand createSkyCommand(final String commandDefinitionPackage) {
-        return createSkyCommand(new CommandRegister(commandDefinitionPackage), new IOHandler(), new CommandDispatcher(), commandDefinitionPackage);
+    private static SkyCommand createSkyCommand() {
+        return createSkyCommand(new IOHandler(), new CommandDispatcher());
     }
 
-    private static SkyCommand createSkyCommand(final CommandRegister commandRegister, final IOHandler ioHandler, final CommandDispatcher commandDispatcher, final String commandDefinitionPackage) {
+    private static SkyCommand createSkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
         if (SKY_COMMAND == null) {
             synchronized (SkyCommand.class) {
                 if (SKY_COMMAND == null) {
-                    SKY_COMMAND = new SkyCommand(commandRegister, ioHandler, commandDispatcher, commandDefinitionPackage);
+                    SKY_COMMAND = new SkyCommand(ioHandler, commandDispatcher);
                 }
             }
         }
@@ -51,39 +44,37 @@ public class SkyCommand {
     }
 
     private SkyCommand() {
-        this.commandRegister = new CommandRegister("");
         this.ioHandler = new IOHandler();
         this.commandDispatcher = new CommandDispatcher();
-        this.commandDefinitionPackage = "";
     }
 
     private SkyCommand(final String commandDefinitionPackage) {
-        this.commandRegister = new CommandRegister(commandDefinitionPackage);
         this.ioHandler = new IOHandler();
         this.commandDispatcher = new CommandDispatcher();
-        this.commandDefinitionPackage = commandDefinitionPackage;
     }
 
-    private SkyCommand(final CommandRegister commandRegister, final IOHandler ioHandler, final CommandDispatcher commandDispatcher, final String commandDefinitionPackage) {
-        this.commandRegister = commandRegister;
+    private SkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
         this.ioHandler = ioHandler;
         this.commandDispatcher = commandDispatcher;
-        this.commandDefinitionPackage = commandDefinitionPackage;
     }
 
-    public static void startSkyCommand(final String commandDefinitionPackage) {
-        SkyCommand skyCommand = createSkyCommand(commandDefinitionPackage);
-        skyCommand.loadCommand();
-        skyCommand.commandDispatcher.setRootCommandNode(skyCommand.commandRegister.getRootCommandNode());
+    public static SkyCommand startSkyCommand() {
+        SkyCommand skyCommand = createSkyCommand();
 
         // skyCommand.commandRegister.getRootCommandNode().getChildren().get("plugin").getChildren().get("unload").getChildren().get("dir").getChildren().get("args").getCommandExecutor().execute("hello");
 
         Thread thread = new Thread(new InnerRunner(skyCommand));
         thread.start();
+
+        return skyCommand;
     }
 
-    private void loadCommand() {
-        commandRegister.doRegister();
+    public CommandBuilder register() {
+        return commandDispatcher.getCommandRegister().getBuilder();
+    }
+
+    public CommandRegister getCommandRegister() {
+        return commandDispatcher.getCommandRegister();
     }
 
     static class InnerRunner implements Runnable {

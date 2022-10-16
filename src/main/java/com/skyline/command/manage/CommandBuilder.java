@@ -1,14 +1,9 @@
 package com.skyline.command.manage;
 
-import com.skyline.command.annotation.*;
 import com.skyline.command.argument.CommandArgumentType;
 import com.skyline.command.exception.CommandBuildException;
 import com.skyline.command.executor.CommandExecutor;
 import com.skyline.command.tree.*;
-
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * [FEATURE INFO]<br/>
@@ -22,170 +17,122 @@ public class CommandBuilder {
 
     private final RootCommandNode rootCommandNode;
 
-    private final Class<?> definitionClass;
+    private CommandNode currentNode;
 
     private CommandExecutor commandExecutor;
 
-    public CommandBuilder(final RootCommandNode rootCommandNode, final Class<?> definitionClass) {
+    public CommandBuilder(final RootCommandNode rootCommandNode) {
         this.rootCommandNode = rootCommandNode;
-        this.definitionClass = definitionClass;
+        this.currentNode = rootCommandNode;
     }
 
     public CommandBuilder(final RootCommandNode rootCommandNode,
-                          final Class<?> definitionClass,
                           final CommandExecutor commandExecutor) {
         this.rootCommandNode = rootCommandNode;
-        this.definitionClass = definitionClass;
+        this.currentNode = rootCommandNode;
         this.commandExecutor = commandExecutor;
     }
 
-    public final void build() {
-        buildExecution();
+    public CommandBuilder execution(String name) {
+        if (currentNode instanceof RootCommandNode) {
+            ExecutionCommandNode executionCommandNode = new ExecutionCommandNode(name);
+            currentNode.addChildNode(executionCommandNode);
+            currentNode.addExecutionNode(executionCommandNode);
+
+            if (currentNode.getExecutions() != null) {
+                currentNode = currentNode.getExecutions().get(name);
+                return this;
+            }
+
+            throw new CommandBuildException("Current node may be wrong when adding exe-node: " + name, null);
+        }
+
+        throw new CommandBuildException("ExecutionNode can only follow behind RootNode", null);
     }
 
-    protected void buildExecution() {
-        Execution execution;
+    public CommandBuilder action(String name) {
+        //考虑: 需不需要有多个 action, 按理说是不需要的
+        if (currentNode instanceof ExecutionCommandNode) {
+            ActionCommandNode actionCommandNode =
+                    new ActionCommandNode(null, name, false);
 
-        if ((execution = definitionClass.getAnnotation(Execution.class)) != null) {
-            String name = execution.name().trim();
-            if (!name.isEmpty()) {
-                ExecutionCommandNode executionCommandNode = new ExecutionCommandNode(name);
-                rootCommandNode.addChildNode(executionCommandNode);
-                rootCommandNode.addExecutionNode(executionCommandNode);
+            currentNode.addChildNode(actionCommandNode);
+            currentNode.addActionNode(actionCommandNode);
 
-                Method[] methods = definitionClass.getMethods();
-                buildAction(executionCommandNode, methods);
+            if (currentNode.getActions() != null) {
+                currentNode = currentNode.getActions().get(name);
+                return this;
             }
+            throw new CommandBuildException("Current node may be wrong when adding act-node: " + name, null);
         }
+
+        throw new CommandBuildException("ActionNode can only follow behind ExecutionNode", null);
     }
 
-    protected void buildAction(ExecutionCommandNode node, Method[] methods) {
-        if (methods.length == 0) {
-            throw new CommandBuildException("No method found in class: " + definitionClass.getName(), null);
-        }
+    public CommandBuilder subAction(String name) {
+        if (currentNode instanceof ActionCommandNode) {
+            ActionCommandNode actionCommandNode =
+                    new ActionCommandNode(null, name, true);
 
-        for (Method method : methods) {
-            if (method.isAnnotationPresent(Action.class)) {
-                Action action = method.getAnnotation(Action.class);
-                String name = action.name();
-                ActionCommandNode actionCommandNode = new ActionCommandNode(null, name, false);
-                node.addChildNode(actionCommandNode);
-                node.addActionNode(actionCommandNode);
+            currentNode.addChildNode(actionCommandNode);
+            currentNode.addSubActionNode(actionCommandNode);
 
-                boolean hasSubPattern = false;
-                SubAction subAction = action.subAction();
-                if (!subAction.name().trim().isEmpty()) {
-                    hasSubPattern = true;
-                    buildSubAction(actionCommandNode, subAction, method);
-                }
-
-                Option option = action.option();
-                if (!hasSubPattern && !option.name().trim().isEmpty()) {
-                    hasSubPattern = true;
-                    buildOption(actionCommandNode, option, method);
-                }
-
-                Argument[] arguments = action.args();
-                if (!hasSubPattern && arguments.length != 0) {
-                    hasSubPattern = true;
-                    buildArgument(actionCommandNode, arguments, method);
-                }
-
-                if (!hasSubPattern) {
-                    if (node.getActions() != null) {
-                        ActionCommandNode commandNode = node.getActions().get(name);
-                        if (commandNode != null && commandNode.getCommandExecutor() == null) {
-                            CommandExecutor executor = new CommandExecutor(commandNode, method);
-                            commandNode.setCommandExecutor(executor);
-                        }
-                    }
-                }
+            if (currentNode.getSubActions() != null) {
+                currentNode = currentNode.getSubActions().get(name);
+                return this;
             }
+            throw new CommandBuildException("Current node may be wrong when adding sub-act-node: " + name, null);
         }
+
+        throw new CommandBuildException("SubActionNode can only follow behind ActionNode", null);
     }
 
-    protected void buildSubAction(ActionCommandNode node, SubAction subAction, Method method) {
-        String name = subAction.name();
-        ActionCommandNode actionCommandNode = new ActionCommandNode(null, name, true);
-        node.addChildNode(actionCommandNode);
-        node.addSubActionNode(actionCommandNode);
+    public CommandBuilder option(String name, String alias) {
+        if (currentNode instanceof ActionCommandNode ||
+                currentNode instanceof ExecutionCommandNode ||
+                currentNode instanceof OptionCommandNode ||
+                currentNode instanceof ArgumentCommandNode) {
+            OptionCommandNode optionCommandNode =
+                    new OptionCommandNode(null, name, alias);
 
-        boolean hasSubPattern = false;
-        Option option = subAction.option();
-        if (!option.name().trim().isEmpty()) {
-            hasSubPattern = true;
-            buildOption(actionCommandNode, option, method);
-        }
+            currentNode.addChildNode(optionCommandNode);
+            currentNode.addOptionNode(optionCommandNode);
 
-        Argument[] arguments = subAction.args();
-        if (!hasSubPattern && arguments.length != 0) {
-            hasSubPattern = true;
-            buildArgument(actionCommandNode, arguments, method);
-        }
-
-        if (!hasSubPattern) {
-            if (node.getSubActions() != null) {
-                ActionCommandNode commandNode = node.getSubActions().get(name);
-                if (commandNode != null && commandNode.getCommandExecutor() == null) {
-                    CommandExecutor executor = new CommandExecutor(commandNode, method);
-                    commandNode.setCommandExecutor(executor);
-                }
+            if (currentNode.getOptions() != null) {
+                currentNode = currentNode.getOptions().get(name);
+                return this;
             }
+            throw new CommandBuildException("Current node may be wrong when adding opt-node: " + name, null);
         }
+
+        throw new CommandBuildException("OptionNode can only follow behind (Sub)ActionNode or ExecutionNode or ArgumentNode", null);
     }
 
-    protected void buildOption(ActionCommandNode node, Option option, Method method) {
-        String name = option.name();
-        String alias = option.alias();
-        OptionCommandNode optionCommandNode = new OptionCommandNode(null, name, alias);
-        node.addChildNode(optionCommandNode);
-        node.addOptionNode(optionCommandNode);
+    public <T> CommandBuilder argument(String name, CommandArgumentType<T> type) {
+        if (currentNode instanceof ActionCommandNode ||
+                currentNode instanceof OptionCommandNode ||
+                currentNode instanceof ArgumentCommandNode) {
+            ArgumentCommandNode<T> argumentCommandNode =
+                    new ArgumentCommandNode<>(name, null, type);
 
-        boolean hasSubPattern = false;
-        Argument[] arguments = option.args();
-        if (arguments.length != 0) {
-            hasSubPattern = true;
-            buildArgument(optionCommandNode, arguments, method);
-        }
+            currentNode.addChildNode(argumentCommandNode);
+            currentNode.addArgumentNode(argumentCommandNode);
 
-        if (!hasSubPattern) {
-            if (node.getOptions() != null) {
-                OptionCommandNode commandNode = node.getOptions().get(name);
-                if (commandNode != null && commandNode.getCommandExecutor() == null) {
-                    CommandExecutor executor = new CommandExecutor(commandNode, method);
-                    commandNode.setCommandExecutor(executor);
-                }
+            if (currentNode.getArguments() != null) {
+                currentNode = currentNode.getArguments().get(name);
+                return this;
             }
+            throw new CommandBuildException("Current node may be wrong when adding arg-node: " + name, null);
         }
+        throw new CommandBuildException("ArgumentNode can only follow behind (Sub)ActionNode or OptionNode or ArgumentNode", null);
     }
 
-    protected void buildArgument(CommandNode node, Argument[] arguments, Method method) {
-        List<CommandArgument<?>> argumentList = new ArrayList<>();
-
-        for (Argument argument : arguments) {
-            String name = argument.name();
-            CommandArgumentType<?> type;
-            try {
-                type = argument.type().newInstance();
-            } catch (InstantiationException | IllegalAccessException e) {
-                throw new CommandBuildException("Failed to create CommandArgumentType for argument: " + name, e.getCause());
-            }
-
-            CommandArgument<?> commandArgument = new CommandArgument<>(name, type);
-            argumentList.add(commandArgument);
+    public void executor(CommandExecutor commandExecutor) {
+        if (currentNode instanceof RootCommandNode || currentNode instanceof ExecutionCommandNode) {
+            throw new CommandBuildException("RootNode or ExecutionNode can not have a command executor", null);
         }
 
-        ArgumentCommandNode argumentCommandNode = new ArgumentCommandNode(null, argumentList);
-        node.addChildNode(argumentCommandNode);
-        node.addArgumentNode(argumentCommandNode);
-
-        if (node.getArguments() != null) {
-            ArgumentCommandNode commandNode = node.getArguments().get(ArgumentCommandNode.ARGUMENT_NAME);
-            if (commandNode != null && commandNode.getCommandExecutor() == null) {
-                CommandExecutor executor = new CommandExecutor(commandNode, method);
-                commandNode.setCommandExecutor(executor);
-            }
-        }
+        currentNode.setCommandExecutor(commandExecutor);
     }
 
     public RootCommandNode getRootCommandNode() {

@@ -15,7 +15,7 @@ public class ExecutionCommandNode extends CommandNode {
 
     public ExecutionCommandNode(final String name) {
         super(name, null, new HashMap<>(),
-                null, null,
+                null, new HashMap<>(),
                 null, null);
     }
 

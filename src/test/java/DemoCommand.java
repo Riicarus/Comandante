@@ -1,7 +1,4 @@
-import com.skyline.command.annotation.Action;
-import com.skyline.command.annotation.Argument;
-import com.skyline.command.annotation.Execution;
-import com.skyline.command.annotation.Option;
+import com.skyline.command.SkyCommand;
 import com.skyline.command.argument.StringCommandArgumentType;
 
 /**
@@ -11,33 +8,26 @@ import com.skyline.command.argument.StringCommandArgumentType;
  * @create 2022-10-15 15:52
  * @since 1.0.0
  */
-@Execution(name = "plugin")
 public class DemoCommand {
 
-    @Action(
-            name = "load",
-            option = @Option(
-                    name = "dir", alias = "d",
-                    args = {
-                            @Argument(name = "dir", type = StringCommandArgumentType.class)
-                    }
-            )
-    )
-    public void loadPluginFromDir(String dir) {
-        System.out.println("load plugin from dir: " + dir);
-    }
+    public static final SkyCommand skyCommand = SkyCommand.startSkyCommand();
 
-    @Action(
-            name = "unload",
-            option = @Option(
-                    name = "dir", alias = "d",
-                    args = {
-                            @Argument(name = "dir", type = StringCommandArgumentType.class)
-                    }
-            )
-    )
-    public void unloadPluginOfDir(String dir) {
-        System.out.println("unload plugin of dir: " + dir);
+    public static void defineCommand() {
+        skyCommand.register().execution("plugin").action("load").option("dir", "d").argument("dir", new StringCommandArgumentType()).executor(
+                (args) -> System.out.println("load plugin from dir: " + args[0])
+        );
+
+        skyCommand.register().execution("plugin").action("unload").option("dir", "d").argument("dir", new StringCommandArgumentType()).executor(
+                (args) -> System.out.println("unload plugin from dir: " + args[0])
+        );
+
+        skyCommand.register().execution("plugin").action("list").option("info", "i").option("all", "a").option("dir", "d").argument("dir", new StringCommandArgumentType()).executor(
+                (args) -> System.out.println("list all plugin info of dir: " + args[0])
+        );
+
+
+        skyCommand.getCommandRegister().getRootCommandNode().getChildren().get("plugin").getChildren().get("list").getChildren().get("info").getChildren().get("all").getChildren().get("dir").getChildren().get("dir").getCommandExecutor().execute("D:\\tmp\\jars");
+
     }
 
 }
