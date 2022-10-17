@@ -1,5 +1,7 @@
 package com.skyline.command;
 
+import com.skyline.command.command.InnerCommand;
+import com.skyline.command.config.Config;
 import com.skyline.command.manage.CommandBuilder;
 import com.skyline.command.manage.CommandDispatcher;
 import com.skyline.command.manage.CommandRegister;
@@ -15,6 +17,10 @@ import com.skyline.command.manage.IOHandler;
  */
 public class SkyCommand {
     /**
+     * 是否正在运行中
+     */
+    private boolean running;
+    /**
      * 指令输入管理
      */
     private final IOHandler ioHandler;
@@ -27,11 +33,11 @@ public class SkyCommand {
      */
     private volatile static SkyCommand SKY_COMMAND;
 
-    private static SkyCommand createSkyCommand() {
-        return createSkyCommand(new IOHandler(), new CommandDispatcher());
+    public static SkyCommand getSkyCommand() {
+        return getSkyCommand(new IOHandler(), new CommandDispatcher());
     }
 
-    private static SkyCommand createSkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
+    public static SkyCommand getSkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
         if (SKY_COMMAND == null) {
             synchronized (SkyCommand.class) {
                 if (SKY_COMMAND == null) {
@@ -48,23 +54,23 @@ public class SkyCommand {
         this.commandDispatcher = new CommandDispatcher();
     }
 
-    private SkyCommand(final String commandDefinitionPackage) {
-        this.ioHandler = new IOHandler();
-        this.commandDispatcher = new CommandDispatcher();
-    }
-
     private SkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
         this.ioHandler = ioHandler;
         this.commandDispatcher = commandDispatcher;
     }
 
-    public static SkyCommand startSkyCommand() {
-        SkyCommand skyCommand = createSkyCommand();
+    public void startSkyCommand() {
+        if (running) {
+            throw new RuntimeException("Command plugin is running.");
+        }
 
-        Thread thread = new Thread(new InnerRunner(skyCommand));
+        new InnerCommand(this).defineCommand();
+        Config.loadConfig();
+
+        Thread thread = new Thread(new InnerRunner(this));
         thread.start();
 
-        return skyCommand;
+        running = true;
     }
 
     public CommandBuilder register() {

@@ -10,9 +10,13 @@ import com.skyline.command.argument.StringCommandArgumentType;
  */
 public class DemoCommand {
 
-    public static final SkyCommand skyCommand = SkyCommand.startSkyCommand();
+    private final SkyCommand skyCommand;
 
-    public static void defineCommand() {
+    public DemoCommand(SkyCommand skyCommand) {
+        this.skyCommand = skyCommand;
+    }
+
+    public void defineCommand() {
         skyCommand.register().execution("plugin").action("load").option("dir", "d").argument("dir", new StringCommandArgumentType()).executor(
                 (args) -> System.out.println("load plugin from dir: " + args[0])
         );

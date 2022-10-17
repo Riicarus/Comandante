@@ -22,6 +22,12 @@ version: 1.1
 - `option` 后可以搭配 `option` 或 `argument`
 - `argument` 后可以搭配 `option`
 
+> tips:  
+> 如果几个连续的短指令写在一起, 可以省略前面的 `-`, 然后将它们合并到一个短指令中.  
+> 如:  
+> `plugin list -i -a -d dir` 可以写为 `plugin list -iad dir`  
+> 插件会自动将它们解析为没有缩写的状态.
+
 ### 简单使用
 先获取 `SkyCommand` 单例:  
 ```java
@@ -44,3 +50,6 @@ public static void defineCommand() {
 ```java
 defineCommand();
 ```
+
+## 扩展
+...
