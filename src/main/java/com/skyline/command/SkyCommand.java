@@ -34,7 +34,11 @@ public class SkyCommand {
         return getSkyCommand(new ConsoleIOHandler(), new CommandDispatcher());
     }
 
-    public static SkyCommand getSkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
+    public static SkyCommand getSkyCommand(final IOHandler ioHandler) {
+        return getSkyCommand(ioHandler, new CommandDispatcher());
+    }
+
+    private static SkyCommand getSkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
         if (SKY_COMMAND == null) {
             synchronized (SkyCommand.class) {
                 if (SKY_COMMAND == null) {

@@ -1,7 +1,5 @@
 package com.skyline.command.manage;
 
-import java.util.Scanner;
-
 /**
  * [FEATURE INFO]<br/>
  * IO 设置

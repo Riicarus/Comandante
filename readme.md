@@ -29,27 +29,73 @@ version: 1.1
 > 插件会自动将它们解析为没有缩写的状态.
 
 ### 简单使用
-先获取 `SkyCommand` 单例:  
+由于 `SkyCommand` 是一个获取到的实例是一个单例, 我们需要在指令定义类里面先添加相关依赖和构造函数:  
 ```java
-public static final SkyCommand skyCommand = SkyCommand.startSkyCommand();
-```
-然后进行指令注册:  
-```java
-public static void defineCommand() {
-    skyCommand.register()
-            .execution("plugin")
-            .action("load")
-            .option("dir", "d")
-            .argument("dir", new StringCommandArgumentType())
-            .executor(
-            (args) -> System.out.println("load plugin from dir: " + args[0])
-    );
+public class DemoCommand {
+
+    private final SkyCommand skyCommand;
+
+    public DemoCommand(SkyCommand skyCommand) {
+        this.skyCommand = skyCommand;
+    }
 }
 ```
-最后调用指令方法完成注册:  
+然后定义一个指令定义方法:  
 ```java
-defineCommand();
+public class DemoCommand {
+      // ...
+
+      public void defineCommand() {
+        skyCommand.register().execution("plugin")
+        .action("load")
+        .option("dir", "d").argument("dir", new StringCommandArgumentType())
+        .executor(
+                (args) -> System.out.println("load plugin from dir: " + args[0])
+        );
+}
 ```
+启动指令服务:  
+```java
+public class TestMain {
+
+    public static void main(String[] args) {
+        // 获取到 SkyCommand 单例对象
+        SkyCommand skyCommand = SkyCommand.getSkyCommand();
+        // 启动命令行服务
+        skyCommand.startSkyCommand();
+        // 将自定义的指令加载进命令行注册器里
+        new DemoCommand(skyCommand).defineCommand();
+    }
+}
+```
+至此, 就可以在控制台输入相关指令并得到对应服务了.
 
 ## 扩展
-...
+### IO 扩展
+SkyCommand 默认使用 `ConsoleIOHandler` 进行 I/O 操作, 包括指令的读入和执行结果或错误信息的输出.  
+如果需要自定义 I/O, 可以实现 `com.skyline.command.manage.IOHandler` 接口, `IOHandler#doGetCommand()` 方法用于获取输入的指令, `IOHandler#redirectOutput()` 用于设置重定向输出, 我们建议 `System.out#setOut()` 方法来重定向 `System.out` 相关 print 方法的输出位置.  
+
+## 内置指令
+目前 SkyCommand 有如下内置指令:  
+```bash
+command --version
+command --author
+command --doc
+command --info
+command --help
+```
+对所有已加载指令(可以是自定义的指令), 在其 `exe` 节点上, 我们都为其装配了对应的 help 指令, 如:  
+```bash
+command --help
+exe --help
+```
+help 指令会输出该指令节点下所有的指令搭配, 其中 `option` 节点会用 `[]` 括起来, `argument` 节点会用 `<>` 括起来, 如:  
+```bash
+command -h
+Format: exe act sub-act [opt] <arg>
+command [help]
+command [author]
+command [doc]
+command [version]
+command [info]
+```
