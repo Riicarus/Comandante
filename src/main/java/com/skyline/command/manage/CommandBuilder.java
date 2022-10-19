@@ -3,6 +3,7 @@ package com.skyline.command.manage;
 import com.skyline.command.argument.CommandArgumentType;
 import com.skyline.command.exception.CommandBuildException;
 import com.skyline.command.executor.CommandExecutor;
+import com.skyline.command.executor.CommandHelper;
 import com.skyline.command.tree.*;
 
 /**
@@ -41,6 +42,13 @@ public class CommandBuilder {
 
             if (currentNode.getExecutions() != null) {
                 currentNode = currentNode.getExecutions().get(name);
+
+                // 添加 --help/-h 指令支持
+                OptionCommandNode helpOptionNode = new OptionCommandNode(null, "help", "h");
+                helpOptionNode.setCommandExecutor(new CommandHelper(currentNode));
+                currentNode.addChildNode(helpOptionNode);
+                currentNode.addOptionNode(helpOptionNode);
+
                 return this;
             }
 
