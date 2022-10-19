@@ -52,6 +52,7 @@ public class DemoCommand {
         .executor(
                 (args) -> System.out.println("load plugin from dir: " + args[0])
         );
+      }
 }
 ```
 启动指令服务:  
