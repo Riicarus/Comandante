@@ -2,10 +2,7 @@ package com.skyline.command;
 
 import com.skyline.command.command.InnerCommand;
 import com.skyline.command.config.Config;
-import com.skyline.command.manage.CommandBuilder;
-import com.skyline.command.manage.CommandDispatcher;
-import com.skyline.command.manage.CommandRegister;
-import com.skyline.command.manage.IOHandler;
+import com.skyline.command.manage.*;
 
 /**
  * [FEATURE INFO]<br/>
@@ -34,7 +31,7 @@ public class SkyCommand {
     private volatile static SkyCommand SKY_COMMAND;
 
     public static SkyCommand getSkyCommand() {
-        return getSkyCommand(new IOHandler(), new CommandDispatcher());
+        return getSkyCommand(new ConsoleIOHandler(), new CommandDispatcher());
     }
 
     public static SkyCommand getSkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
@@ -50,7 +47,7 @@ public class SkyCommand {
     }
 
     private SkyCommand() {
-        this.ioHandler = new IOHandler();
+        this.ioHandler = new ConsoleIOHandler();
         this.commandDispatcher = new CommandDispatcher();
     }
 

@@ -10,16 +10,10 @@ import java.util.Scanner;
  * @create 2022-10-15 16:31
  * @since 1.0.0
  */
-public class IOHandler {
+public interface IOHandler {
 
-    private final Scanner scanner = new Scanner(System.in);
+    String doGetCommand();
 
-    public String doGetCommand() {
-        if (scanner.hasNext()) {
-            return scanner.nextLine();
-        }
-
-        return null;
-    }
+    void redirectOutput();
 
 }
