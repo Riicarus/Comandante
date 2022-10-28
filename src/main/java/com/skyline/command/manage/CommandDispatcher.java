@@ -134,9 +134,11 @@ public class CommandDispatcher {
                 commandPart = commandPart.substring(SHORT_OPTION_PREFIX_STRING.length());
 
                 for (CommandNode child : commandNode.getChildren().values()) {
-                    if (((OptionCommandNode) child).getAlias().equals(commandPart)) {
-                        node = child;
-                        break;
+                    if (child instanceof OptionCommandNode) {
+                        if (((OptionCommandNode) child).getAlias().equals(commandPart)) {
+                            node = child;
+                            break;
+                        }
                     }
                 }
             }
@@ -152,9 +154,11 @@ public class CommandDispatcher {
                 isOptionOrArg = true;
 
                 for (CommandNode child : commandNode.getChildren().values()) {
-                    if (((OptionCommandNode) child).getAlias().equals(commandPart)) {
-                        node = child;
-                        break;
+                    if (child instanceof OptionCommandNode) {
+                        if (((OptionCommandNode) child).getAlias().equals(commandPart)) {
+                            node = child;
+                            break;
+                        }
                     }
                 }
             } else {
