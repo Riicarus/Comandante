@@ -11,12 +11,10 @@ import com.skyline.command.config.Config;
  * @create 2022-10-17 17:57
  * @since 1.0.0
  */
-public class InnerCommand {
-
-    private final SkyCommand SKY_COMMAND;
+public class InnerCommand extends BaseCommand {
 
     public InnerCommand(SkyCommand SKY_COMMAND) {
-        this.SKY_COMMAND = SKY_COMMAND;
+        super(SKY_COMMAND);
     }
 
     public void defineCommand() {
