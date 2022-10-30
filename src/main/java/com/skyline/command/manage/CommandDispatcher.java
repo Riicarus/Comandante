@@ -87,17 +87,6 @@ public class CommandDispatcher {
             }
         }
 
-        for (int i = 0; i < commandPartList.size(); i++) {
-            String commandPart = commandPartList.get(i);
-            // 处理 short-option
-            if (!commandPart.startsWith(LONG_OPTION_PREFIX_STRING) && commandPart.startsWith(SHORT_OPTION_PREFIX_STRING)) {
-                String tmp = commandPart.substring(SHORT_OPTION_PREFIX_STRING.length());
-                if (tmp.length() > 1) {
-                    commandPartList.add(i + 1, SHORT_OPTION_PREFIX_STRING + tmp);
-                }
-            }
-        }
-
         return commandPartList.toArray(new String[]{});
     }
 
