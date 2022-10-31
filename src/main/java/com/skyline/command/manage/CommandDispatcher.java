@@ -94,6 +94,12 @@ public class CommandDispatcher {
         return commandPartList.toArray(new String[]{});
     }
 
+    /**
+     * 分割指令字符串, 将字符串按照指令分割符分开, 但是被参数括符括起来的部分不被分开, 认定为一个参数
+     *
+     * @param commandStr 指令字符串
+     * @return 分割后的字符串数组
+     */
     private String[] split(String commandStr) {
         List<Integer> indexOfArgumentQuote = new ArrayList<>();
         List<String> commandRawParts = new ArrayList<>();
