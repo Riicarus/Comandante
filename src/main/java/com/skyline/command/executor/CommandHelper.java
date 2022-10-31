@@ -3,7 +3,9 @@ package com.skyline.command.executor;
 import com.skyline.command.exception.CommandExecutionException;
 import com.skyline.command.tree.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * [FEATURE INFO]<br/>
@@ -32,15 +34,19 @@ public class CommandHelper implements CommandExecutor {
         }
         System.out.println("Format: exe act sub-act [opt] <arg>");
 
-        listAllCommand(commandNode, new StringBuilder());
+        List<String> helpCommands = new ArrayList<>();
+        listAllCommand(commandNode, new StringBuilder(), helpCommands);
+        helpCommands.forEach(System.out::println);
     }
 
-    private void listAllCommand(CommandNode commandNode, StringBuilder helpStr) {
+    private void listAllCommand(CommandNode commandNode, StringBuilder helpStr, List<String> helpCommands) {
+        // 当前节点为空, 将 helpStr 加入 list, 返回(一般不会出现此类情况)
         if (commandNode == null) {
-            System.out.println(helpStr.toString());
+            helpCommands.add(helpStr.toString());
             return;
         }
 
+        // 根据节点类型, 将各自部分的 名称和前后缀加入 helpStr
         if (commandNode instanceof ExecutionCommandNode) {
             helpStr.append(commandNode.getName());
         } else if (commandNode instanceof ActionCommandNode) {
@@ -51,15 +57,22 @@ public class CommandHelper implements CommandExecutor {
             helpStr.append(" ").append(ARG_QUOTE_LEFT).append(commandNode.getName()).append(ARG_QUOTE_RIGHT);
         }
 
+        // 如果当前节点没有后继节点了, 就将 helpStr 加入 list, 返回(一般来说尾节点都是可执行的指令节点)
         if (commandNode.getChildren().isEmpty()) {
-            System.out.println(helpStr.toString());
+            helpCommands.add(helpStr.toString());
             return;
+        }
+
+        // 当前节点不是尾节点, 但是注册有指令执行器, 同样加入 helpStr
+        if (commandNode.getCommandExecutor() != null) {
+            helpCommands.add(helpStr.toString());
         }
 
         String str = helpStr.toString();
         HashMap<String, CommandNode> children = commandNode.getChildren();
+        // 遍历每一个子节点, 继续向下搜索, 更新 helpStr
         for (CommandNode node : children.values()) {
-            listAllCommand(node, new StringBuilder(str));
+            listAllCommand(node, new StringBuilder(str), helpCommands);
         }
     }
 
