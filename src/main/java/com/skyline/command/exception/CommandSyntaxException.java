@@ -15,4 +15,8 @@ public class CommandSyntaxException extends RuntimeException {
     public CommandSyntaxException(Throwable cause) {
         super(ERROR_MESSAGE, cause);
     }
+
+    public CommandSyntaxException(String message) {
+        super(ERROR_MESSAGE + " " + message);
+    }
 }

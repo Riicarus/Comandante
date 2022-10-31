@@ -1,12 +1,14 @@
 package com.skyline.command.manage;
 
 import com.skyline.command.exception.CommandNotFoundException;
+import com.skyline.command.exception.CommandSyntaxException;
 import com.skyline.command.executor.CommandExecutor;
 import com.skyline.command.tree.CommandNode;
 import com.skyline.command.tree.OptionCommandNode;
 import com.skyline.command.tree.RootCommandNode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,6 +24,8 @@ public class CommandDispatcher {
     private static final String COMMAND_PART_SPLIT_STRING = " ";
     private static final String SHORT_OPTION_PREFIX_STRING = "-";
     private static final String LONG_OPTION_PREFIX_STRING = "--";
+    private static final String ARGUMENT_QUOTE = "'";
+    private static final char ESCAPE_MODIFIER = '\\';
 
     private final CommandRegister commandRegister;
 
@@ -65,7 +69,7 @@ public class CommandDispatcher {
      * @return 指令部分字符串数组
      */
     private String[] parseCommand(final String commandStr) {
-        String[] commandRawParts = commandStr.split(COMMAND_PART_SPLIT_STRING);
+        String[] commandRawParts = split(commandStr);
 
         List<String> commandPartList = new ArrayList<>();
 
@@ -88,6 +92,57 @@ public class CommandDispatcher {
         }
 
         return commandPartList.toArray(new String[]{});
+    }
+
+    private String[] split(String commandStr) {
+        List<Integer> indexOfArgumentQuote = new ArrayList<>();
+        List<String> commandRawParts = new ArrayList<>();
+
+        // 获取参数括符
+        int index = -1;
+        while ((index = commandStr.indexOf(ARGUMENT_QUOTE, index + 1)) != -1) {
+            if (commandStr.charAt(index - 1) != ESCAPE_MODIFIER) {
+                indexOfArgumentQuote.add(index);
+            } else {
+                // 去除掉转义字符
+                commandStr = commandStr.substring(0, index - 1) + commandStr.substring(index);
+                // 这里注意要回退一个字符
+                index --;
+            }
+        }
+
+        // 没有参数括符
+        if (indexOfArgumentQuote.size() == 0) {
+            return commandStr.split(COMMAND_PART_SPLIT_STRING);
+        }
+
+        // 参数括符为奇数
+        if (indexOfArgumentQuote.size() % 2 == 1) {
+            throw new CommandSyntaxException("The number of argument quote should be even");
+        }
+
+        // 分割指令
+        for (int i = 0; i < indexOfArgumentQuote.size() / 2; i++) {
+            int startIndex = (i == 0) ? 0 : indexOfArgumentQuote.get(2 * i - 1) + 1;
+            String simpleCommandPart = commandStr.substring(startIndex, indexOfArgumentQuote.get(2 * i));
+
+            // 普通类型的就直接按 " " 分割放入
+            commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SPLIT_STRING)));
+
+            String quotedArgumentPart =
+                    commandStr.substring(indexOfArgumentQuote.get(2 * i) + 1, indexOfArgumentQuote.get(2 * i + 1));
+
+            // 被括起来的就一并放入, 表示一个参数
+            commandRawParts.add(quotedArgumentPart);
+        }
+
+        // 注意还可能后面有一段指令
+        String simpleCommandPart = commandStr.substring(indexOfArgumentQuote.get(indexOfArgumentQuote.size() - 1) + 1);
+        if (!simpleCommandPart.isEmpty()) {
+            commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SPLIT_STRING)));
+        }
+
+        return commandRawParts.toArray(new String[]{});
     }
 
     /**
