@@ -3,6 +3,8 @@ package com.skyline.command.command;
 import com.skyline.command.SkyCommand;
 import com.skyline.command.config.Config;
 
+import java.util.Set;
+
 /**
  * [FEATURE INFO]<br/>
  * 内置指令
@@ -34,5 +36,13 @@ public class InnerCommand extends BaseCommand {
                     System.out.println(Config.getDoc());
                 }
         );
+        SKY_COMMAND.register().execution("command").action("list")
+                .option("all", "a")
+                .executor(
+                        args -> {
+                            Set<String> commandSet = SKY_COMMAND.listAllExecutionCommand();
+                            commandSet.forEach(System.out::println);
+                        }
+                );
     }
 }

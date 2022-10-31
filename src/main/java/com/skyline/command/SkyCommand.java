@@ -3,6 +3,11 @@ package com.skyline.command;
 import com.skyline.command.command.InnerCommand;
 import com.skyline.command.config.Config;
 import com.skyline.command.manage.*;
+import com.skyline.command.tree.ExecutionCommandNode;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * [FEATURE INFO]<br/>
@@ -80,6 +85,11 @@ public class SkyCommand {
 
     public CommandRegister getCommandRegister() {
         return commandDispatcher.getCommandRegister();
+    }
+
+    public Set<String> listAllExecutionCommand() {
+        HashMap<String, ExecutionCommandNode> executions = getCommandRegister().getRootCommandNode().getExecutions();
+        return executions == null ? new HashSet<>() : executions.keySet();
     }
 
     static class InnerRunner implements Runnable {
