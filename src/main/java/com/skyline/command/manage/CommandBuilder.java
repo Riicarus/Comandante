@@ -20,18 +20,9 @@ public class CommandBuilder {
 
     private CommandNode currentNode;
 
-    private CommandExecutor commandExecutor;
-
     public CommandBuilder(final RootCommandNode rootCommandNode) {
         this.rootCommandNode = rootCommandNode;
         this.currentNode = rootCommandNode;
-    }
-
-    public CommandBuilder(final RootCommandNode rootCommandNode,
-                          final CommandExecutor commandExecutor) {
-        this.rootCommandNode = rootCommandNode;
-        this.currentNode = rootCommandNode;
-        this.commandExecutor = commandExecutor;
     }
 
     public CommandBuilder execution(String name) {
@@ -143,13 +134,5 @@ public class CommandBuilder {
 
     public RootCommandNode getRootCommandNode() {
         return rootCommandNode;
-    }
-
-    public CommandExecutor getCommandExecutor() {
-        return commandExecutor;
-    }
-
-    public void setCommandExecutor(CommandExecutor commandExecutor) {
-        this.commandExecutor = commandExecutor;
     }
 }
