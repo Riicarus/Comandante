@@ -2,12 +2,14 @@ package com.skyline.command;
 
 import com.skyline.command.command.InnerCommand;
 import com.skyline.command.config.Config;
+import com.skyline.command.exception.CommandLoadException;
 import com.skyline.command.manage.*;
 import com.skyline.command.tree.ExecutionCommandNode;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * [FEATURE INFO]<br/>
@@ -21,11 +23,11 @@ public class SkyCommand {
     /**
      * 是否正在运行中
      */
-    private boolean running;
+    private final AtomicInteger running = new AtomicInteger(0);
     /**
-     * 指令输入管理
+     * 最大运行数量
      */
-    private final IOHandler ioHandler;
+    private final int maxRunning;
     /**
      * 指令分发器
      */
@@ -36,18 +38,18 @@ public class SkyCommand {
     private volatile static SkyCommand SKY_COMMAND;
 
     public static SkyCommand getSkyCommand() {
-        return getSkyCommand(new ConsoleIOHandler(), new CommandDispatcher());
+        return getSkyCommand(new CommandDispatcher(), 6);
     }
 
-    public static SkyCommand getSkyCommand(final IOHandler ioHandler) {
-        return getSkyCommand(ioHandler, new CommandDispatcher());
+    public static SkyCommand getSkyCommand(int maxRunning) {
+        return getSkyCommand(new CommandDispatcher(), maxRunning);
     }
 
-    private static SkyCommand getSkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
+    private static SkyCommand getSkyCommand(final CommandDispatcher commandDispatcher, int maxRunning) {
         if (SKY_COMMAND == null) {
             synchronized (SkyCommand.class) {
                 if (SKY_COMMAND == null) {
-                    SKY_COMMAND = new SkyCommand(ioHandler, commandDispatcher);
+                    SKY_COMMAND = new SkyCommand(commandDispatcher, maxRunning);
                 }
             }
         }
@@ -55,28 +57,23 @@ public class SkyCommand {
         return SKY_COMMAND;
     }
 
-    private SkyCommand() {
-        this.ioHandler = new ConsoleIOHandler();
-        this.commandDispatcher = new CommandDispatcher();
-    }
-
-    private SkyCommand(final IOHandler ioHandler, final CommandDispatcher commandDispatcher) {
-        this.ioHandler = ioHandler;
+    private SkyCommand(final CommandDispatcher commandDispatcher, int maxRunning) {
         this.commandDispatcher = commandDispatcher;
+        this.maxRunning = maxRunning;
     }
 
-    public void startSkyCommand() {
-        if (running) {
-            throw new RuntimeException("Command plugin is running.");
+    public void startSkyCommand(final IOHandler ioHandler) {
+        if (running.get() >= maxRunning) {
+            throw new CommandLoadException("已达到最大运行数量. ");
         }
 
         new InnerCommand(this).defineCommand();
         Config.loadConfig();
 
-        Thread thread = new Thread(new InnerRunner(this));
+        Thread thread = new Thread(new InnerRunner(this, ioHandler));
         thread.start();
 
-        running = true;
+        running.incrementAndGet();
     }
 
     public CommandBuilder register() {
@@ -88,7 +85,7 @@ public class SkyCommand {
     }
 
     public Set<String> listAllExecutionCommand() {
-        HashMap<String, ExecutionCommandNode> executions = getCommandRegister().getRootCommandNode().getExecutions();
+        ConcurrentHashMap<String, ExecutionCommandNode> executions = getCommandRegister().getRootCommandNode().getExecutions();
         return executions == null ? new HashSet<>() : executions.keySet();
     }
 
@@ -96,15 +93,18 @@ public class SkyCommand {
 
         private final SkyCommand skyCommand;
 
-        public InnerRunner(SkyCommand skyCommand) {
+        private final IOHandler ioHandler;
+
+        public InnerRunner(SkyCommand skyCommand, IOHandler ioHandler) {
             this.skyCommand = skyCommand;
+            this.ioHandler = ioHandler;
         }
 
         @Override
         public void run() {
             String commandStr;
 
-            while ((commandStr = skyCommand.ioHandler.doGetCommand()) != null) {
+            while ((commandStr = ioHandler.doGetCommand()) != null) {
                 try {
                     skyCommand.commandDispatcher.dispatch(commandStr);
                 } catch (Exception e) {

@@ -14,4 +14,7 @@ public class CommandLoadException extends RuntimeException {
         super(message, cause);
     }
 
+    public CommandLoadException(String message) {
+        super(message);
+    }
 }

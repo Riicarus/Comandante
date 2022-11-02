@@ -3,8 +3,8 @@ package com.skyline.command.tree;
 import com.skyline.command.argument.CommandArgumentType;
 import com.skyline.command.executor.CommandExecutor;
 
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -22,14 +22,14 @@ public class ArgumentCommandNode<T> extends CommandNode {
                                final CommandExecutor commandExecutor,
                                final CommandArgumentType<T> type) {
         super(name, null, null,
-                null, new HashMap<>(),
+                null, new ConcurrentHashMap<>(),
                 null, commandExecutor);
 
         this.type = type;
     }
 
     @Override
-    public HashMap<String, ActionCommandNode> getSubActions() {
+    public ConcurrentHashMap<String, ActionCommandNode> getSubActions() {
         return null;
     }
 

@@ -3,7 +3,7 @@ package com.skyline.command.tree;
 import com.skyline.command.exception.CommandBuildException;
 import com.skyline.command.executor.CommandExecutor;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -17,26 +17,26 @@ public abstract class CommandNode {
 
     private final String name;
 
-    private final HashMap<String, CommandNode> children = new HashMap<>();
+    private final ConcurrentHashMap<String, CommandNode> children = new ConcurrentHashMap<>();
 
-    private final HashMap<String, ExecutionCommandNode> executions;
+    private final ConcurrentHashMap<String, ExecutionCommandNode> executions;
 
-    private final HashMap<String, ActionCommandNode> actions;
+    private final ConcurrentHashMap<String, ActionCommandNode> actions;
 
-    private final HashMap<String, ActionCommandNode> subActions;
+    private final ConcurrentHashMap<String, ActionCommandNode> subActions;
 
-    private final HashMap<String, OptionCommandNode> options;
+    private final ConcurrentHashMap<String, OptionCommandNode> options;
 
-    private final HashMap<String, ArgumentCommandNode<?>> arguments;
+    private final ConcurrentHashMap<String, ArgumentCommandNode<?>> arguments;
 
-    private CommandExecutor commandExecutor;
+    private volatile CommandExecutor commandExecutor;
 
     public CommandNode(final String name,
-                       HashMap<String, ExecutionCommandNode> executions,
-                       HashMap<String, ActionCommandNode> actions,
-                       HashMap<String, ActionCommandNode> subActions,
-                       HashMap<String, OptionCommandNode> options,
-                       HashMap<String, ArgumentCommandNode<?>> arguments,
+                       ConcurrentHashMap<String, ExecutionCommandNode> executions,
+                       ConcurrentHashMap<String, ActionCommandNode> actions,
+                       ConcurrentHashMap<String, ActionCommandNode> subActions,
+                       ConcurrentHashMap<String, OptionCommandNode> options,
+                       ConcurrentHashMap<String, ArgumentCommandNode<?>> arguments,
                        CommandExecutor commandExecutor) {
         this.name = name;
         this.executions = executions;
@@ -124,11 +124,11 @@ public abstract class CommandNode {
         return name;
     }
 
-    public final HashMap<String, CommandNode> getChildren() {
+    public final ConcurrentHashMap<String, CommandNode> getChildren() {
         return children;
     }
 
-    public final HashMap<String, ExecutionCommandNode> getExecutions() {
+    public final ConcurrentHashMap<String, ExecutionCommandNode> getExecutions() {
         if (this instanceof RootCommandNode) {
             return executions;
         }
@@ -136,7 +136,7 @@ public abstract class CommandNode {
         return null;
     }
 
-    public final HashMap<String, ActionCommandNode> getActions() {
+    public final ConcurrentHashMap<String, ActionCommandNode> getActions() {
         if (this instanceof ExecutionCommandNode) {
             return actions;
         }
@@ -144,9 +144,9 @@ public abstract class CommandNode {
         return null;
     }
 
-    public abstract HashMap<String, ActionCommandNode> getSubActions();
+    public abstract ConcurrentHashMap<String, ActionCommandNode> getSubActions();
 
-    protected final HashMap<String, ActionCommandNode> doGetSubActions() {
+    protected final ConcurrentHashMap<String, ActionCommandNode> doGetSubActions() {
         if (this instanceof ActionCommandNode) {
             return subActions;
         }
@@ -154,7 +154,7 @@ public abstract class CommandNode {
         return null;
     }
 
-    public final HashMap<String, OptionCommandNode> getOptions() {
+    public final ConcurrentHashMap<String, OptionCommandNode> getOptions() {
         if (this instanceof ExecutionCommandNode ||
                 this instanceof ActionCommandNode ||
                 this instanceof OptionCommandNode ||
@@ -165,7 +165,7 @@ public abstract class CommandNode {
         return null;
     }
 
-    public final HashMap<String, ArgumentCommandNode<?>> getArguments() {
+    public final ConcurrentHashMap<String, ArgumentCommandNode<?>> getArguments() {
         if (this instanceof OptionCommandNode) {
             return arguments;
         }
@@ -178,6 +178,14 @@ public abstract class CommandNode {
     }
 
     public void setCommandExecutor(CommandExecutor commandExecutor) {
+        setCommandExecutor(commandExecutor, false);
+    }
+
+    public void setCommandExecutor(CommandExecutor commandExecutor, boolean cover) {
+        if (this.commandExecutor != null && !cover) {
+            return;
+        }
+
         this.commandExecutor = commandExecutor;
     }
 }

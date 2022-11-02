@@ -36,7 +36,7 @@ public class CommandBuilder {
 
                 // 添加 --help/-h 指令支持
                 OptionCommandNode helpOptionNode = new OptionCommandNode(null, "help", "h");
-                helpOptionNode.setCommandExecutor(new CommandHelper(currentNode));
+                helpOptionNode.setCommandExecutor(new CommandHelper(currentNode), true);
                 currentNode.addChildNode(helpOptionNode);
                 currentNode.addOptionNode(helpOptionNode);
 

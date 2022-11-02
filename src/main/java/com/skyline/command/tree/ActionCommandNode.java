@@ -2,8 +2,8 @@ package com.skyline.command.tree;
 
 import com.skyline.command.executor.CommandExecutor;
 
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -21,14 +21,14 @@ public class ActionCommandNode extends CommandNode {
                              final String name,
                              final boolean isSubAction) {
         super(name, null, null,
-                new HashMap<>(), new HashMap<>(),
+                new ConcurrentHashMap<>(), new ConcurrentHashMap<>(),
                 null, commandExecutor);
 
         this.isSubAction = isSubAction;
     }
 
     @Override
-    public final HashMap<String, ActionCommandNode> getSubActions() {
+    public final ConcurrentHashMap<String, ActionCommandNode> getSubActions() {
         if (!isSubAction()) {
             return doGetSubActions();
         }

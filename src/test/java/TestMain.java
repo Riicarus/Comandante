@@ -1,4 +1,5 @@
 import com.skyline.command.SkyCommand;
+import com.skyline.command.manage.ConsoleIOHandler;
 
 /**
  * [FEATURE INFO]<br/>
@@ -12,7 +13,7 @@ public class TestMain {
     public static void main(String[] args) {
 
         SkyCommand skyCommand = SkyCommand.getSkyCommand();
-        skyCommand.startSkyCommand();
+        skyCommand.startSkyCommand(new ConsoleIOHandler());
         new DemoCommand(skyCommand).defineCommand();
 
     }

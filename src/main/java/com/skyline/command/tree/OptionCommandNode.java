@@ -2,8 +2,8 @@ package com.skyline.command.tree;
 
 import com.skyline.command.executor.CommandExecutor;
 
-import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -19,14 +19,14 @@ public class OptionCommandNode extends CommandNode {
 
     public OptionCommandNode(final CommandExecutor commandExecutor, final String name, final String alias) {
         super(name, null, null,
-                null, new HashMap<>(),
-                new HashMap<>(), commandExecutor);
+                null, new ConcurrentHashMap<>(),
+                new ConcurrentHashMap<>(), commandExecutor);
 
         this.alias = alias;
     }
 
     @Override
-    public HashMap<String, ActionCommandNode> getSubActions() {
+    public ConcurrentHashMap<String, ActionCommandNode> getSubActions() {
         return null;
     }
 

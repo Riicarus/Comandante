@@ -1,6 +1,6 @@
 package com.skyline.command.tree;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -15,13 +15,13 @@ public class RootCommandNode extends CommandNode {
     private static final String ROOT_NAME = "root";
 
     public RootCommandNode() {
-        super(ROOT_NAME, new HashMap<>(), null,
+        super(ROOT_NAME, new ConcurrentHashMap<>(), null,
                 null, null,
                 null, null);
     }
 
     @Override
-    public HashMap<String, ActionCommandNode> getSubActions() {
+    public ConcurrentHashMap<String, ActionCommandNode> getSubActions() {
         return null;
     }
 }

@@ -4,8 +4,8 @@ import com.skyline.command.exception.CommandExecutionException;
 import com.skyline.command.tree.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -69,7 +69,7 @@ public class CommandHelper implements CommandExecutor {
         }
 
         String str = helpStr.toString();
-        HashMap<String, CommandNode> children = commandNode.getChildren();
+        ConcurrentHashMap<String, CommandNode> children = commandNode.getChildren();
         // 遍历每一个子节点, 继续向下搜索, 更新 helpStr
         for (CommandNode node : children.values()) {
             listAllCommand(node, new StringBuilder(str), helpCommands);
