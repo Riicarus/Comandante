@@ -1,5 +1,6 @@
 package com.skyline.command.config;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -27,14 +28,25 @@ public class Config {
     public static void loadConfig() {
         Properties properties = new Properties();
 
-        InputStream in;
-        InputStreamReader reader;
+        InputStream in = null;
+        InputStreamReader reader = null;
         try {
             in = Config.class.getClassLoader().getResourceAsStream(CONFIG_PATH);
             reader = new InputStreamReader(Objects.requireNonNull(in), StandardCharsets.UTF_8);
             properties.load(reader);
         } catch (Exception e) {
             throw new RuntimeException("从路径: " + CONFIG_PATH + " 加载配置文件失败.");
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException e) {
+                System.out.println("关闭配置加载流失败");
+            }
         }
 
         Config.version = properties.getProperty("version");
