@@ -17,7 +17,7 @@ public class IntegerCommandArgumentType extends CommandArgumentType<Integer> {
         try {
             return Integer.parseInt(arg);
         } catch (NumberFormatException e) {
-            throw new CommandSyntaxException(e.getCause());
+            throw new CommandSyntaxException("arg[" + arg + "] cannot be converted to Integer.", e.getCause());
         }
     }
 

@@ -3,6 +3,7 @@ package com.skyline.command.manage;
 import com.skyline.command.exception.CommandNotFoundException;
 import com.skyline.command.exception.CommandSyntaxException;
 import com.skyline.command.executor.CommandExecutor;
+import com.skyline.command.tree.ArgumentCommandNode;
 import com.skyline.command.tree.CommandNode;
 import com.skyline.command.tree.OptionCommandNode;
 import com.skyline.command.tree.RootCommandNode;
@@ -167,11 +168,11 @@ public class CommandDispatcher {
         String commandPart = commandParts[index];
 
         if (isOptionOrArg && !commandPart.startsWith(SHORT_OPTION_PREFIX_STRING)) {
-            // argument
-            args.add(commandPart);
-
             // 这里要求: 参数节点的名称必须和 对应 option 节点的 long-option 名称相同
             node = commandNode.getChildren().get(commandNode.getName());
+
+            // argument
+            args.add(((ArgumentCommandNode<?>) node).parse(commandPart));
         } else if (isOptionOrArg) {
             // option
             if (commandPart.startsWith(LONG_OPTION_PREFIX_STRING)) {

@@ -37,6 +37,10 @@ public class ArgumentCommandNode<T> extends CommandNode {
         return type;
     }
 
+    public T parse(String arg) {
+        return getType().parse(arg);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
