@@ -35,7 +35,7 @@ public class Config {
             reader = new InputStreamReader(Objects.requireNonNull(in), StandardCharsets.UTF_8);
             properties.load(reader);
         } catch (Exception e) {
-            throw new RuntimeException("从路径: " + CONFIG_PATH + " 加载配置文件失败.");
+            throw new RuntimeException("Load config file from path: " + CONFIG_PATH + " failed.");
         } finally {
             try {
                 if (reader != null) {
@@ -45,7 +45,7 @@ public class Config {
                     in.close();
                 }
             } catch (IOException e) {
-                System.out.println("关闭配置加载流失败");
+                System.out.println("Close stream failed.");
             }
         }
 
