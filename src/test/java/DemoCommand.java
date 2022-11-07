@@ -21,7 +21,8 @@ public class DemoCommand {
     public void defineCommand() {
         skyCommand.register().execution("plugin").action("load")
                 .option("dir", "d").argument("dir", new StringCommandArgumentType()).executor(
-                (args) -> System.out.println("load plugin from dir: " + args[0])
+                (args) -> System.out.println("load plugin from dir: " + args[0]),
+                "从文件夹加载插件"
         );
 
         skyCommand.register().execution("plugin").action("unload")

@@ -17,6 +17,8 @@ public abstract class CommandNode {
 
     private final String name;
 
+    private String usage = "";
+
     private final ConcurrentHashMap<String, CommandNode> children = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<String, ExecutionCommandNode> executions;
@@ -45,6 +47,14 @@ public abstract class CommandNode {
         this.options = options;
         this.arguments = arguments;
         this.commandExecutor = commandExecutor;
+    }
+
+    public String getUsage() {
+        return usage;
+    }
+
+    public void setUsage(String usage) {
+        this.usage = usage;
     }
 
     public final void addChildNode(CommandNode node) {

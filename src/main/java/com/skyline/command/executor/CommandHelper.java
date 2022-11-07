@@ -59,13 +59,13 @@ public class CommandHelper implements CommandExecutor {
 
         // 如果当前节点没有后继节点了, 就将 helpStr 加入 list, 返回(一般来说尾节点都是可执行的指令节点)
         if (commandNode.getChildren().isEmpty()) {
-            helpCommands.add(helpStr.toString());
+            helpCommands.add(helpStr.toString() + "  " + commandNode.getUsage());
             return;
         }
 
         // 当前节点不是尾节点, 但是注册有指令执行器, 同样加入 helpStr
         if (commandNode.getCommandExecutor() != null) {
-            helpCommands.add(helpStr.toString());
+            helpCommands.add(helpStr.toString() + "  " + commandNode.getUsage());
         }
 
         String str = helpStr.toString();

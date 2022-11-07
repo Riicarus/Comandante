@@ -36,6 +36,7 @@ public class CommandBuilder {
 
                 // 添加 --help/-h 指令支持
                 OptionCommandNode helpOptionNode = new OptionCommandNode(null, "help", "h");
+                helpOptionNode.setUsage("帮助指令");
                 helpOptionNode.setCommandExecutor(new CommandHelper(currentNode), true);
                 currentNode.addChildNode(helpOptionNode);
                 currentNode.addOptionNode(helpOptionNode);
@@ -50,7 +51,6 @@ public class CommandBuilder {
     }
 
     public CommandBuilder action(String name) {
-        //考虑: 需不需要有多个 action, 按理说是不需要的
         if (currentNode instanceof ExecutionCommandNode) {
             ActionCommandNode actionCommandNode =
                     new ActionCommandNode(null, name, false);
@@ -130,6 +130,15 @@ public class CommandBuilder {
         }
 
         currentNode.setCommandExecutor(commandExecutor);
+    }
+
+    public void executor(CommandExecutor commandExecutor, final String usage) {
+        if (currentNode instanceof RootCommandNode || currentNode instanceof ExecutionCommandNode) {
+            throw new CommandBuildException("RootNode or ExecutionNode can not have a command executor", null);
+        }
+
+        currentNode.setCommandExecutor(commandExecutor);
+        currentNode.setUsage(usage);
     }
 
     public RootCommandNode getRootCommandNode() {
