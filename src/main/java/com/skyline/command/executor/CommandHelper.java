@@ -28,9 +28,9 @@ public class CommandHelper implements CommandExecutor {
     }
 
     @Override
-    public void execute(Object... args) {
+    public void execute(Object... args) throws Exception {
         if (commandNode == null) {
-            throw new CommandExecutionException("Command node could not be null.", null);
+            throw new CommandExecutionException("Command node could not be null.");
         }
         System.out.println("Format: exe act sub-act [opt] <arg>");
 

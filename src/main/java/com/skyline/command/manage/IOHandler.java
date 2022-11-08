@@ -1,17 +1,49 @@
 package com.skyline.command.manage;
 
+import com.skyline.command.exception.CommandConsumeException;
+import com.skyline.command.exception.CommandProduceException;
+
+import java.io.OutputStream;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+
 /**
  * [FEATURE INFO]<br/>
- * IO 设置
+ * IO
  *
  * @author Skyline
  * @create 2022-10-15 16:31
  * @since 1.0.0
  */
-public interface IOHandler {
+public class IOHandler {
 
-    String doGetCommand();
+    private static final BlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10, true);
 
-    void redirectOutput();
+    private void produce(String command) throws CommandProduceException {
+        try {
+            commandQueue.put(command);
+        } catch (InterruptedException e) {
+            throw new CommandProduceException();
+        }
+    }
+
+    public String consume() throws CommandConsumeException {
+        String command ;
+        try {
+            command = commandQueue.take();
+        } catch (InterruptedException e) {
+            throw new CommandConsumeException();
+        }
+
+        return command;
+    }
+
+    public void input(String command) throws CommandProduceException {
+        produce(command);
+    }
+
+    public void redirectOutput(OutputStream outputStream) {
+
+    }
 
 }

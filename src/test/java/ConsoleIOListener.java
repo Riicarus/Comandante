@@ -1,16 +1,15 @@
-package com.skyline.command.manage;
+import com.skyline.command.CommandUtil;
 
 import java.util.Scanner;
 
 /**
  * [FEATURE INFO]<br/>
- * 控制台IO
  *
  * @author Skyline
- * @create 2022-10-19 10:21
+ * @create 2022-11-8 15:49
  * @since 1.0.0
  */
-public class ConsoleIOHandler implements IOHandler {
+public class ConsoleIOListener implements Runnable {
 
     private final Scanner scanner = new Scanner(System.in);
 
@@ -23,6 +22,10 @@ public class ConsoleIOHandler implements IOHandler {
     }
 
     @Override
-    public void redirectOutput() {}
-
+    public void run() {
+        String str;
+        while ((str = doGetCommand()) != null) {
+            CommandUtil.dispatchToCache(str);
+        }
+    }
 }

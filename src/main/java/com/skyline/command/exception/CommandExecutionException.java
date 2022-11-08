@@ -8,10 +8,10 @@ package com.skyline.command.exception;
  * @create 2022-10-15 16:15
  * @since 1.0.0
  */
-public class CommandExecutionException extends RuntimeException {
+public class CommandExecutionException extends Exception {
 
-    public CommandExecutionException(String message, Throwable cause) {
-        super(message, cause);
+    public CommandExecutionException(String message) {
+        super(message);
     }
 
 }

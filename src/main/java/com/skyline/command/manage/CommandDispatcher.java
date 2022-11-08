@@ -1,5 +1,6 @@
 package com.skyline.command.manage;
 
+import com.skyline.command.exception.CommandExecutionException;
 import com.skyline.command.exception.CommandNotFoundException;
 import com.skyline.command.exception.CommandSyntaxException;
 import com.skyline.command.executor.CommandExecutor;
@@ -43,7 +44,7 @@ public class CommandDispatcher {
      *
      * @param commandStr 指令字符串
      */
-    public void dispatch(final String commandStr) {
+    public void dispatch(final String commandStr) throws CommandExecutionException {
         RootCommandNode rootCommandNode = commandRegister.getRootCommandNode();
 
         String[] parsedCommandParts = parseCommand(commandStr);
@@ -60,7 +61,12 @@ public class CommandDispatcher {
         if (executor == null) {
             throw new CommandNotFoundException("No executor bound with this command.", null);
         }
-        executor.execute(args.toArray());
+
+        try {
+            executor.execute(args);
+        } catch (Exception e) {
+            throw new CommandExecutionException("command [" + commandStr + "] execute failed.");
+        }
     }
 
     /**
