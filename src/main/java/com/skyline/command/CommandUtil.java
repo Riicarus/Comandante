@@ -31,7 +31,7 @@ public class CommandUtil {
     }
 
     /**
-     * 启动 InnerRunner 线程
+     * 启动 CommandRunner 线程
      */
     public static void enable() {
         SKY_COMMAND.startSkyCommand();
@@ -54,7 +54,7 @@ public class CommandUtil {
     }
 
     /**
-     * 先将输入的指令保存到 CommandInputHandler 的缓存队列中, 等待 InnerRunner 去消费
+     * 先将输入的指令保存到 CommandInputHandler 的缓存队列中, 等待 CommandRunner 去消费
      *
      * @param command 指令字符串
      */

@@ -39,7 +39,7 @@ public class SkyCommand {
     protected SkyCommand() {
         this.commandDispatcher = new CommandDispatcher();
         this.commandInputHandler = new CommandInputHandler();
-        this.skyCommandThread = new Thread(new InnerRunner(this), "SkyCommandThread");
+        this.skyCommandThread = new Thread(new CommandRunner(this), "SkyCommandThread");
     }
 
     /**
@@ -75,11 +75,11 @@ public class SkyCommand {
         run = false;
     }
 
-    static class InnerRunner implements Runnable {
+    static class CommandRunner implements Runnable {
 
         private final SkyCommand skyCommand;
 
-        public InnerRunner(SkyCommand skyCommand) {
+        public CommandRunner(SkyCommand skyCommand) {
             this.skyCommand = skyCommand;
         }
 
