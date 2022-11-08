@@ -8,14 +8,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
- * 参数指令节点
+ * 参数指令节点<br/>
+ * 注意: 参数指令节点的名称要和 其父 OptionNode 的名称相同
  *
  * @author Skyline
  * @create 2022-10-14 23:49
- * @since 1.0.0
+ * @since 1.0
  */
 public class ArgumentCommandNode<T> extends CommandNode {
 
+    /**
+     * 参数类型
+     */
     private final CommandArgumentType<T> type;
 
     public ArgumentCommandNode(final String name,
@@ -37,6 +41,12 @@ public class ArgumentCommandNode<T> extends CommandNode {
         return type;
     }
 
+    /**
+     * 将指令字符串中的参数转换为当前节点定义的参数类型的数据
+     *
+     * @param arg 指令字符串中的参数
+     * @return 当前节点定义的参数类型的数据
+     */
     public T parse(String arg) {
         return getType().parse(arg);
     }

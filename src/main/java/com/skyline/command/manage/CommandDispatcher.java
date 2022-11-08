@@ -1,6 +1,6 @@
 package com.skyline.command.manage;
 
-import com.skyline.command.Logger;
+import com.skyline.command.main.Logger;
 import com.skyline.command.exception.CommandExecutionException;
 import com.skyline.command.exception.CommandNotFoundException;
 import com.skyline.command.exception.CommandSyntaxException;
@@ -20,7 +20,7 @@ import java.util.List;
  *
  * @author Skyline
  * @create 2022-10-15 23:27
- * @since 1.0.0
+ * @since 1.0
  */
 public class CommandDispatcher {
 
@@ -179,7 +179,7 @@ public class CommandDispatcher {
             // 这里要求: 参数节点的名称必须和 对应 option 节点的 long-option 名称相同
             node = commandNode.getChildren().get(commandNode.getName());
 
-            // argument
+            // argument, 这里自动将参数转化为对应节点需要的参数类型
             args.add(((ArgumentCommandNode<?>) node).parse(commandPart));
         } else if (isOptionOrArg) {
             // option
@@ -235,6 +235,7 @@ public class CommandDispatcher {
 
         index++;
 
+        // 递归遍历下一个
         return findLast(node, commandParts, index, isOptionOrArg, args);
     }
 

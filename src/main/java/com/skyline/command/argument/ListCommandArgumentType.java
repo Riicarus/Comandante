@@ -3,7 +3,6 @@ package com.skyline.command.argument;
 import com.skyline.command.exception.CommandSyntaxException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -12,7 +11,7 @@ import java.util.List;
  *
  * @author Skyline
  * @create 2022-11-5 13:44
- * @since 1.0.0
+ * @since 1.0
  */
 public class ListCommandArgumentType extends CommandArgumentType<List<String>> {
 

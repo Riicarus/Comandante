@@ -11,10 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Skyline
  * @create 2022-10-15 16:43
- * @since 1.0.0
+ * @since 1.0
  */
 public class OptionCommandNode extends CommandNode {
 
+    /**
+     * option 类型指令别称, 用于短指令, 在前面加上 '-' 使用
+     */
     private final String alias;
 
     public OptionCommandNode(final CommandExecutor commandExecutor, final String name, final String alias) {

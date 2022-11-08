@@ -8,16 +8,30 @@ import com.skyline.command.tree.*;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令构建器
+ * 指令构建器, 用于定义一条指令<br/>
+ *
+ * 主要功能:<br/>
+ *  1. 使用 execution() 定义一个 ExecutionNode<br/>
+ *  2. 使用 action() 定义一个 ActionNode<br/>
+ *  3. 使用 subAction() 定义一个 SubActionNode<br/>
+ *  4. 使用 option() 定义一个 OptionNode<br/>
+ *  5. 使用 argument() 定义一个 ArgumentNode<br/>
+ *  6. 使用 executor() 定义一个 指令执行器, 会被注册到上一个调用方法生成的节点上<br/>
  *
  * @author Skyline
  * @create 2022-10-15 0:23
- * @since 1.0.0
+ * @since 1.0
  */
 public class CommandBuilder {
 
+    /**
+     * 保持一个指令树根节点的引用, 将一个指令分支注册到根节点上
+     */
     private final RootCommandNode rootCommandNode;
 
+    /**
+     * 当前被构建出的节点, 会随着一条指令的构建逐渐更新, 但是保持为当前指令链的尾节点
+     */
     private CommandNode currentNode;
 
     public CommandBuilder(final RootCommandNode rootCommandNode) {
@@ -25,6 +39,15 @@ public class CommandBuilder {
         this.currentNode = rootCommandNode;
     }
 
+    /**
+     * 构建 ExecutionNode 节点, 会被注册到 RootCommandNode 的子节点集合中<br/>
+     * 会被自动注册入一个 CommandHelper 节点, 用于执行 'xxx -h/--help' 指令<br/>
+     * 其父节点只能是根节点<br/>
+     *
+     * @param name 指令部分字符串
+     * @return 指令构建器
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
     public CommandBuilder execution(String name) {
         if (currentNode instanceof RootCommandNode) {
             ExecutionCommandNode executionCommandNode = new ExecutionCommandNode(name);
@@ -50,6 +73,14 @@ public class CommandBuilder {
         throw new CommandBuildException("ExecutionNode can only follow behind RootNode", null);
     }
 
+    /**
+     * 构建 ActionNode 节点, 将其注册到父 ExecutionNode 的子节点集合中<br/>
+     * 父节点只能为 ExecutionNode<br/>
+     *
+     * @param name 指令部分字符串
+     * @return 指令构建器
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
     public CommandBuilder action(String name) {
         if (currentNode instanceof ExecutionCommandNode) {
             ActionCommandNode actionCommandNode =
@@ -68,6 +99,14 @@ public class CommandBuilder {
         throw new CommandBuildException("ActionNode can only follow behind ExecutionNode", null);
     }
 
+    /**
+     * 构建 SubActionNode 节点, 将其注册到父 ActionNode 的子节点集合中<br/>
+     * 父节点只能为 ActionNode<br/>
+     *
+     * @param name 指令部分字符串
+     * @return 指令构建器
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
     public CommandBuilder subAction(String name) {
         if (currentNode instanceof ActionCommandNode) {
             ActionCommandNode actionCommandNode =
@@ -86,9 +125,18 @@ public class CommandBuilder {
         throw new CommandBuildException("SubActionNode can only follow behind ActionNode", null);
     }
 
+    /**
+     * 构建 OptionNode 节点, 将其注册到父节点的子节点集合中<br/>
+     * 父节点可以为 ExecutionNode/ActionNode/SubActionNode/ArgumentNode<br/>
+     *
+     * @param name 指令部分字符串, 用于长指令, 使用 '--'
+     * @param alias 指令部分简写, 用户短指令, 使用 '-'
+     * @return 指令构建器
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
     public CommandBuilder option(String name, String alias) {
-        if (currentNode instanceof ActionCommandNode ||
-                currentNode instanceof ExecutionCommandNode ||
+        if (currentNode instanceof ExecutionCommandNode ||
+                currentNode instanceof ActionCommandNode ||
                 currentNode instanceof OptionCommandNode ||
                 currentNode instanceof ArgumentCommandNode) {
             OptionCommandNode optionCommandNode =
@@ -107,6 +155,15 @@ public class CommandBuilder {
         throw new CommandBuildException("OptionNode can only follow behind (Sub)ActionNode or ExecutionNode or ArgumentNode", null);
     }
 
+    /**
+     * 构建 ArgumentNode 节点, 将其注册到父 OptionNode 的子节点集合中<br/>
+     * 父节点只能为 OptionNode<br/>
+     *
+     * @param name 指令部分字符串
+     * @param type 参数类型定义
+     * @return 指令构建器
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
     public <T> CommandBuilder argument(String name, CommandArgumentType<T> type) {
         if (currentNode instanceof OptionCommandNode) {
             ArgumentCommandNode<T> argumentCommandNode =
@@ -124,6 +181,13 @@ public class CommandBuilder {
         throw new CommandBuildException("ArgumentNode can only follow behind (Sub)ActionNode or OptionNode or ArgumentNode", null);
     }
 
+    /**
+     * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
+     * 父节点不能为 RootNode 或 ExecutionNode<br/>
+     *
+     * @param commandExecutor 指令执行器
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
     public void executor(CommandExecutor commandExecutor) {
         if (currentNode instanceof RootCommandNode || currentNode instanceof ExecutionCommandNode) {
             throw new CommandBuildException("RootNode or ExecutionNode can not have a command executor", null);
@@ -131,7 +195,14 @@ public class CommandBuilder {
 
         currentNode.setCommandExecutor(commandExecutor);
     }
-
+    /**
+     * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
+     * 父节点不能为 RootNode 或 ExecutionNode<br/>
+     *
+     * @param commandExecutor 指令执行器
+     * @param usage 指令用途说明
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
     public void executor(CommandExecutor commandExecutor, final String usage) {
         if (currentNode instanceof RootCommandNode || currentNode instanceof ExecutionCommandNode) {
             throw new CommandBuildException("RootNode or ExecutionNode can not have a command executor", null);

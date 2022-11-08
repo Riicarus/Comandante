@@ -7,30 +7,58 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令节点抽象类
+ * 指令节点抽象类, 定义了所有指令节点的公共属性和方法<br/>
+ * 提供了添加和获取各种子节点的方法或抽象方法<br/>
  *
  * @author Skyline
  * @create 2022-10-14 23:42
- * @since 1.0.0
+ * @since 1.0
  */
 public abstract class CommandNode {
 
+    /**
+     * 节点名称, 用于定义当前节点的指令字符串的值
+     */
     private final String name;
 
+    /**
+     * 指令节点用途, 默认为空
+     */
     private String usage = "";
 
+    /**
+     * 当前节点的所有子节点集合, 直接初始化, 每个节点都有
+     */
     private final ConcurrentHashMap<String, CommandNode> children = new ConcurrentHashMap<>();
 
+    /**
+     * 当前节点的所有 ExecutionNode 节点集合, 由子类决定如何初始化
+     */
     private final ConcurrentHashMap<String, ExecutionCommandNode> executions;
 
+    /**
+     * 当前节点的所有 ActionNode 节点集合, 由子类决定如何初始化
+     */
     private final ConcurrentHashMap<String, ActionCommandNode> actions;
 
+    /**
+     * 当前节点的所有 SubActionNode 节点集合, 由子类决定如何初始化
+     */
     private final ConcurrentHashMap<String, ActionCommandNode> subActions;
 
+    /**
+     * 当前节点的所有 OptionNode 节点集合, 由子类决定如何初始化
+     */
     private final ConcurrentHashMap<String, OptionCommandNode> options;
 
+    /**
+     * 当前节点的所有 ArgumentNode 节点集合, 由子类决定如何初始化
+     */
     private final ConcurrentHashMap<String, ArgumentCommandNode<?>> arguments;
 
+    /**
+     * 当前节点的指令执行器, 由 CommandBuilder 进行注册
+     */
     private volatile CommandExecutor commandExecutor;
 
     public CommandNode(final String name,

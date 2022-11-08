@@ -8,7 +8,7 @@ import com.skyline.command.exception.CommandSyntaxException;
  *
  * @author Skyline
  * @create 2022-11-5 13:35
- * @since 1.0.0
+ * @since 1.0
  */
 public class BooleanCommandArgumentType extends CommandArgumentType<Boolean> {
 

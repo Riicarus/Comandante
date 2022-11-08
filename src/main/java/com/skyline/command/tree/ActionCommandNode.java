@@ -11,10 +11,13 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Skyline
  * @create 2022-10-15 16:38
- * @since 1.0.0
+ * @since 1.0
  */
 public class ActionCommandNode extends CommandNode {
 
+    /**
+     * 当前节点是否为 SubActionNode 节点
+     */
     private final boolean isSubAction;
 
     public ActionCommandNode(final CommandExecutor commandExecutor,
@@ -27,6 +30,11 @@ public class ActionCommandNode extends CommandNode {
         this.isSubAction = isSubAction;
     }
 
+    /**
+     * 获取 SubAction 节点集合, 只有当前节点不为 SubAction 节点时, 才会返回
+     *
+     * @return SubAction 节点集合
+     */
     @Override
     public final ConcurrentHashMap<String, ActionCommandNode> getSubActions() {
         if (!isSubAction()) {

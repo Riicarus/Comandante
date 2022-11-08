@@ -1,8 +1,8 @@
 package com.skyline.command.command;
 
-import com.skyline.command.CommandUtil;
+import com.skyline.command.main.CommandUtil;
 import com.skyline.command.config.Config;
-import com.skyline.command.Logger;
+import com.skyline.command.main.Logger;
 
 import java.util.Set;
 
@@ -12,7 +12,7 @@ import java.util.Set;
  *
  * @author Skyline
  * @create 2022-10-17 17:57
- * @since 1.0.0
+ * @since 1.0
  */
 public class InnerCommand extends BaseCommand {
 

@@ -8,7 +8,7 @@ import com.skyline.command.exception.CommandSyntaxException;
  *
  * @author Skyline
  * @create 2022-10-15 0:18
- * @since 1.0.0
+ * @since 1.0
  */
 public abstract class CommandArgumentType<T> {
 

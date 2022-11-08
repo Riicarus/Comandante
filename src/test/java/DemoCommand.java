@@ -1,16 +1,16 @@
-import com.skyline.command.CommandUtil;
+import com.skyline.command.main.CommandUtil;
 import com.skyline.command.argument.IntegerCommandArgumentType;
 import com.skyline.command.argument.ListCommandArgumentType;
 import com.skyline.command.argument.StringCommandArgumentType;
 import com.skyline.command.command.BaseCommand;
-import com.skyline.command.Logger;
+import com.skyline.command.main.Logger;
 
 /**
  * [FEATURE INFO]<br/>
  *
  * @author Skyline
  * @create 2022-10-15 15:52
- * @since 1.0.0
+ * @since 1.0
  */
 public class DemoCommand extends BaseCommand {
 

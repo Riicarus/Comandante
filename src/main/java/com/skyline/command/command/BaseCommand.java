@@ -6,7 +6,7 @@ package com.skyline.command.command;
  *
  * @author Skyline
  * @create 2022-10-28 19:46
- * @since 1.0.0
+ * @since 1.0
  */
 public abstract class BaseCommand {
     /**

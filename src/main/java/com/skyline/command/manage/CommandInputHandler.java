@@ -1,6 +1,6 @@
 package com.skyline.command.manage;
 
-import com.skyline.command.Logger;
+import com.skyline.command.main.Logger;
 import com.skyline.command.exception.CommandConsumeException;
 import com.skyline.command.exception.CommandProduceException;
 
@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
  *
  * @author Skyline
  * @create 2022-10-15 16:31
- * @since 1.0.0
+ * @since 1.0
  */
 public class CommandInputHandler {
 

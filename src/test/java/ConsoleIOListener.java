@@ -1,4 +1,4 @@
-import com.skyline.command.CommandUtil;
+import com.skyline.command.main.CommandUtil;
 
 import java.util.Scanner;
 
@@ -7,7 +7,7 @@ import java.util.Scanner;
  *
  * @author Skyline
  * @create 2022-11-8 15:49
- * @since 1.0.0
+ * @since 1.0
  */
 public class ConsoleIOListener implements Runnable {
 

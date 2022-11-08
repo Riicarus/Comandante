@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Skyline
  * @create 2022-10-15 16:43
- * @since 1.0.0
+ * @since 1.0
  */
 public class ExecutionCommandNode extends CommandNode {
 

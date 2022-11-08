@@ -6,7 +6,7 @@ package com.skyline.command.argument;
  *
  * @author Skyline
  * @create 2022-10-15 15:55
- * @since 1.0.0
+ * @since 1.0
  */
 public class StringCommandArgumentType extends CommandArgumentType<String> {
 
