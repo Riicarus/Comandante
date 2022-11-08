@@ -1,6 +1,7 @@
 package com.skyline.command.executor;
 
 import com.skyline.command.exception.CommandExecutionException;
+import com.skyline.command.Logger;
 import com.skyline.command.tree.*;
 
 import java.util.ArrayList;
@@ -32,11 +33,11 @@ public class CommandHelper implements CommandExecutor {
         if (commandNode == null) {
             throw new CommandExecutionException("Command node could not be null.");
         }
-        System.out.println("Format: exe act sub-act [opt] <arg>");
+        Logger.log("Format: exe act sub-act [opt] <arg>");
 
         List<String> helpCommands = new ArrayList<>();
         listAllCommand(commandNode, new StringBuilder(), helpCommands);
-        helpCommands.forEach(System.out::println);
+        helpCommands.forEach(Logger::log);
     }
 
     private void listAllCommand(CommandNode commandNode, StringBuilder helpStr, List<String> helpCommands) {

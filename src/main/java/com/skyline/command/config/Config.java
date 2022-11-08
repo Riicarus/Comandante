@@ -1,5 +1,7 @@
 package com.skyline.command.config;
 
+import com.skyline.command.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -45,7 +47,7 @@ public class Config {
                     in.close();
                 }
             } catch (IOException e) {
-                System.out.println("Close stream failed.");
+                Logger.log("Close stream failed.");
             }
         }
 

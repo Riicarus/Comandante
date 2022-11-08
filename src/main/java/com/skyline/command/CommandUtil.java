@@ -3,6 +3,9 @@ package com.skyline.command;
 import com.skyline.command.exception.CommandProduceException;
 import com.skyline.command.manage.CommandBuilder;
 
+import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
@@ -38,8 +41,20 @@ public class CommandUtil {
         SKY_COMMAND.stop();
     }
 
+    public static void redirectOutput(OutputStream outputStream) {
+        Logger.setOut(outputStream);
+    }
+
+    public static void redirectOutput(OutputStream outputStream, StandardCharsets charsets) {
+        try {
+            Logger.setOut(outputStream, charsets);
+        } catch (UnsupportedEncodingException e) {
+            Logger.setOut(outputStream);
+        }
+    }
+
     /**
-     * 先将输入的指令保存到 IOHandler 的缓存队列中, 等待 InnerRunner 去消费
+     * 先将输入的指令保存到 CommandInputHandler 的缓存队列中, 等待 InnerRunner 去消费
      *
      * @param command 指令字符串
      */
@@ -47,7 +62,7 @@ public class CommandUtil {
         try {
             SKY_COMMAND.getIoHandler().input(command);
         } catch (CommandProduceException e) {
-            System.out.println(e.getMessage());
+            Logger.log(e.getMessage());
         }
     }
 }

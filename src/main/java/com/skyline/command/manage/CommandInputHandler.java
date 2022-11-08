@@ -1,9 +1,9 @@
 package com.skyline.command.manage;
 
+import com.skyline.command.Logger;
 import com.skyline.command.exception.CommandConsumeException;
 import com.skyline.command.exception.CommandProduceException;
 
-import java.io.OutputStream;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -15,7 +15,7 @@ import java.util.concurrent.BlockingQueue;
  * @create 2022-10-15 16:31
  * @since 1.0.0
  */
-public class IOHandler {
+public class CommandInputHandler {
 
     private static final BlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10, true);
 
@@ -39,11 +39,8 @@ public class IOHandler {
     }
 
     public void input(String command) throws CommandProduceException {
+        Logger.log("Input command: " + command + ".");
         produce(command);
-    }
-
-    public void redirectOutput(OutputStream outputStream) {
-
     }
 
 }

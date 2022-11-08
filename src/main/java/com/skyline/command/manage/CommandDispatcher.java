@@ -1,5 +1,6 @@
 package com.skyline.command.manage;
 
+import com.skyline.command.Logger;
 import com.skyline.command.exception.CommandExecutionException;
 import com.skyline.command.exception.CommandNotFoundException;
 import com.skyline.command.exception.CommandSyntaxException;
@@ -64,6 +65,7 @@ public class CommandDispatcher {
 
         try {
             executor.execute(args);
+            Logger.log("Command execute complete.");
         } catch (Exception e) {
             throw new CommandExecutionException("command [" + commandStr + "] execute failed.");
         }

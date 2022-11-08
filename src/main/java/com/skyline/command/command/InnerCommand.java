@@ -2,6 +2,7 @@ package com.skyline.command.command;
 
 import com.skyline.command.CommandUtil;
 import com.skyline.command.config.Config;
+import com.skyline.command.Logger;
 
 import java.util.Set;
 
@@ -19,28 +20,28 @@ public class InnerCommand extends BaseCommand {
         CommandUtil.register().execution("command")
                 .option("version", "v")
                 .executor(
-                        (args) -> System.out.println(Config.getVersion()),
+                        (args) -> Logger.log(Config.getVersion()),
                         "查看 SkyCommand 版本号"
         );
         CommandUtil.register().execution("command")
                 .option("author", "a")
                 .executor(
-                        (args) -> System.out.println(Config.getAuthor()),
+                        (args) -> Logger.log(Config.getAuthor()),
                         "查看 SkyCommand 作者"
         );
         CommandUtil.register().execution("command")
                 .option("doc", "d")
                 .executor(
-                        (args) -> System.out.println(Config.getDoc()),
+                        (args) -> Logger.log(Config.getDoc()),
                         "查看 SkyCommand 文档"
         );
         CommandUtil.register().execution("command")
                 .option("info", "i")
                 .executor(
                         (args) -> {
-                            System.out.println(Config.getVersion());
-                            System.out.println(Config.getAuthor());
-                            System.out.println(Config.getDoc());
+                            Logger.log(Config.getVersion());
+                            Logger.log(Config.getAuthor());
+                            Logger.log(Config.getDoc());
                         },
                         "查看 SkyCommand 信息"
                 );
@@ -49,7 +50,7 @@ public class InnerCommand extends BaseCommand {
                 .executor(
                         args -> {
                             Set<String> commandSet = CommandUtil.listAllExecutionCommand();
-                            commandSet.forEach(System.out::println);
+                            commandSet.forEach(Logger::log);
                         },
                         "列出所有已注册指令"
                 );

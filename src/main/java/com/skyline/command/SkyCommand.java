@@ -26,7 +26,7 @@ public class SkyCommand {
     /**
      * IO
      */
-    private final IOHandler ioHandler;
+    private final CommandInputHandler commandInputHandler;
     /**
      * 指令处理线程
      */
@@ -38,7 +38,7 @@ public class SkyCommand {
 
     protected SkyCommand() {
         this.commandDispatcher = new CommandDispatcher();
-        this.ioHandler = new IOHandler();
+        this.commandInputHandler = new CommandInputHandler();
         this.skyCommandThread = new Thread(new InnerRunner(this), "SkyCommandThread");
     }
 
@@ -62,8 +62,8 @@ public class SkyCommand {
         return commandDispatcher.getCommandRegister();
     }
 
-    protected IOHandler getIoHandler() {
-        return ioHandler;
+    protected CommandInputHandler getIoHandler() {
+        return commandInputHandler;
     }
 
     protected Set<String> listAllExecutionCommand() {
@@ -88,10 +88,12 @@ public class SkyCommand {
             while (skyCommand.run) {
                 String command;
                 try {
-                    command = skyCommand.ioHandler.consume();
+                    command = skyCommand.commandInputHandler.consume();
                     skyCommand.commandDispatcher.dispatch(command);
                 } catch (Exception e) {
-                    System.out.println(e.getMessage());
+                    Logger.log(e.getMessage());
+                } finally {
+                    Logger.log("");
                 }
             }
         }

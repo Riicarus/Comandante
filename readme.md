@@ -54,7 +54,7 @@ public class DemoCommand {
         .action("load")
         .option("dir", "d").argument("dir", new StringCommandArgumentType())
         .executor(
-                (args) -> System.out.println("load plugin from dir: " + args[0])
+                (args) -> Logger.log("load plugin from dir: " + args[0])
         );
       }
 }
@@ -78,7 +78,7 @@ public class TestMain {
 ## 扩展
 ### IO 扩展
 SkyCommand 默认使用 `ConsoleIOHandler` 进行 I/O 操作, 包括指令的读入和执行结果或错误信息的输出.  
-如果需要自定义 I/O, 可以实现 `com.skyline.command.manage.IOHandler` 接口, `IOHandler#doGetCommand()` 方法用于获取输入的指令, `IOHandler#redirectOutput()` 用于设置重定向输出, 我们建议 `System.out#setOut()` 方法来重定向 `System.out` 相关 print 方法的输出位置.  
+如果需要自定义 I/O, 可以实现 `com.skyline.command.manage.CommandInputHandler` 接口, `IOHandler#doGetCommand()` 方法用于获取输入的指令, `IOHandler#redirectOutput()` 用于设置重定向输出, 我们建议 `System.out#setOut()` 方法来重定向 `System.out` 相关 print 方法的输出位置.  
 
 ## 内置指令
 目前 SkyCommand 有如下内置指令:  
