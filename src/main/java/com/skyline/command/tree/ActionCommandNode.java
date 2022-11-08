@@ -16,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ActionCommandNode extends CommandNode {
 
     /**
-     * 当前节点是否为 SubActionNode 节点
+     * 当前节点是否为 SubActionCommand 节点
      */
     private final boolean isSubAction;
 
@@ -31,9 +31,9 @@ public class ActionCommandNode extends CommandNode {
     }
 
     /**
-     * 获取 SubAction 节点集合, 只有当前节点不为 SubAction 节点时, 才会返回
+     * 获取 SubActionCommand 节点集合, 只有当前节点不为 SubActionCommand 节点时, 才会返回
      *
-     * @return SubAction 节点集合
+     * @return SubActionCommand 节点集合
      */
     @Override
     public final ConcurrentHashMap<String, ActionCommandNode> getSubActions() {

@@ -32,27 +32,27 @@ public abstract class CommandNode {
     private final ConcurrentHashMap<String, CommandNode> children = new ConcurrentHashMap<>();
 
     /**
-     * 当前节点的所有 ExecutionNode 节点集合, 由子类决定如何初始化
+     * 当前节点的所有 ExecutionCommandNode 节点集合, 由子类决定如何初始化
      */
     private final ConcurrentHashMap<String, ExecutionCommandNode> executions;
 
     /**
-     * 当前节点的所有 ActionNode 节点集合, 由子类决定如何初始化
+     * 当前节点的所有 ActionCommandNode 节点集合, 由子类决定如何初始化
      */
     private final ConcurrentHashMap<String, ActionCommandNode> actions;
 
     /**
-     * 当前节点的所有 SubActionNode 节点集合, 由子类决定如何初始化
+     * 当前节点的所有 SubActionCommandNode 节点集合, 由子类决定如何初始化
      */
     private final ConcurrentHashMap<String, ActionCommandNode> subActions;
 
     /**
-     * 当前节点的所有 OptionNode 节点集合, 由子类决定如何初始化
+     * 当前节点的所有 OptionCommandNode 节点集合, 由子类决定如何初始化
      */
     private final ConcurrentHashMap<String, OptionCommandNode> options;
 
     /**
-     * 当前节点的所有 ArgumentNode 节点集合, 由子类决定如何初始化
+     * 当前节点的所有 ArgumentCommandNode 节点集合, 由子类决定如何初始化
      */
     private final ConcurrentHashMap<String, ArgumentCommandNode<?>> arguments;
 

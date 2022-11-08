@@ -1,5 +1,5 @@
 # SkyCommand
-version: 1.1  
+version: 1.2   
 
 ## 概述
 ### 指令结构
@@ -33,14 +33,12 @@ version: 1.1
 > `plugin list -iad 'D:\tmp\jars\my \'jar\''`
 
 ### 简单使用
-由于 `SkyCommand` 是一个获取到的实例是一个单例, 我们需要在指令定义类里面先添加相关依赖和构造函数:  
+指令定义类需要继承抽象类 `BaseCommand`, 重写 `BaseCommand#defineCommand()` 方法.  
 ```java
-public class DemoCommand {
+public class DemoCommand extends BaseCommand {
 
-    private final SkyCommand skyCommand;
+    public static void defineCommand() {
 
-    public DemoCommand(SkyCommand skyCommand) {
-        this.skyCommand = skyCommand;
     }
 }
 ```
@@ -50,11 +48,11 @@ public class DemoCommand {
       // ...
 
       public void defineCommand() {
-        skyCommand.register().execution("plugin")
-        .action("load")
-        .option("dir", "d").argument("dir", new StringCommandArgumentType())
-        .executor(
-                (args) -> Logger.log("load plugin from dir: " + args[0])
+        CommandUtil.register().execution("plugin").action("load")
+                .option("dir", "d").argument("dir", new StringCommandArgumentType())
+                .executor(
+                (args) -> Logger.log("load plugin from dir: " + args[0]),
+                "从文件夹加载插件"
         );
       }
 }
@@ -64,30 +62,38 @@ public class DemoCommand {
 public class TestMain {
 
     public static void main(String[] args) {
-        // 获取到 SkyCommand 单例对象
-        SkyCommand skyCommand = SkyCommand.getSkyCommand();
-        // 启动命令行服务
-        skyCommand.startSkyCommand();
-        // 将自定义的指令加载进命令行注册器里
-        new DemoCommand(skyCommand).defineCommand();
+        DemoCommand.defineCommand();
+        CommandUtil.enable();
     }
 }
 ```
-至此, 就可以在控制台输入相关指令并得到对应服务了.
+至此, 就可以使用命令插件的基础服务了.
 
 ## 扩展
 ### IO 扩展
-SkyCommand 默认使用 `ConsoleIOHandler` 进行 I/O 操作, 包括指令的读入和执行结果或错误信息的输出.  
-如果需要自定义 I/O, 可以实现 `com.skyline.command.manage.CommandInputHandler` 接口, `IOHandler#doGetCommand()` 方法用于获取输入的指令, `IOHandler#redirectOutput()` 用于设置重定向输出, 我们建议 `System.out#setOut()` 方法来重定向 `System.out` 相关 print 方法的输出位置.  
+#### 指令输入
+SkyCommand 内置了完善的输入输出机制, 都可以通过 `CommandUtil` 提供的 API 调用实现.  
+指令输入的接口是 `CommmandUtil.dispatchToCache(String)` 方法, 使用该方法接收外界传入的指令字符串, 并由指令处理线程进行后续分发和执行处理.  
+用户可以自行定义指令的输入方式, 无论是从文件中读取进行批处理还是从控制台输入, 只需要构建好获取指令的逻辑, 然后将获取到的指令通过 `CommandUtil.dispatchToCache(String)` 方法传给指令插件即可.  
+指令输入支持多线程, `CommandInputHandler` 内部通过生产者消费者模式进行输出指令处理.  
+
+#### 重定向输出
+SkyCommand 同时支持输出重定向, 可以重定向插件内部所有输出到任意的输出流中.  
+该功能由 `CommandUtil.redirectOutput(OutputStream)` 方法提供, 该方法会设置全局日志输出工具类 `Logger` 的输出流, 来达到全局重定向输出的目的.  
+同时, 该接口支持设置输出流的字符集, 只需要调用 `CommandUtil.redirectOutut(OutputStream, StandardCharsets)` 方法进行输出重定即可.  
+
+> 由上可以看出, 指令插件所有的输出都是调用 `Logger.log(String)` 方法进行的.  
+> 所以如果想要完美实现重定向输出的功能, 需要在自定义指令或其他配置中都是用该方法进行输出.  
 
 ## 内置指令
 目前 SkyCommand 有如下内置指令:  
 ```bash
-command --version
-command --author
-command --doc
-command --info
-command --help
+command --version  查看 SkyCommand 版本号
+command --author  查看 SkyCommand 作者
+command --doc  查看 SkyCommand 文档
+command --info  查看 SkyCommand 信息
+command --help  帮助指令
+command list -a 列出所有已注册指令
 ```
 对所有已加载指令(可以是自定义的指令), 在其 `exe` 节点上, 我们都为其装配了对应的 help 指令, 如:  
 ```bash
@@ -97,10 +103,51 @@ exe --help
 help 指令会输出该指令节点下所有的指令搭配, 其中 `option` 节点会用 `[]` 括起来, `argument` 节点会用 `<>` 括起来, 如:  
 ```bash
 command -h
+Input command: command -h.
 Format: exe act sub-act [opt] <arg>
-command [help]
-command [author]
-command [doc]
-command [version]
-command [info]
+command [help]  帮助指令
+command [author]  查看 SkyCommand 作者
+command [doc]  查看 SkyCommand 文档
+command list [all]  列出所有已注册指令
+command [version]  查看 SkyCommand 版本号
+command [info]  查看 SkyCommand 信息
+Command execute complete.
+```
+
+## API
+### 注册指令
+```java
+// 获取指令构建器
+CommandBuilder commandBuider = CommandUtil.register();
+// 注册 ExecutionCommand 节点
+CommandBuilder#execution(String);
+// 注册 ActionCommand 节点
+CommandBuilder#action(String);
+// 注册 SubActionCommand 节点
+CommandBuilder#subAction(String);
+// 注册 OptionCommand 节点
+CommandBuilder#option(String, String);
+// 注册 ArgumentCommand 节点
+CommandBuilder#argument(String, CommandArgumentType<T>);
+// 注册指令执行器
+CommandBuilder#executor(CommandExecutor);
+```
+### 启动/停止指令处理线程
+```java
+// 启动
+CommandUtil.enable();
+// 停止
+CommandUtil.disable();
+```
+### IO
+```java
+// 重定向输出
+CommandUtil.redirectOutput(OutputStream);
+CommandUtil.redirectOutput(OutputStream, StandardCharsets);
+// 指令输入
+CommandUtil.dispatchToCache(String);
+// 输出日志
+Logger.log();
+// 关闭输出流, 不要关闭默认输出流
+Logger.log()
 ```

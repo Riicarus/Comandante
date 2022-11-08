@@ -10,8 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
- * 帮助指令执行器, 会由 CommandBuilder 自动注册到每一个 ExecutionNode 节点上<br/>
- * 会遍历 ExecutionNode 下的每一个节点,<br/>
+ * 帮助指令执行器, 会由 CommandBuilder 自动注册到每一个 ExecutionCommandNode 节点上<br/>
+ * 会遍历 ExecutionCommandNode 下的每一个节点,<br/>
  * 如果为注册了 Executor 的节点或者为 尾节点(尾节点一定是有 Executor 的), 就为其输出一个指令使用格式<br/>
  *
  * @author Skyline
@@ -37,7 +37,7 @@ public class CommandHelper implements CommandExecutor {
      */
     public static final String ARG_QUOTE_RIGHT = ">";
     /**
-     * 被注册的到的节点引用, 节点为 ExecutionNode
+     * 被注册的到的节点引用, 节点为 ExecutionCommandNode
      */
     private final CommandNode commandNode;
 
@@ -70,7 +70,7 @@ public class CommandHelper implements CommandExecutor {
      * 当当前节点为尾节点或当前节点不存在时停止递归查找<br/>
      *
      * @param commandNode 当前递归遍历到的指令节点
-     * @param helpStr 由 ExecutionNode 到当前节点的父节点构建的指令部分字符串
+     * @param helpStr 由 ExecutionCommandNode 到当前节点的父节点构建的指令部分字符串
      * @param helpCommands 所有可执行指令的 helpStr 集合
      */
     private void listAllCommand(CommandNode commandNode, StringBuilder helpStr, List<String> helpCommands) {

@@ -11,11 +11,11 @@ import com.skyline.command.tree.*;
  * 指令构建器, 用于定义一条指令<br/>
  *
  * 主要功能:<br/>
- *  1. 使用 execution() 定义一个 ExecutionNode<br/>
- *  2. 使用 action() 定义一个 ActionNode<br/>
- *  3. 使用 subAction() 定义一个 SubActionNode<br/>
- *  4. 使用 option() 定义一个 OptionNode<br/>
- *  5. 使用 argument() 定义一个 ArgumentNode<br/>
+ *  1. 使用 execution() 定义一个 ExecutionCommandNode<br/>
+ *  2. 使用 action() 定义一个 ActionCommandNode<br/>
+ *  3. 使用 subAction() 定义一个 SubActionCommandNode<br/>
+ *  4. 使用 option() 定义一个 OptionCommandNode<br/>
+ *  5. 使用 argument() 定义一个 ArgumentCommandNode<br/>
  *  6. 使用 executor() 定义一个 指令执行器, 会被注册到上一个调用方法生成的节点上<br/>
  *
  * @author Skyline
@@ -40,7 +40,7 @@ public class CommandBuilder {
     }
 
     /**
-     * 构建 ExecutionNode 节点, 会被注册到 RootCommandNode 的子节点集合中<br/>
+     * 构建 ExecutionCommandNode 节点, 会被注册到 RootCommandNode 的子节点集合中<br/>
      * 会被自动注册入一个 CommandHelper 节点, 用于执行 'xxx -h/--help' 指令<br/>
      * 其父节点只能是根节点<br/>
      *
@@ -74,8 +74,8 @@ public class CommandBuilder {
     }
 
     /**
-     * 构建 ActionNode 节点, 将其注册到父 ExecutionNode 的子节点集合中<br/>
-     * 父节点只能为 ExecutionNode<br/>
+     * 构建 ActionCommandNode 节点, 将其注册到父 ExecutionCommandNode 的子节点集合中<br/>
+     * 父节点只能为 ExecutionCommandNode<br/>
      *
      * @param name 指令部分字符串
      * @return 指令构建器
@@ -100,8 +100,8 @@ public class CommandBuilder {
     }
 
     /**
-     * 构建 SubActionNode 节点, 将其注册到父 ActionNode 的子节点集合中<br/>
-     * 父节点只能为 ActionNode<br/>
+     * 构建 SubActionCommandNode 节点, 将其注册到父 ActionCommandNode 的子节点集合中<br/>
+     * 父节点只能为 ActionCommandNode<br/>
      *
      * @param name 指令部分字符串
      * @return 指令构建器
@@ -126,8 +126,8 @@ public class CommandBuilder {
     }
 
     /**
-     * 构建 OptionNode 节点, 将其注册到父节点的子节点集合中<br/>
-     * 父节点可以为 ExecutionNode/ActionNode/SubActionNode/ArgumentNode<br/>
+     * 构建 OptionCommandNode 节点, 将其注册到父节点的子节点集合中<br/>
+     * 父节点可以为 ExecutionCommandNode/ActionCommandNode/SubActionCommandNode/ArgumentCommandNode<br/>
      *
      * @param name 指令部分字符串, 用于长指令, 使用 '--'
      * @param alias 指令部分简写, 用户短指令, 使用 '-'
@@ -156,8 +156,8 @@ public class CommandBuilder {
     }
 
     /**
-     * 构建 ArgumentNode 节点, 将其注册到父 OptionNode 的子节点集合中<br/>
-     * 父节点只能为 OptionNode<br/>
+     * 构建 ArgumentCommandNode 节点, 将其注册到父 OptionCommandNode 的子节点集合中<br/>
+     * 父节点只能为 OptionCommandNode<br/>
      *
      * @param name 指令部分字符串
      * @param type 参数类型定义
@@ -183,7 +183,7 @@ public class CommandBuilder {
 
     /**
      * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
-     * 父节点不能为 RootNode 或 ExecutionNode<br/>
+     * 父节点不能为 RootCommandNode 或 ExecutionCommandNode<br/>
      *
      * @param commandExecutor 指令执行器
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
@@ -197,7 +197,7 @@ public class CommandBuilder {
     }
     /**
      * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
-     * 父节点不能为 RootNode 或 ExecutionNode<br/>
+     * 父节点不能为 RootCommandNode 或 ExecutionCommandNode<br/>
      *
      * @param commandExecutor 指令执行器
      * @param usage 指令用途说明

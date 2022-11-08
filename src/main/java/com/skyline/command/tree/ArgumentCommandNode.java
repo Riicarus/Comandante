@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * [FEATURE INFO]<br/>
  * 参数指令节点<br/>
- * 注意: 参数指令节点的名称要和 其父 OptionNode 的名称相同
+ * 注意: 参数指令节点的名称要和 其父 OptionCommandNode 的名称相同
  *
  * @author Skyline
  * @create 2022-10-14 23:49
