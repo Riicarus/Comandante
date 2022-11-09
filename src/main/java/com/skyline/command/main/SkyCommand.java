@@ -1,7 +1,5 @@
 package com.skyline.command.main;
 
-import com.skyline.command.command.InnerCommand;
-import com.skyline.command.config.Config;
 import com.skyline.command.exception.CommandLoadException;
 import com.skyline.command.manage.*;
 import com.skyline.command.tree.ExecutionCommandNode;
@@ -46,16 +44,12 @@ public class SkyCommand {
     }
 
     /**
-     * 启用命令工具, 保证只有一个线程在运行<br/>
-     * 在这里加载内置指令, 并且从配置文件读入配置<br/>
+     * 启用命令处理线程, 保证只有一个线程在运行<br/>
      */
-    protected synchronized void startSkyCommand() {
+    protected synchronized void startCommandRunner() {
         if (run) {
             throw new CommandLoadException("命令行已在运行中.");
         }
-
-        InnerCommand.defineCommand();
-        Config.loadConfig();
 
         skyCommandThread.start();
 

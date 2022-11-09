@@ -1,5 +1,7 @@
 package com.skyline.command.main;
 
+import com.skyline.command.command.InnerCommand;
+import com.skyline.command.config.Config;
 import com.skyline.command.exception.CommandProduceException;
 import com.skyline.command.manage.CommandBuilder;
 
@@ -32,6 +34,11 @@ public class CommandUtil {
      */
     public static final SkyCommand SKY_COMMAND = new SkyCommand();
 
+    static {
+        InnerCommand.defineCommand();
+        Config.loadConfig();
+    }
+
     private CommandUtil() {}
 
     /**
@@ -56,7 +63,7 @@ public class CommandUtil {
      * 启动 CommandRunner 线程
      */
     public static void enable() {
-        SKY_COMMAND.startSkyCommand();
+        SKY_COMMAND.startCommandRunner();
     }
 
     /**
