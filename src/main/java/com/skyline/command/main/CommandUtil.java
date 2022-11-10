@@ -97,6 +97,25 @@ public class CommandUtil {
     }
 
     /**
+     * 设置日志文件输出流
+     *
+     * @param path 日志文件路径, 必须为绝对路径
+     */
+    public static void setLogFile(String path) {
+        Logger.setLog(path);
+    }
+
+    /**
+     * 设置日志文件输出流
+     *
+     * @param path 日志文件路径, 必须为绝对路径
+     * @param charsets 输出流字符集
+     */
+    public static void setLogFile(String path, StandardCharsets charsets) {
+        Logger.setLog(path, charsets);
+    }
+
+    /**
      * 外界指令字符串输入接口<br/>
      * 先将输入的指令保存到 CommandInputHandler 的缓存队列中, 等待 CommandRunner 去消费<br/>
      *

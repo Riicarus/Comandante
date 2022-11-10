@@ -144,6 +144,9 @@ CommandUtil.disable();
 // 重定向输出
 CommandUtil.redirectOutput(OutputStream);
 CommandUtil.redirectOutput(OutputStream, StandardCharsets);
+// 设置日志文件输出 文件路径必须为绝对路径
+CommandUtil.setLogFile(String);
+CommandUtil.setLogFile(String, StandardCharsets);
 // 指令输入
 CommandUtil.dispatchToCache(String);
 // 输出日志

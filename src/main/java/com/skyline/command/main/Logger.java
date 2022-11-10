@@ -24,23 +24,100 @@ public class Logger {
      * 输出流
      */
     private static PrintStream printStream = System.out;
+    /**
+     * 日志输出流
+     */
+    private static PrintStream logStream;
+    /**
+     * 日志输出文件路径, 只能是绝对路径
+     */
+    private static String logFilePath;
+    /**
+     * 能否进行日志输出
+     */
+    private static boolean loggable = false;
 
     private Logger() {
     }
 
+    /**
+     * 设置全局输出流
+     *
+     * @param out 输出流
+     */
     protected static void setOut(OutputStream out) {
         printStream = new PrintStream(out, true);
     }
 
+    /**
+     * 设置全局输出流
+     *
+     * @param out 输出流
+     * @param charsets 输出流字符集
+     * @throws UnsupportedEncodingException 解码方式不支持异常
+     */
     protected static void setOut(OutputStream out, StandardCharsets charsets) throws UnsupportedEncodingException {
         printStream = new PrintStream(out, true, charsets.toString());
     }
 
-    public static void log(String s) {
-        printStream.println(s);
+    /**
+     * 设置日志文件输出流
+     *
+     * @param path 输出文件路径, 必须为绝对路径
+     */
+    protected static void setLog(String path) {
+        if (path.startsWith("/") || path.indexOf(":") > 0) {
+            try {
+                FileOutputStream fos = new FileOutputStream(path);
+                logStream = new PrintStream(fos, true);
+                loggable = true;
+            } catch (FileNotFoundException e) {
+                loggable = false;
+                logFilePath = null;
+                logStream = null;
+            }
+        }
     }
 
+    /**
+     * 设置日志文件输出流
+     *
+     * @param path 输出文件路径, 必须为绝对路径
+     * @param charsets 输出流字符集
+     */
+    protected static void setLog(String path, StandardCharsets charsets) {
+        if (path.startsWith("/") || path.indexOf(":") > 0) {
+            try {
+                FileOutputStream fos = new FileOutputStream(path);
+                logStream = new PrintStream(fos, true, charsets.toString());
+                loggable = true;
+            } catch (FileNotFoundException | UnsupportedEncodingException e) {
+                loggable = false;
+                logFilePath = null;
+                logStream = null;
+            }
+        }
+    }
+
+    /**
+     * 输出信息
+     *
+     * @param s 要输出的内容
+     */
+    public static void log(String s) {
+        printStream.println(s);
+        if (loggable) {
+            logStream.println(s);
+        }
+    }
+
+    /**
+     * 关闭所有的流
+     */
     public static void close() {
         printStream.close();
+        if (loggable) {
+            logStream.close();
+        }
     }
 }

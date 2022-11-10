@@ -1,6 +1,8 @@
 import com.skyline.command.main.CommandUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,11 +16,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class TestMain {
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws FileNotFoundException {
         DemoCommand.defineCommand();
         File file = new File("D:\\tmp\\command-log.txt");
 
-        // CommandUtil.redirectOutput(new FileOutputStream(file));
+        CommandUtil.redirectOutput(new FileOutputStream(file));
+        CommandUtil.setLogFile("D:\\tmp\\sky-command-log.txt");
         CommandUtil.enable();
         Thread thread = new Thread(new ConsoleIOListener());
         thread.start();
