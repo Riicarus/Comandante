@@ -1,4 +1,4 @@
-# SkyCommand
+# Comandante
 version: 1.2   
 
 ## 概述
@@ -72,13 +72,13 @@ public class TestMain {
 ## 扩展
 ### IO 扩展
 #### 指令输入
-SkyCommand 内置了完善的输入输出机制, 都可以通过 `CommandUtil` 提供的 API 调用实现.  
+Comandante 内置了完善的输入输出机制, 都可以通过 `CommandUtil` 提供的 API 调用实现.  
 指令输入的接口是 `CommmandUtil.dispatchToCache(String)` 方法, 使用该方法接收外界传入的指令字符串, 并由指令处理线程进行后续分发和执行处理.  
 用户可以自行定义指令的输入方式, 无论是从文件中读取进行批处理还是从控制台输入, 只需要构建好获取指令的逻辑, 然后将获取到的指令通过 `CommandUtil.dispatchToCache(String)` 方法传给指令插件即可.  
 指令输入支持多线程, `CommandInputHandler` 内部通过生产者消费者模式进行输出指令处理.  
 
 #### 重定向输出
-SkyCommand 同时支持输出重定向, 可以重定向插件内部所有输出到任意的输出流中.  
+Comandante 同时支持输出重定向, 可以重定向插件内部所有输出到任意的输出流中.  
 该功能由 `CommandUtil.redirectOutput(OutputStream)` 方法提供, 该方法会设置全局日志输出工具类 `Logger` 的输出流, 来达到全局重定向输出的目的.  
 同时, 该接口支持设置输出流的字符集, 只需要调用 `CommandUtil.redirectOutut(OutputStream, StandardCharsets)` 方法进行输出重定即可.  
 
@@ -86,31 +86,31 @@ SkyCommand 同时支持输出重定向, 可以重定向插件内部所有输出�
 > 所以如果想要完美实现重定向输出的功能, 需要在自定义指令或其他配置中都是用该方法进行输出.  
 
 ## 内置指令
-目前 SkyCommand 有如下内置指令:  
+目前 Comandante 有如下内置指令:  
 ```bash
-command --version  查看 SkyCommand 版本号
-command --author  查看 SkyCommand 作者
-command --doc  查看 SkyCommand 文档
-command --info  查看 SkyCommand 信息
-command --help  帮助指令
-command list -a 列出所有已注册指令
+comandante --version  查看 Comandante 版本号
+comandante --author  查看 Comandante 作者
+comandante --doc  查看 Comandante 文档
+comandante --info  查看 Comandante 信息
+comandante --help  帮助指令
+comandante list -a 列出所有已注册指令
 ```
 对所有已加载指令(可以是自定义的指令), 在其 `exe` 节点上, 我们都为其装配了对应的 help 指令, 如:  
 ```bash
-command --help
+comandante --help
 exe --help
 ```
 help 指令会输出该指令节点下所有的指令搭配, 其中 `option` 节点会用 `[]` 括起来, `argument` 节点会用 `<>` 括起来, 如:  
 ```bash
-command -h
-Input command: command -h.
+comandante -h
+Input comandante: comandante -h.
 Format: exe act sub-act [opt] <arg>
-command [help]  帮助指令
-command [author]  查看 SkyCommand 作者
-command [doc]  查看 SkyCommand 文档
-command list [all]  列出所有已注册指令
-command [version]  查看 SkyCommand 版本号
-command [info]  查看 SkyCommand 信息
+comandante [help]  帮助指令
+comandante [author]  查看 Comandante 作者
+comandante [doc]  查看 Comandante 文档
+comandante list [all]  列出所有已注册指令
+comandante [version]  查看 Comandante 版本号
+comandante [info]  查看 Comandante 信息
 Command execute complete.
 ```
 

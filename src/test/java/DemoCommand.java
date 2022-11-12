@@ -1,9 +1,9 @@
-import com.skyline.command.main.CommandUtil;
-import com.skyline.command.argument.IntegerCommandArgumentType;
-import com.skyline.command.argument.ListCommandArgumentType;
-import com.skyline.command.argument.StringCommandArgumentType;
-import com.skyline.command.command.BaseCommand;
-import com.skyline.command.main.Logger;
+import com.skyline.comandante.main.CommandUtil;
+import com.skyline.comandante.argument.IntegerCommandArgumentType;
+import com.skyline.comandante.argument.ListCommandArgumentType;
+import com.skyline.comandante.argument.StringCommandArgumentType;
+import com.skyline.comandante.command.BaseCommand;
+import com.skyline.comandante.main.Logger;
 
 /**
  * [FEATURE INFO]<br/>

@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.skyline</groupId>
-    <artifactId>SkyCommand</artifactId>
+    <artifactId>Comandante</artifactId>
     <version>1.2</version>
 
     <properties>
