@@ -156,6 +156,17 @@ public class CommandBuilder {
     }
 
     /**
+     * Option 节点可以不设置短指令, 只设置长指令
+     *
+     * @param name 长指令部分字符串
+     * @return 指令构建器
+     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     */
+    public CommandBuilder option(String name) {
+        return option(name, null);
+    }
+
+    /**
      * 构建 ArgumentCommandNode 节点, 将其注册到父 OptionCommandNode 的子节点集合中<br/>
      * 父节点只能为 OptionCommandNode<br/>
      *

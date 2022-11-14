@@ -201,20 +201,20 @@ public class CommandDispatcher {
                     }
                 }
             }
-        } else {
-            // 这里还没有到 option 或 argument 部分
+        } else { // 当前节点还没有到 option 或 argument 部分
             if (commandPart.startsWith(LONG_OPTION_PREFIX_STRING)) {
                 commandPart = commandPart.substring(LONG_OPTION_PREFIX_STRING.length());
                 isOptionOrArg = true;
 
                 node = commandNode.getChildren().get(commandPart);
-            } else if (commandPart.startsWith(SHORT_OPTION_PREFIX_STRING)) {
+            } else if (commandPart.startsWith(SHORT_OPTION_PREFIX_STRING)) { // 处理短指令, 遍历寻找 alias 是否匹配
                 commandPart = commandPart.substring(SHORT_OPTION_PREFIX_STRING.length());
                 isOptionOrArg = true;
 
                 for (CommandNode child : commandNode.getChildren().values()) {
                     if (child instanceof OptionCommandNode) {
-                        if (((OptionCommandNode) child).getAlias().equals(commandPart)) {
+                        // alias 可能为 null
+                        if (((OptionCommandNode) child).getAlias() != null && ((OptionCommandNode) child).getAlias().equals(commandPart)) {
                             node = child;
                             break;
                         }

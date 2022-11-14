@@ -47,7 +47,7 @@ public class DemoCommand extends BaseCommand {
                 );
 
         CommandUtil.register().execution("plugin").action("munload")
-                .option("ids", "i").argument("ids", new ListCommandArgumentType())
+                .option("ids").argument("ids", new ListCommandArgumentType())
                 .executor(
                         args -> Logger.log("multi-unload plugin of ids: " + args[0].toString())
                 );
