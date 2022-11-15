@@ -1,4 +1,4 @@
-import com.skyline.comandante.main.CommandUtil;
+import com.riicarus.comandante.main.CommandUtil;
 
 import java.util.Scanner;
 

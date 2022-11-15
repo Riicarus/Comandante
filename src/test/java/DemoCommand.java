@@ -1,9 +1,9 @@
-import com.skyline.comandante.main.CommandUtil;
-import com.skyline.comandante.argument.IntegerCommandArgumentType;
-import com.skyline.comandante.argument.ListCommandArgumentType;
-import com.skyline.comandante.argument.StringCommandArgumentType;
-import com.skyline.comandante.command.BaseCommand;
-import com.skyline.comandante.main.Logger;
+import com.riicarus.comandante.definition.BaseCommand;
+import com.riicarus.comandante.main.CommandUtil;
+import com.riicarus.comandante.argument.IntegerCommandArgumentType;
+import com.riicarus.comandante.argument.ListCommandArgumentType;
+import com.riicarus.comandante.argument.StringCommandArgumentType;
+import com.riicarus.comandante.main.Logger;
 
 /**
  * [FEATURE INFO]<br/>
