@@ -4,11 +4,11 @@ import com.riicarus.comandante.exception.CommandLoadException;
 import com.riicarus.comandante.manage.CommandDispatcher;
 import com.riicarus.comandante.manage.CommandInputHandler;
 import com.riicarus.comandante.manage.CommandRegister;
-import com.riicarus.comandante.tree.ExecutionCommandNode;
+import com.riicarus.comandante.tree.ExecutionNode;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -72,7 +72,7 @@ public class Comandante {
      * @return 已加载的 Execution 指令部分集合
      */
     protected Set<String> listAllExecutionCommand() {
-        ConcurrentHashMap<String, ExecutionCommandNode> executions = getCommandRegister().getRootCommandNode().getExecutions();
+        HashMap<String, ExecutionNode> executions = getCommandRegister().getRootNode().getExecutions();
         return executions == null ? new HashSet<>() : executions.keySet();
     }
 

@@ -30,7 +30,7 @@ public class TestMain {
 
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            Thread thread_ = new Thread(() -> CommandUtil.dispatchToCache("plugin load -d " + integer.incrementAndGet()));
+            Thread thread_ = new Thread(() -> CommandUtil.dispatchToCache("app --color 'red' --font 'Soft' " + integer.incrementAndGet()));
 
             threads.add(thread_);
         }

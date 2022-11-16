@@ -1,5 +1,5 @@
 # Comandante
-version: 1.2   
+version: 1.3   
 
 ## 概述
 ### 指令结构

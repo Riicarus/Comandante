@@ -10,8 +10,8 @@ package com.riicarus.comandante.exception;
  */
 public class CommandBuildException extends RuntimeException {
 
-    public CommandBuildException(String message, Throwable cause) {
-        super(message, cause);
+    public CommandBuildException(String message) {
+        super(message);
     }
 
 }

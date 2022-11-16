@@ -18,26 +18,26 @@ import java.util.Set;
 public class InnerCommand extends BaseCommand {
 
     public static void defineCommand() {
-        CommandUtil.register().execution("comandante")
-                .option("version", "v")
+        CommandUtil.register().exe("comandante")
+                .opt("version", "v")
                 .executor(
                         (args) -> Logger.log(Config.getVersion()),
                         "查看 Comandante 版本号"
         );
-        CommandUtil.register().execution("comandante")
-                .option("author", "a")
+        CommandUtil.register().exe("comandante")
+                .opt("author", "a")
                 .executor(
                         (args) -> Logger.log(Config.getAuthor()),
                         "查看 Comandante 作者"
         );
-        CommandUtil.register().execution("comandante")
-                .option("doc", "d")
+        CommandUtil.register().exe("comandante")
+                .opt("doc", "d")
                 .executor(
                         (args) -> Logger.log(Config.getDoc()),
                         "查看 Comandante 文档"
         );
-        CommandUtil.register().execution("comandante")
-                .option("info", "i")
+        CommandUtil.register().exe("comandante")
+                .opt("info", "i")
                 .executor(
                         (args) -> {
                             Logger.log(Config.getVersion());
@@ -46,8 +46,8 @@ public class InnerCommand extends BaseCommand {
                         },
                         "查看 Comandante 信息"
                 );
-        CommandUtil.register().execution("comandante").action("list")
-                .option("all", "a")
+        CommandUtil.register().exe("comandante").exe("list")
+                .opt("all", "a")
                 .executor(
                         args -> {
                             Set<String> commandSet = CommandUtil.listAllExecutionCommand();

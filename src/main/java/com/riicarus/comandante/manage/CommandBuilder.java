@@ -3,7 +3,6 @@ package com.riicarus.comandante.manage;
 import com.riicarus.comandante.argument.CommandArgumentType;
 import com.riicarus.comandante.exception.CommandBuildException;
 import com.riicarus.comandante.executor.CommandExecutor;
-import com.riicarus.comandante.executor.CommandHelper;
 import com.riicarus.comandante.tree.*;
 
 /**
@@ -27,132 +26,86 @@ public class CommandBuilder {
     /**
      * 保持一个指令树根节点的引用, 将一个指令分支注册到根节点上
      */
-    private final RootCommandNode rootCommandNode;
-
+    private final RootNode rootNode;
     /**
      * 当前被构建出的节点, 会随着一条指令的构建逐渐更新, 但是保持为当前指令链的尾节点
      */
-    private CommandNode currentNode;
+    private AbstractNode currentNode;
+    /**
+     * 当前被构建出的 ExecutionNode 节点, 会随着一条指令的构建逐渐更新, 但是保持为当前指令链的尾 ExecutionNode 节点
+     */
+    private ExecutionNode currentExecutionNode;
 
-    public CommandBuilder(final RootCommandNode rootCommandNode) {
-        this.rootCommandNode = rootCommandNode;
-        this.currentNode = rootCommandNode;
+    public CommandBuilder(final RootNode rootNode) {
+        this.rootNode = rootNode;
+        this.currentNode = rootNode;
+        this.currentExecutionNode = null;
     }
 
     /**
-     * 构建 ExecutionCommandNode 节点, 会被注册到 RootCommandNode 的子节点集合中<br/>
+     * 构建 ExecutionNode 节点, 会被注册到根节点或其上一个 ExecutionNode 节点的子节点集合中<br/>
      * 会被自动注册入一个 CommandHelper 节点, 用于执行 'xxx -h/--help' 指令<br/>
-     * 其父节点只能是根节点<br/>
+     * CommandHelper 节点无法重定向到其他节点<br/>
      *
      * @param name 指令部分字符串
      * @return 指令构建器
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
-    public CommandBuilder execution(String name) {
-        if (currentNode instanceof RootCommandNode) {
-            ExecutionCommandNode executionCommandNode = new ExecutionCommandNode(name);
-            currentNode.addChildNode(executionCommandNode);
-            currentNode.addExecutionNode(executionCommandNode);
+    public CommandBuilder exe(String name) {
+        boolean isRootOrExecutionNode = currentNode instanceof RootNode || currentNode instanceof ExecutionNode;
 
-            if (currentNode.getExecutions() != null) {
-                currentNode = currentNode.getExecutions().get(name);
+        ExecutionNode executionNode = new ExecutionNode(name);
 
-                // 添加 --help/-h 指令支持
-                OptionCommandNode helpOptionNode = new OptionCommandNode(null, "help", "h");
-                helpOptionNode.setUsage("帮助指令");
-                helpOptionNode.setCommandExecutor(new CommandHelper(currentNode), true);
-                currentNode.addChildNode(helpOptionNode);
-                currentNode.addOptionNode(helpOptionNode);
-
-                return this;
-            }
-
-            throw new CommandBuildException("Current node may be wrong when adding exe-node: " + name, null);
+        if (isRootOrExecutionNode) {
+            // 如果当前节点位于指令树主干, 就让当前节点添加
+            currentNode.addChild(executionNode);
+            executionNode = currentNode.addExecution(executionNode);
+        } else if (currentExecutionNode != null){
+            // 当前节点不在指令树主干上, 就让上一个主干上的 ExecutionNode 添加
+            currentExecutionNode.addChild(executionNode);
+            executionNode = currentExecutionNode.addExecution(executionNode);
+        } else {
+            throw new CommandBuildException("ExecutionNode[" + name + "] build failed.");
         }
 
-        throw new CommandBuildException("ExecutionNode can only follow behind RootNode", null);
+        currentNode = executionNode;
+        currentExecutionNode = executionNode;
+
+        return this;
     }
 
     /**
-     * 构建 ActionCommandNode 节点, 将其注册到父 ExecutionCommandNode 的子节点集合中<br/>
-     * 父节点只能为 ExecutionCommandNode<br/>
-     *
-     * @param name 指令部分字符串
-     * @return 指令构建器
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
-     */
-    public CommandBuilder action(String name) {
-        if (currentNode instanceof ExecutionCommandNode) {
-            ActionCommandNode actionCommandNode =
-                    new ActionCommandNode(null, name, false);
-
-            currentNode.addChildNode(actionCommandNode);
-            currentNode.addActionNode(actionCommandNode);
-
-            if (currentNode.getActions() != null) {
-                currentNode = currentNode.getActions().get(name);
-                return this;
-            }
-            throw new CommandBuildException("Current node may be wrong when adding act-node: " + name, null);
-        }
-
-        throw new CommandBuildException("ActionNode can only follow behind ExecutionNode", null);
-    }
-
-    /**
-     * 构建 SubActionCommandNode 节点, 将其注册到父 ActionCommandNode 的子节点集合中<br/>
-     * 父节点只能为 ActionCommandNode<br/>
-     *
-     * @param name 指令部分字符串
-     * @return 指令构建器
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
-     */
-    public CommandBuilder subAction(String name) {
-        if (currentNode instanceof ActionCommandNode) {
-            ActionCommandNode actionCommandNode =
-                    new ActionCommandNode(null, name, true);
-
-            currentNode.addChildNode(actionCommandNode);
-            currentNode.addSubActionNode(actionCommandNode);
-
-            if (currentNode.getSubActions() != null) {
-                currentNode = currentNode.getSubActions().get(name);
-                return this;
-            }
-            throw new CommandBuildException("Current node may be wrong when adding sub-act-node: " + name, null);
-        }
-
-        throw new CommandBuildException("SubActionNode can only follow behind ActionNode", null);
-    }
-
-    /**
-     * 构建 OptionCommandNode 节点, 将其注册到父节点的子节点集合中<br/>
-     * 父节点可以为 ExecutionCommandNode/ActionCommandNode/SubActionCommandNode/ArgumentCommandNode<br/>
+     * 构建 OptionNode 节点<br/>
+     * 需要将所有 OptionNode 节点都添加到对应的 ExecutionCommandNode 子节点集合中<br/>
+     * OptionNode 节点不会构成链式结构, 任何其父节点只能注册一层 OptionNode 节点<br/>
      *
      * @param name 指令部分字符串, 用于长指令, 使用 '--'
      * @param alias 指令部分简写, 用户短指令, 使用 '-'
      * @return 指令构建器
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
-    public CommandBuilder option(String name, String alias) {
-        if (currentNode instanceof ExecutionCommandNode ||
-                currentNode instanceof ActionCommandNode ||
-                currentNode instanceof OptionCommandNode ||
-                currentNode instanceof ArgumentCommandNode) {
-            OptionCommandNode optionCommandNode =
-                    new OptionCommandNode(null, name, alias);
+    public CommandBuilder opt(String name, String alias) {
+        OptionNode optionNode = new OptionNode(name, alias);
 
-            currentNode.addChildNode(optionCommandNode);
-            currentNode.addOptionNode(optionCommandNode);
-
-            if (currentNode.getOptions() != null) {
-                currentNode = currentNode.getOptions().get(name);
-                return this;
-            }
-            throw new CommandBuildException("Current node may be wrong when adding opt-node: " + name, null);
+        if (currentNode instanceof ExecutionNode) {
+            // 当前为 ExecutionNode, 直接添加 OptionNode
+            currentNode.addChild(optionNode);
+            optionNode = currentNode.addOption(optionNode);
+        } else if (currentNode instanceof OptionNode) {
+            // 当前为 OptionNode, 需要添加到对应的 ExecutionNode 的子节点
+            currentExecutionNode.addChild(optionNode);
+            optionNode = currentExecutionNode.addOption(optionNode);
+        } else if (currentNode instanceof ArgumentNode<?>) {
+            // 当前为 ArgumentNode, 需要添加到对应的 ExecutionNode 的子节点
+            currentExecutionNode.addChild(optionNode);
+            optionNode = currentExecutionNode.addOption(optionNode);
+        } else {
+            throw new CommandBuildException("OptionNode[" + name + "] build failed.");
         }
 
-        throw new CommandBuildException("OptionNode can only follow behind (Sub)ActionNode or ExecutionNode or ArgumentNode", null);
+        currentNode = optionNode;
+
+        return this;
     }
 
     /**
@@ -162,34 +115,35 @@ public class CommandBuilder {
      * @return 指令构建器
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
-    public CommandBuilder option(String name) {
-        return option(name, null);
+    public CommandBuilder opt(String name) {
+        return opt(name, null);
     }
 
     /**
-     * 构建 ArgumentCommandNode 节点, 将其注册到父 OptionCommandNode 的子节点集合中<br/>
-     * 父节点只能为 OptionCommandNode<br/>
+     * 构建 ArgumentNode 节点<br/>
+     * 父节点可以为 ExecutionNode 或 OptionNode 或 ArgumentNode<br/>
+     * 将其加入父节点的 arguments 有序链表中
      *
      * @param name 指令部分字符串
      * @param type 参数类型定义
      * @return 指令构建器
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
-    public <T> CommandBuilder argument(String name, CommandArgumentType<T> type) {
-        if (currentNode instanceof OptionCommandNode) {
-            ArgumentCommandNode<T> argumentCommandNode =
-                    new ArgumentCommandNode<>(name, null, type);
+    public <T> CommandBuilder arg(String name, CommandArgumentType<T> type) {
+        ArgumentNode<?> argumentNode = new ArgumentNode<>(name, type);
 
-            currentNode.addChildNode(argumentCommandNode);
-            currentNode.addArgumentNode(argumentCommandNode);
-
-            if (currentNode.getArguments() != null) {
-                currentNode = currentNode.getArguments().get(name);
-                return this;
-            }
-            throw new CommandBuildException("Current node may be wrong when adding arg-node: " + name, null);
+        if (currentNode instanceof ExecutionNode ||
+                currentNode instanceof OptionNode ||
+                currentNode instanceof ArgumentNode<?>) {
+            currentNode.addChild(argumentNode);
+            argumentNode = currentNode.setNextArgument(argumentNode);
+        } else {
+            throw new CommandBuildException("ArgumentNode[" + name + "] build failed.");
         }
-        throw new CommandBuildException("ArgumentNode can only follow behind (Sub)ActionNode or OptionNode or ArgumentNode", null);
+
+        currentNode = argumentNode;
+
+        return this;
     }
 
     /**
@@ -200,8 +154,8 @@ public class CommandBuilder {
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
     public void executor(CommandExecutor commandExecutor) {
-        if (currentNode instanceof RootCommandNode || currentNode instanceof ExecutionCommandNode) {
-            throw new CommandBuildException("RootNode or ExecutionNode can not have a command executor", null);
+        if (currentNode instanceof RootNode) {
+            throw new CommandBuildException("RootNode can not have a command executor");
         }
 
         currentNode.setCommandExecutor(commandExecutor);
@@ -215,15 +169,15 @@ public class CommandBuilder {
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
     public void executor(CommandExecutor commandExecutor, final String usage) {
-        if (currentNode instanceof RootCommandNode || currentNode instanceof ExecutionCommandNode) {
-            throw new CommandBuildException("RootNode or ExecutionNode can not have a command executor", null);
+        if (currentNode instanceof RootNode) {
+            throw new CommandBuildException("RootNode can not have a command executor");
         }
 
         currentNode.setCommandExecutor(commandExecutor);
         currentNode.setUsage(usage);
     }
 
-    public RootCommandNode getRootCommandNode() {
-        return rootCommandNode;
+    public RootNode getRootNode() {
+        return rootNode;
     }
 }

@@ -1,6 +1,6 @@
 package com.riicarus.comandante.manage;
 
-import com.riicarus.comandante.tree.RootCommandNode;
+import com.riicarus.comandante.tree.RootNode;
 
 /**
  * [FEATURE INFO]<br/>
@@ -15,10 +15,10 @@ public class CommandRegister {
     /**
      * 指令树根节点
      */
-    private final RootCommandNode rootCommandNode = new RootCommandNode();
+    private final RootNode rootNode = new RootNode();
 
-    public RootCommandNode getRootCommandNode() {
-        return rootCommandNode;
+    public RootNode getRootNode() {
+        return rootNode;
     }
 
     /**
@@ -27,7 +27,7 @@ public class CommandRegister {
      * @return 指令构建器
      */
     public CommandBuilder getBuilder() {
-        return new CommandBuilder(rootCommandNode);
+        return new CommandBuilder(rootNode);
     }
 
 }

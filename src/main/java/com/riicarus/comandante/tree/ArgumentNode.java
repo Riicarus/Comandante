@@ -1,40 +1,27 @@
 package com.riicarus.comandante.tree;
 
 import com.riicarus.comandante.argument.CommandArgumentType;
-import com.riicarus.comandante.executor.CommandExecutor;
 
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
- * 参数指令节点<br/>
- * 注意: 参数指令节点的名称要和 其父 OptionCommandNode 的名称相同
+ * 指令树 Argument 节点
  *
  * @author Skyline
- * @create 2022-10-14 23:49
- * @since 1.0
+ * @create 2022-11-16 16:53
+ * @since 1.0.0
  */
-public class ArgumentCommandNode<T> extends CommandNode {
+public class ArgumentNode<T> extends AbstractNode {
 
     /**
      * 参数类型
      */
     private final CommandArgumentType<T> type;
 
-    public ArgumentCommandNode(final String name,
-                               final CommandExecutor commandExecutor,
-                               final CommandArgumentType<T> type) {
-        super(name, null, null,
-                null, new ConcurrentHashMap<>(),
-                null, commandExecutor);
-
+    public ArgumentNode(String name, CommandArgumentType<T> type) {
+        super(name, null, null);
         this.type = type;
-    }
-
-    @Override
-    public ConcurrentHashMap<String, ActionCommandNode> getSubActions() {
-        return null;
     }
 
     public CommandArgumentType<T> getType() {
@@ -55,7 +42,7 @@ public class ArgumentCommandNode<T> extends CommandNode {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ArgumentCommandNode<?> that = (ArgumentCommandNode<?>) o;
+        ArgumentNode<?> that = (ArgumentNode<?>) o;
         return Objects.equals(getName(), that.getName());
     }
 

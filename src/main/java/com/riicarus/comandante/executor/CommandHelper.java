@@ -2,11 +2,11 @@ package com.riicarus.comandante.executor;
 
 import com.riicarus.comandante.exception.CommandExecutionException;
 import com.riicarus.comandante.main.Logger;
+import com.riicarus.comandante.manage.CommandContext;
 import com.riicarus.comandante.tree.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -21,45 +21,45 @@ import java.util.concurrent.ConcurrentHashMap;
 public class CommandHelper implements CommandExecutor {
 
     /**
-     * option 类型节点帮助指令使用的左括号
+     * option 节点帮助指令使用的左括号
      */
     public static final String OPT_QUOTE_LEFT = "[";
     /**
-     * option 类型节点帮助指令使用的右括号
+     * option 节点帮助指令使用的右括号
      */
     public static final String OPT_QUOTE_RIGHT = "]";
     /**
-     * argument 类型节点帮助指令使用的左括号
+     * argument 节点帮助指令使用的左括号
      */
     public static final String ARG_QUOTE_LEFT = "<";
     /**
-     * argument 类型节点帮助指令使用的右括号
+     * argument 节点帮助指令使用的右括号
      */
     public static final String ARG_QUOTE_RIGHT = ">";
     /**
      * 被注册的到的节点引用, 节点为 ExecutionCommandNode
      */
-    private final CommandNode commandNode;
+    private final AbstractNode node;
 
-    public CommandHelper(CommandNode commandNode) {
-        this.commandNode = commandNode;
+    public CommandHelper(AbstractNode node) {
+        this.node = node;
     }
 
     /**
      * 指令执行方法, 在指令注册时被定义, 由 CommandDispatcher 进行调用<br/>
      *
-     * @param args 方法需要传入的参数
+     * @param context 指令上下文
      * @throws Exception 执行时抛出的异常
      */
     @Override
-    public void execute(Object... args) throws Exception {
-        if (commandNode == null) {
+    public void execute(CommandContext context) throws Exception {
+        if (node == null) {
             throw new CommandExecutionException("Command node could not be null.");
         }
         Logger.log("Format: exe act sub-act [opt] <arg>");
 
         List<String> helpCommands = new ArrayList<>();
-        listAllCommand(commandNode, new StringBuilder(), helpCommands);
+        listAllCommand(node, new StringBuilder(), helpCommands);
         helpCommands.forEach(Logger::log);
     }
 
@@ -73,44 +73,10 @@ public class CommandHelper implements CommandExecutor {
      * @param helpStr 由 ExecutionCommandNode 到当前节点的父节点构建的指令部分字符串
      * @param helpCommands 所有可执行指令的 helpStr 集合
      */
-    private void listAllCommand(CommandNode commandNode, StringBuilder helpStr, List<String> helpCommands) {
-        // 当前节点为空, 将 helpStr 加入 list, 返回(一般不会出现此类情况)
-        if (commandNode == null) {
-            helpCommands.add(helpStr.toString());
-            return;
-        }
-
-        // 根据节点类型, 将各自部分的 名称和前后缀加入 helpStr
-        if (commandNode instanceof ExecutionCommandNode) {
-            helpStr.append(commandNode.getName());
-        } else if (commandNode instanceof ActionCommandNode) {
-            helpStr.append(" ").append(commandNode.getName());
-        } else if (commandNode instanceof OptionCommandNode) {
-            helpStr.append(" ").append(OPT_QUOTE_LEFT).append(commandNode.getName()).append(OPT_QUOTE_RIGHT);
-        } else if (commandNode instanceof ArgumentCommandNode) {
-            helpStr.append(" ").append(ARG_QUOTE_LEFT).append(commandNode.getName()).append(ARG_QUOTE_RIGHT);
-        }
-
-        // 如果当前节点没有后继节点了, 就将 helpStr 加入 list, 返回(一般来说尾节点都是可执行的指令节点)
-        if (commandNode.getChildren().isEmpty()) {
-            helpCommands.add(helpStr.toString() + "  " + commandNode.getUsage());
-            return;
-        }
-
-        // 当前节点不是尾节点, 但是注册有指令执行器, 同样加入 helpStr
-        if (commandNode.getCommandExecutor() != null) {
-            helpCommands.add(helpStr.toString() + "  " + commandNode.getUsage());
-        }
-
-        String str = helpStr.toString();
-        ConcurrentHashMap<String, CommandNode> children = commandNode.getChildren();
-        // 遍历每一个子节点, 继续向下搜索, 更新 helpStr
-        for (CommandNode node : children.values()) {
-            listAllCommand(node, new StringBuilder(str), helpCommands);
-        }
+    private void listAllCommand(AbstractNode commandNode, StringBuilder helpStr, List<String> helpCommands) {
     }
 
-    public CommandNode getCommandNode() {
-        return commandNode;
+    public AbstractNode getNode() {
+        return node;
     }
 }
