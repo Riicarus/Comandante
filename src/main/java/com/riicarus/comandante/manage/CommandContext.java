@@ -1,8 +1,11 @@
 package com.riicarus.comandante.manage;
 
+import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.tree.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -19,50 +22,47 @@ public class CommandContext {
      */
     private final HashMap<String, Object> data = new HashMap<>();
     /**
-     * 当前上下文解析的指令字符串
-     */
-    private final String commandStr;
-    /**
      * 当前上下文解析的指令字符串分割后的字符串列表
      */
     private final List<String> commandStrParts;
     /**
-     * 当前解析到的指令字符串列表的索引
+     * 在 commandMainParts 中删除掉的非主干节点的数量
      */
-    private int currentIndex;
+    private int deletedCount = 0;
+    /**
+     * 当前指令按序解析出的 OptionNode 部分对应的 指令执行器
+     */
+    private final LinkedList<CommandExecutor> optionExecutors = new LinkedList<>();
+    /**
+     * 指令树主干节点对应的指令部分, 为 ExecutionNode 及其 ArgumentNode
+     */
+    private final List<String> commandMainParts;
+    /**
+     * 当前指令的主节点
+     */
+    private ExecutionNode mainExecutionNode;
     /**
      * 当前解析到的节点
      */
     private AbstractNode currentNode;
-    /**
-     * 当前解析到的 ExecutionNode 节点
-     */
-    private ExecutionNode currentExecutionNode;
-    /**
-     * 当前解析到的 OptionNode 节点
-     */
-    private OptionNode currentOptionNode;
-    /**
-     * 当前解析到的 ArgumentNode 节点
-     */
-    private ArgumentNode<?> currentArgumentNode;
 
-    public CommandContext(String commandStr, List<String> commandStrParts, final RootNode rootNode) {
-        this.commandStr = commandStr;
+    public CommandContext(final List<String> commandStrParts, final RootNode rootNode) {
         this.commandStrParts = commandStrParts;
         this.currentNode = rootNode;
+        this.commandMainParts = new ArrayList<>(commandStrParts);
     }
 
-    public boolean isEnd() {
-        return currentIndex >= commandStrParts.size();
+    public void increaseDeletedCount() {
+        deletedCount++;
     }
 
-    public boolean isLast() {
-        return currentIndex == commandStrParts.size() - 1;
+    public void addOptionExecutor(final CommandExecutor commandExecutor) {
+        getOptionExecutors().addLast(commandExecutor);
     }
 
-    public void increaseCurrentIndex() {
-        currentIndex++;
+    public void deleteNotMainPart(int index) {
+        getCommandMainParts().remove(index);
+        increaseDeletedCount();
     }
 
     public void putData(String key, Object value) {
@@ -77,51 +77,35 @@ public class CommandContext {
         return data;
     }
 
-    public String getCommandStr() {
-        return commandStr;
-    }
-
     public List<String> getCommandStrParts() {
         return commandStrParts;
     }
 
-    public int getCurrentIndex() {
-        return currentIndex;
+    public int getDeletedCount() {
+        return deletedCount;
+    }
+
+    public LinkedList<CommandExecutor> getOptionExecutors() {
+        return optionExecutors;
+    }
+
+    public List<String> getCommandMainParts() {
+        return commandMainParts;
+    }
+
+    public ExecutionNode getMainExecutionNode() {
+        return mainExecutionNode;
     }
 
     public AbstractNode getCurrentNode() {
         return currentNode;
     }
 
-    public ExecutionNode getCurrentExecutionNode() {
-        return currentExecutionNode;
-    }
-
-    public OptionNode getCurrentOptionNode() {
-        return currentOptionNode;
-    }
-
-    public ArgumentNode<?> getCurrentArgumentNode() {
-        return currentArgumentNode;
-    }
-
-    public void setCurrentIndex(int currentIndex) {
-        this.currentIndex = currentIndex;
+    public void setMainExecutionNode(ExecutionNode mainExecutionNode) {
+        this.mainExecutionNode = mainExecutionNode;
     }
 
     public void setCurrentNode(AbstractNode currentNode) {
         this.currentNode = currentNode;
-    }
-
-    public void setCurrentExecutionNode(ExecutionNode currentExecutionNode) {
-        this.currentExecutionNode = currentExecutionNode;
-    }
-
-    public void setCurrentOptionNode(OptionNode currentOptionNode) {
-        this.currentOptionNode = currentOptionNode;
-    }
-
-    public void setCurrentArgumentNode(ArgumentNode<?> currentArgumentNode) {
-        this.currentArgumentNode = currentArgumentNode;
     }
 }

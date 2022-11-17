@@ -5,7 +5,6 @@ import com.riicarus.comandante.main.Logger;
 import com.riicarus.comandante.manage.CommandContext;
 import com.riicarus.comandante.tree.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,10 +56,6 @@ public class CommandHelper implements CommandExecutor {
             throw new CommandExecutionException("Command node could not be null.");
         }
         Logger.log("Format: exe act sub-act [opt] <arg>");
-
-        List<String> helpCommands = new ArrayList<>();
-        listAllCommand(node, new StringBuilder(), helpCommands);
-        helpCommands.forEach(Logger::log);
     }
 
     /**

@@ -18,7 +18,7 @@ public class RootNode extends AbstractNode {
     private static final String ROOT_NAME = "ROOT";
 
     public RootNode() {
-        super(ROOT_NAME, new HashMap<>(), null);
+        super(ROOT_NAME, new HashMap<>(), null, null, null);
     }
 
     public Set<String> listRegisteredExecutions() {

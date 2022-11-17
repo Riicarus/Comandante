@@ -20,10 +20,6 @@ public abstract class AbstractNode {
      */
     private final String name;
     /**
-     * 节点在指令树中的子节点
-     */
-    private final HashMap<String, AbstractNode> children = new HashMap<>();
-    /**
      * 节点在指令树中的子 ExecutionNode 节点
      */
     private final HashMap<String, ExecutionNode> executions;
@@ -32,9 +28,13 @@ public abstract class AbstractNode {
      */
     private final HashMap<String, OptionNode> options;
     /**
-     * 节点在指令树中的子 ArgumentNode 节点链表
+     * 节点在指令树中的子 ArgumentNode 节点
      */
-    private ArgumentNode<?> nextArgument;
+    private final HashMap<String, ArgumentNode<?>> arguments;
+    /**
+     * 当前节点的前一个节点
+     */
+    private final AbstractNode previousNode;
     /**
      * 注册在该节点的指令执行器的用途
      */
@@ -46,16 +46,14 @@ public abstract class AbstractNode {
 
     public AbstractNode(String name,
                         HashMap<String, ExecutionNode> executions,
-                        HashMap<String, OptionNode> options) {
+                        HashMap<String, OptionNode> options,
+                        HashMap<String, ArgumentNode<?>> arguments,
+                        AbstractNode previousNode) {
         this.name = name;
         this.executions = executions;
         this.options = options;
-    }
-
-    public void addChild(AbstractNode node) {
-        if (!getChildren().containsKey(node.getName())) {
-            getChildren().put(node.getName(), node);
-        }
+        this.arguments = arguments;
+        this.previousNode = previousNode;
     }
 
     public ExecutionNode addExecution(ExecutionNode node) {
@@ -64,34 +62,41 @@ public abstract class AbstractNode {
             getExecutions().put(node.getName(), node);
         }
 
-        if (getExecutions() != null) {
-            return getExecutions().get(node.getName());
+        ExecutionNode execution = getExecution(node.getName());
+        if (execution != null) {
+            return execution;
         }
 
         throw new CommandBuildException("ExecutionNode[" + name + "] add failed.");
     }
 
     public OptionNode addOption(OptionNode node) {
-        // 允许添加 ExecutionNode 节点并且不存在对应名称的节点
+        // 允许添加 OptionNode 节点并且不存在对应名称的节点
         if (getOptions() != null && !getOptions().containsKey(node.getName())) {
             getOptions().put(node.getName(), node);
         }
 
-        if (getOptions() != null) {
-            return getOptions().get(node.getName());
+        // 返回当前在指令树中对应的节点(可能该节点没有被添加进去)
+        OptionNode optionNode = getOption(node.getName());
+        if (optionNode != null) {
+            return optionNode;
         }
 
         throw new CommandBuildException("OptionNode[" + name + "] add failed.");
     }
 
-    public ArgumentNode<?> setNextArgument(ArgumentNode<?> node) {
-        // 允许添加 ExecutionNode 节点并且当前没有被注册
-        if (!(this instanceof RootNode) && getNextArgument() == null) {
-            nextArgument = node;
+    public ArgumentNode<?> addArgument(ArgumentNode<?> node) {
+        // 如果是属于 OptionNode 的参数节点, 就将注册的名称改为 ArgumentNode.OPTION_ARGUMENT_NAME, 便于在 CommandDispatcher 中获取对应节点
+        String nodeName = node.isOptionArg() ? ArgumentNode.OPTION_ARGUMENT_NAME : ArgumentNode.EXECUTION_ARGUMENT_NAME;
+
+        // 允许添加 ArgumentNode 节点并且当前没有被注册
+        if (getArguments() != null && !getArguments().containsKey(nodeName)) {
+            getArguments().put(nodeName, node);
         }
 
-        if (getNextArgument() != null) {
-            return getNextArgument();
+        ArgumentNode<?> argumentNode = getArgument(nodeName);
+        if (argumentNode != null) {
+            return argumentNode;
         }
 
         throw new CommandBuildException("ArgumentNode[" + name + "] add failed.");
@@ -121,10 +126,6 @@ public abstract class AbstractNode {
         return usage;
     }
 
-    public HashMap<String, AbstractNode> getChildren() {
-        return children;
-    }
-
     public HashMap<String, ExecutionNode> getExecutions() {
         return executions;
     }
@@ -133,11 +134,38 @@ public abstract class AbstractNode {
         return options;
     }
 
-    public ArgumentNode<?> getNextArgument() {
-        return nextArgument;
+    public HashMap<String, ArgumentNode<?>> getArguments() {
+        return arguments;
     }
 
     public CommandExecutor getCommandExecutor() {
         return commandExecutor;
+    }
+
+    public ExecutionNode getExecution(String name) {
+        return getExecutions() == null ? null : getExecutions().get(name);
+    }
+
+    public OptionNode getOption(String name) {
+        HashMap<String, OptionNode> options = getOptions();
+        if (options == null || options.isEmpty() || name == null) {
+            return null;
+        }
+
+        OptionNode optionNode;
+        if ((optionNode = options.get(name)) == null) {
+            for (OptionNode node : options.values()) {
+                if (name.equals(node.getAlias())) {
+                    optionNode = node;
+                    break;
+                }
+            }
+        }
+
+        return optionNode;
+    }
+
+    public ArgumentNode<?> getArgument(String name) {
+        return getArguments() == null ? null : getArguments().get(name);
     }
 }

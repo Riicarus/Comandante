@@ -47,7 +47,7 @@ public class InnerCommand extends BaseCommand {
                         "查看 Comandante 信息"
                 );
         CommandUtil.register().exe("comandante").exe("list")
-                .opt("all", "a")
+                .opt("all")
                 .executor(
                         args -> {
                             Set<String> commandSet = CommandUtil.listAllExecutionCommand();

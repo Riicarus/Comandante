@@ -23,6 +23,7 @@ public class CommandDispatcher {
     private static final String LONG_OPTION_PREFIX_STRING = "--";
     private static final String ARGUMENT_QUOTE = "'";
     private static final char ESCAPE_MODIFIER = '\\';
+    public static final String EXE_ARG_DATA_SEPARATOR = "#EXE_ARG_DATA#";
 
     private final CommandRegister commandRegister;
 
@@ -39,50 +40,30 @@ public class CommandDispatcher {
      *
      * @param commandStr 指令字符串
      */
-    public void dispatch(final String commandStr) throws CommandExecutionException {
+    public void dispatch(final String commandStr) throws CommandExecutionException, CommandNotFoundException {
         String[] commandRawParts = split(commandStr);
 
         List<String> commandStrParts = expandShortOption(commandRawParts);
 
-        CommandContext context = new CommandContext(commandStr, commandStrParts, commandRegister.getRootNode());
-        findNextTillLast(context);
+        CommandContext context = new CommandContext(commandStrParts, commandRegister.getRootNode());
+
+        findMainExecutionNode(context);
+        extractOptions(context);
+
+        findThroughMainTree(context);
+
+        CommandExecutor commandExecutor = context.getCurrentNode().getCommandExecutor();
 
         try {
-            CommandExecutor commandExecutor = context.getCurrentNode().getCommandExecutor();
-            commandExecutor.execute(context);
+            for (CommandExecutor executor : context.getOptionExecutors()) {
+                executor.execute(context);
+            }
+            if (commandExecutor != null) {
+                commandExecutor.execute(context);
+            }
         } catch (Exception e) {
             throw new CommandExecutionException("Command[" + commandStr + "] execute failed.");
         }
-    }
-
-    /**
-     * 将指令字符串解析为和节点对应的指令部分字符串数组, 将合并的短指令分解为单个的短指令
-     *
-     * @param commandRawParts 分割后的指令部分字符串数组
-     * @return 指令部分字符串列表
-     */
-    private List<String> expandShortOption(final String[] commandRawParts) {
-        List<String> commandPartList = new ArrayList<>();
-
-        for (String commandRawPart : commandRawParts) {
-            if (!commandRawPart.startsWith(LONG_OPTION_PREFIX_STRING) && commandRawPart.startsWith(SHORT_OPTION_PREFIX_STRING)) {
-                // 是 short-option 的情况
-                String tmp = commandRawPart.substring(SHORT_OPTION_PREFIX_STRING.length());
-                if (tmp.length() > 1) {
-                    char[] chars = tmp.toCharArray();
-                    for (char c : chars) {
-                        commandPartList.add(SHORT_OPTION_PREFIX_STRING + c);
-                    }
-                } else {
-                    commandPartList.add(commandRawPart);
-                }
-            } else {
-                // 其他情况, 直接加入列表
-                commandPartList.add(commandRawPart);
-            }
-        }
-
-        return commandPartList;
     }
 
     /**
@@ -131,9 +112,9 @@ public class CommandDispatcher {
                 commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SPLIT_STRING)));
             }
 
-            // 解析当前参数括符括起来的参数定义, 把参数括符截取进去, 用于之后的参数判断
+            // 解析当前参数括符括起来的参数定义
             String quotedArgumentPart =
-                    commandStr.substring(indexOfArgumentQuote.get(2 * i), indexOfArgumentQuote.get(2 * i + 1) + 1);
+                    commandStr.substring(indexOfArgumentQuote.get(2 * i) + 1, indexOfArgumentQuote.get(2 * i + 1));
 
             // 被括起来的就一并放入, 表示一个参数
             commandRawParts.add(quotedArgumentPart);
@@ -148,136 +129,179 @@ public class CommandDispatcher {
             }
         }
 
-
         return commandRawParts.toArray(new String[]{});
     }
 
     /**
-     * 递归调用, 直到找到最后一个指令节点<br/>
+     * 将指令字符串解析为和节点对应的指令部分字符串数组, 将合并的短指令分解为单个的短指令
+     *
+     * @param commandRawParts 分割后的指令部分字符串数组
+     * @return 指令部分字符串列表
+     */
+    private List<String> expandShortOption(final String[] commandRawParts) {
+        List<String> commandPartList = new ArrayList<>();
+
+        for (String commandRawPart : commandRawParts) {
+            if (!commandRawPart.startsWith(LONG_OPTION_PREFIX_STRING) && commandRawPart.startsWith(SHORT_OPTION_PREFIX_STRING)) {
+                // 是 short-option 的情况
+                String tmp = commandRawPart.substring(SHORT_OPTION_PREFIX_STRING.length());
+                if (tmp.length() > 1) {
+                    char[] chars = tmp.toCharArray();
+                    for (char c : chars) {
+                        commandPartList.add(SHORT_OPTION_PREFIX_STRING + c);
+                    }
+                } else {
+                    commandPartList.add(commandRawPart);
+                }
+            } else {
+                // 其他情况, 直接加入列表
+                commandPartList.add(commandRawPart);
+            }
+        }
+
+        return commandPartList;
+    }
+
+    /**
+     * 根据指令部分的第一个元素获取指令主节点
+     *
+     * @param context 指令上下文
+     * @throws CommandNotFoundException 找不到指令异常, 运行时异常
+     */
+    private void findMainExecutionNode(final CommandContext context) throws CommandNotFoundException {
+        String mainExecutionStr = context.getCommandStrParts().get(0);
+        // 第一次调用节点肯定为 RootNode
+        RootNode rootNode = (RootNode) context.getCurrentNode();
+
+        ExecutionNode mainExecutionNode = rootNode.getExecution(mainExecutionStr);
+        if (mainExecutionNode == null) {
+            throw new CommandNotFoundException("Can not find ExecutionNode[" + mainExecutionStr + "].");
+        }
+
+        context.setMainExecutionNode(mainExecutionNode);
+        context.setCurrentNode(mainExecutionNode);
+    }
+
+    /**
+     * 从指令部分字符串中提取出所有的 OptionNode, 按序保存进 CommandContext 中<br/>
+     * 同时会将指令主干节点对应字符串列表更新到 CommandContext 中<br/>
+     *
+     * @param context 指令上下文
+     */
+    private void extractOptions(final CommandContext context) {
+        ExecutionNode mainExecutionNode = context.getMainExecutionNode();
+        HashMap<String, OptionNode> allOptions = mainExecutionNode.getAllOptions();
+
+        List<String> commandStrParts = context.getCommandStrParts();
+
+        // 遍历过程中的指令字符串部分索引
+        int currentStrPartIndex = 0;
+        for (String commandStrPart : commandStrParts) {
+            boolean isLongOption = commandStrPart.startsWith(LONG_OPTION_PREFIX_STRING);
+            boolean isShortOption = !isLongOption && commandStrPart.startsWith(SHORT_OPTION_PREFIX_STRING);
+
+            // 不是 OptionNode 就继续遍历
+            if (!isLongOption && !isShortOption) {
+                currentStrPartIndex ++;
+                continue;
+            }
+
+            // 是 OptionNode, 进行处理
+            String commandStr;
+            // 去掉前缀
+            if (isLongOption) {
+                commandStr = commandStrPart.substring(LONG_OPTION_PREFIX_STRING.length());
+            } else {
+                commandStr = commandStrPart.substring(SHORT_OPTION_PREFIX_STRING.length());
+            }
+
+            // 获取 OptionNode
+            OptionNode optionNode = mainExecutionNode.getAnyOption(commandStr);
+            if (optionNode == null) {
+                throw new CommandNotFoundException("Can not find OptionNode[" + commandStr + "].");
+            }
+            CommandExecutor commandExecutor = extractOptionAndArgument(optionNode, commandStrParts, currentStrPartIndex, context);
+            context.addOptionExecutor(commandExecutor);
+
+            currentStrPartIndex ++;
+        }
+    }
+
+    /**
+     * 从指令部分字符串中抽离 OptionNode 的参数, 组成 ParamUnit
+     *
+     * @param optionNode 当前寻找依据的 OptionNode
+     * @param commandStrParts 指令部分字符串
+     * @param index 当前 OptionNode 对应指令部分字符串中的索引
+     * @param context 指令上下文
+     * @return ParamUnit
+     */
+    private CommandExecutor extractOptionAndArgument(final OptionNode optionNode,
+                                               final List<String> commandStrParts,
+                                               int index,
+                                               final CommandContext context) {
+        // 移除 OptionNode 对应的字符串部分
+        context.deleteNotMainPart(index - context.getDeletedCount());
+
+        if (!optionNode.requireArg()) {
+            return optionNode.getCommandExecutor();
+        }
+
+        HashMap<String, Object> args = new HashMap<>();
+        // OptionNode 后的参数节点的注册名称一定为 ArgumentNode.OPTION_ARGUMENT_NAME
+        ArgumentNode<?> argumentNode = optionNode.getArgument(ArgumentNode.OPTION_ARGUMENT_NAME);
+
+        // 处理 OptionNode 的后续参数节点
+        while (!argumentNode.getArguments().isEmpty()) {
+            String arg = commandStrParts.get(index + 1);
+            args.put(argumentNode.getName(), argumentNode.parse(arg));
+
+            argumentNode = argumentNode.getArgument(ArgumentNode.OPTION_ARGUMENT_NAME);
+            index++;
+            context.deleteNotMainPart(index - context.getDeletedCount());
+        }
+        // 处理最后一个参数节点
+        args.put(argumentNode.getName(), argumentNode.parse(commandStrParts.get(index + 1)));
+        index++;
+        context.deleteNotMainPart(index - context.getDeletedCount());
+        context.putData(optionNode.getName(), args);
+
+        return argumentNode.getCommandExecutor();
+    }
+
+    /**
+     * 递归调用, 沿着指令树主干寻找下一个节点, 直到找到最后一个指令节点<br/>
+     * 遇到节点时, 先判断是否为 ExecutionNode, 不是就认为是 ArgumentNode<br/>
+     * <br/>
      * 如有需要会在 CommandContext 中更新对应 data 的值<br/>
      * 每次迭代都会更新 CommandContext 中相关变量的值<br/>
      *
      * @param context 指令上下文
      */
-    public void findNextTillLast(final CommandContext context) {
-        if (context.isEnd()) {
-            return;
+    private void findThroughMainTree(final CommandContext context) {
+        // 第一个指令部分字符串已经在 findMainExecutionNode() 中被解析过了, 因此从第二个开始
+        List<String> commandMainParts = context.getCommandMainParts().subList(1, context.getCommandMainParts().size());
+        // 遍历主干节点字符串, 直到全部找到对应的节点
+        for (String commandMainPart : commandMainParts) {
+            // 先判断是否为 ExecutionNode
+            ExecutionNode executionNode = context.getCurrentNode().getExecution(commandMainPart);
+            if (executionNode != null) {
+                context.setCurrentNode(executionNode);
+                continue;
+            }
+
+            // 不是 ExecutionNode, 就应该为 ArgumentNode
+            ArgumentNode<?> argumentNode = context.getCurrentNode().getArgument(ArgumentNode.EXECUTION_ARGUMENT_NAME);
+            if (argumentNode != null) {
+                String key = context.getCurrentNode().getName() + EXE_ARG_DATA_SEPARATOR + argumentNode.getName();
+                context.putData(key, argumentNode.parse(commandMainPart));
+                context.setCurrentNode(argumentNode);
+
+                continue;
+            }
+
+            throw new CommandNotFoundException("Can not find node of part[" + commandMainPart + "].");
         }
-
-        AbstractNode currentNode = context.getCurrentNode();
-        int currentIndex = context.getCurrentIndex();
-        String commandStrPart = context.getCommandStrParts().get(currentIndex);
-
-        boolean isShortOptionPart = commandStrPart.startsWith(SHORT_OPTION_PREFIX_STRING) && !commandStrPart.startsWith(LONG_OPTION_PREFIX_STRING);
-        boolean isLongOptionPart = commandStrPart.startsWith(LONG_OPTION_PREFIX_STRING);
-        boolean isArgumentPart = commandStrPart.startsWith(ARGUMENT_QUOTE);
-        boolean notOptionPart = !commandStrPart.startsWith(SHORT_OPTION_PREFIX_STRING) && !isArgumentPart;
-
-        boolean isRoot = currentNode instanceof RootNode;
-        boolean isExecution = currentNode instanceof ExecutionNode;
-        boolean isOption = currentNode instanceof OptionNode;
-        boolean isArgument = currentNode instanceof ArgumentNode<?>;
-
-        if (isRoot) {
-            // RootNode 之后一定是 ExecutionNode
-            ExecutionNode nextNode = currentNode.getExecutions().get(commandStrPart);
-            if (nextNode == null) {
-                throw new CommandNotFoundException("Can not find ExecutionNode[" + commandStrPart + "].");
-            }
-
-            context.setCurrentNode(nextNode);
-            context.setCurrentExecutionNode(nextNode);
-        } else if ((isExecution || isOption || isArgument) && (isShortOptionPart || isLongOptionPart)) {
-            // 当前为 ExecutionNode 或者 OptionNode, 之后是 OptionNode, 只需要迭代节点
-            String commandStr = isShortOptionPart ? commandStrPart.substring(SHORT_OPTION_PREFIX_STRING.length()) :
-                    commandStrPart.substring(LONG_OPTION_PREFIX_STRING.length());
-            // 如果当前是 ExecutionNode, 就从当前取 OptionNode, 如果不是, 就从上下文中当前的 ExecutionNode 中取 OptionNode
-            OptionNode nextNode = null;
-            if (isLongOptionPart) {
-                 nextNode = isExecution ? currentNode.getOptions().get(commandStr) : context.getCurrentExecutionNode().getOptions().get(commandStr);
-            } else {
-                HashMap<String, OptionNode> optionNodes = isExecution ? currentNode.getOptions() : context.getCurrentExecutionNode().getOptions();
-                for (Map.Entry<String, OptionNode> entry : optionNodes.entrySet()) {
-                    String name = entry.getKey();
-                    OptionNode node = entry.getValue();
-                    if (commandStr.equals(node.getAlias())) {
-                        nextNode = node;
-                        break;
-                    }
-                }
-            }
-
-            if (nextNode == null) {
-                throw new CommandNotFoundException("Can not find OptionNode[" + commandStrPart + "].");
-            }
-
-            context.setCurrentNode(nextNode);
-            context.setCurrentOptionNode(nextNode);
-        } else if ((isExecution || isOption || isArgument) && isArgumentPart) {
-            // 当前为 ExecutionNode 或者 OptionNode 或者 ArgumentNode, 之后是 ArgumentNode, 只需要迭代节点
-            ArgumentNode<?> nextNode = currentNode.getNextArgument();
-            if (nextNode == null) {
-                throw new CommandNotFoundException("Can not find ArgumentNode[" + commandStrPart + "].");
-            }
-
-            // 这里注意要去掉参数括符
-            context.putData(nextNode.getName(), nextNode.parse(commandStrPart.substring(1, commandStrPart.length() - 1)));
-
-            context.setCurrentNode(nextNode);
-            context.setCurrentArgumentNode(nextNode);
-        } else if ((isExecution || isArgument) && notOptionPart) {
-            // 当前为 ExecutionNode 或者 ArgumentNode, 之后是 ExecutionNode 或者 ArgumentNode
-            // ExecutionNode 的参数不是二元互斥的, 定义了参数但是可以选择不传递参数(即可选参数)
-            boolean isArgumentPart_ = isExecution ? currentNode.getExecutions().get(commandStrPart) == null :
-                    context.getCurrentExecutionNode().getExecutions().get(commandStrPart) == null;
-            if (!isArgumentPart_) {
-                // 如果之后是 ExecutionNode, 只需要迭代
-                ExecutionNode nextNode = isExecution ? currentNode.getExecutions().get(commandStrPart):
-                        context.getCurrentExecutionNode().getExecutions().get(commandStrPart);
-                context.setCurrentNode(nextNode);
-                context.setCurrentExecutionNode(nextNode);
-            } else {
-                // 之后是 ArgumentNode, 将其添加进 CommandContext 的 data 中
-                ArgumentNode<?> nextNode = currentNode.getNextArgument();
-                if (nextNode == null) {
-                    throw new CommandNotFoundException("Can not find ArgumentNode[" + commandStrPart + "].");
-                }
-                context.putData(nextNode.getName(), nextNode.parse(commandStrPart));
-
-                context.setCurrentNode(nextNode);
-                context.setCurrentArgumentNode(nextNode);
-            }
-        } else if (isOption && notOptionPart) {
-            // 当前为 OptionNode, 之后是 ExecutionNode 或 ArgumentNode
-            // OptionNode 的参数是二元互斥的, 如果定义了参数, 就必须要传递参数
-            if (((OptionNode) currentNode).requireArg()) {
-                // 这里表示下一个节点应该是 ArgumentNode
-                ArgumentNode<?> nextNode = currentNode.getNextArgument();
-                if (nextNode == null) {
-                    throw new CommandNotFoundException("Can not find ArgumentNode[" + commandStrPart + "].");
-                }
-
-                context.putData(nextNode.getName(), nextNode.parse(commandStrPart));
-
-                context.setCurrentNode(nextNode);
-                context.setCurrentArgumentNode(nextNode);
-            } else {
-                // 这里表示下一个节点是 ExecutionNode, 需要从指令上下文中当前的 ExecutionNode 中取 ExecutionNode
-                ExecutionNode nextNode = context.getCurrentExecutionNode().getExecutions().get(commandStrPart);
-                if (nextNode == null) {
-                    throw new CommandNotFoundException("Can not find ExecutionNode[" + commandStrPart + "].");
-                }
-
-                context.setCurrentNode(nextNode);
-                context.setCurrentExecutionNode(nextNode);
-            }
-        } else {
-            throw new CommandNotFoundException("Can not find Node[" + commandStrPart + "].");
-        }
-
-        context.increaseCurrentIndex();
-
-        findNextTillLast(context);
     }
 
     public CommandRegister getCommandRegister() {
