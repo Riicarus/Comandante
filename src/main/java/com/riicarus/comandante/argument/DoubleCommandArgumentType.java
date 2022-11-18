@@ -12,6 +12,10 @@ import com.riicarus.comandante.exception.CommandSyntaxException;
  */
 public class DoubleCommandArgumentType extends CommandArgumentType<Double> {
 
+    public DoubleCommandArgumentType() {
+        super("double");
+    }
+
     @Override
     public Double parse(String arg) throws CommandSyntaxException {
         try {

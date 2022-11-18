@@ -28,7 +28,7 @@ public class ArgumentNode<T> extends AbstractNode {
     public static final String EXECUTION_ARGUMENT_NAME = "EXE_ARG";
 
     public ArgumentNode(final String name, final CommandArgumentType<T> type, final AbstractNode previousNode) {
-        super(name, null, null, new HashMap<>(), previousNode);
+        super(name, new HashMap<>(), null, new HashMap<>(), previousNode);
         this.type = type;
         if (previousNode instanceof OptionNode) {
             // 如果前驱节点是 OptionNode, 那就是 OptionNode 之后的参数节点
@@ -62,5 +62,10 @@ public class ArgumentNode<T> extends AbstractNode {
 
     public boolean isOptionArg() {
         return optionArg;
+    }
+
+    @Override
+    public HashMap<String, ExecutionNode> getExecutions() {
+        return isOptionArg() ? null : super.getExecutions();
     }
 }

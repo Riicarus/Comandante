@@ -12,6 +12,10 @@ import com.riicarus.comandante.exception.CommandSyntaxException;
  */
 public class BooleanCommandArgumentType extends CommandArgumentType<Boolean> {
 
+    public BooleanCommandArgumentType() {
+        super("bool");
+    }
+
     @Override
     public Boolean parse(String arg) throws CommandSyntaxException {
         try {

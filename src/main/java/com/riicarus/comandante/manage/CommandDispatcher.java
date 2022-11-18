@@ -18,11 +18,11 @@ import java.util.*;
  */
 public class CommandDispatcher {
 
-    private static final String COMMAND_PART_SPLIT_STRING = " ";
-    private static final String SHORT_OPTION_PREFIX_STRING = "-";
-    private static final String LONG_OPTION_PREFIX_STRING = "--";
-    private static final String ARGUMENT_QUOTE = "'";
-    private static final char ESCAPE_MODIFIER = '\\';
+    public static final String COMMAND_PART_SEPARATOR = " ";
+    public static final String SHORT_OPTION_PREFIX_STRING = "-";
+    public static final String LONG_OPTION_PREFIX_STRING = "--";
+    public static final String ARGUMENT_QUOTE = "'";
+    public static final char ESCAPE_MODIFIER = '\\';
     public static final String EXE_ARG_DATA_SEPARATOR = "#EXE_ARG_DATA#";
 
     private final CommandRegister commandRegister;
@@ -91,7 +91,7 @@ public class CommandDispatcher {
 
         // 没有参数括符
         if (indexOfArgumentQuote.size() == 0) {
-            return commandStr.split(COMMAND_PART_SPLIT_STRING);
+            return commandStr.split(COMMAND_PART_SEPARATOR);
         }
 
         // 参数括符为奇数
@@ -109,7 +109,7 @@ public class CommandDispatcher {
             if (startIndex < indexOfArgumentQuote.get(2 * i) - 1) {
                 String simpleCommandPart = commandStr.substring(startIndex, indexOfArgumentQuote.get(2 * i) - 1);
                 // 普通类型的就直接按 " " 分割放入
-                commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SPLIT_STRING)));
+                commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SEPARATOR)));
             }
 
             // 解析当前参数括符括起来的参数定义
@@ -125,7 +125,7 @@ public class CommandDispatcher {
         if (indexOfArgumentQuote.get(indexOfArgumentQuote.size() - 1) + 2 < commandStr.length()) {
             String simpleCommandPart = commandStr.substring(indexOfArgumentQuote.get(indexOfArgumentQuote.size() - 1) + 2);
             if (!simpleCommandPart.isEmpty()) {
-                commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SPLIT_STRING)));
+                commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SEPARATOR)));
             }
         }
 

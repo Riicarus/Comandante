@@ -10,6 +10,10 @@ package com.riicarus.comandante.argument;
  */
 public class StringCommandArgumentType extends CommandArgumentType<String> {
 
+    public StringCommandArgumentType() {
+        super("string");
+    }
+
     @Override
     public String parse(final String arg) {
         return arg;

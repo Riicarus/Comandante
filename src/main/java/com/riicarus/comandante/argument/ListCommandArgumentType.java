@@ -17,6 +17,10 @@ public class ListCommandArgumentType extends CommandArgumentType<List<String>> {
 
     private static final String ELEMENT_SPLIT_STRING = ",";
 
+    public ListCommandArgumentType() {
+        super("list<string>");
+    }
+
     @Override
     public List<String> parse(String arg) throws CommandSyntaxException {
         List<String> list = new ArrayList<>();

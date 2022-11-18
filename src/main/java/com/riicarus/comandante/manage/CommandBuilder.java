@@ -3,6 +3,7 @@ package com.riicarus.comandante.manage;
 import com.riicarus.comandante.argument.CommandArgumentType;
 import com.riicarus.comandante.exception.CommandBuildException;
 import com.riicarus.comandante.executor.CommandExecutor;
+import com.riicarus.comandante.executor.CommandHelper;
 import com.riicarus.comandante.tree.*;
 
 /**
@@ -78,6 +79,13 @@ public class CommandBuilder {
 
             if (addMainExecution) {
                 mainExecutionNode = executionNode;
+                // 添加 --help/-h 支持
+                OptionNode helpNode = new OptionNode("help", "h", executionNode);
+                helpNode.setUsage("查看指令帮助");
+                CommandHelper commandHelper = new CommandHelper(executionNode);
+                helpNode.setCommandExecutor(commandHelper);
+                helpNode = executionNode.addOption(helpNode);
+                mainExecutionNode.addAllOption(helpNode);
             }
         } else {
             executionNode = new ExecutionNode(name, currentExecutionNode);

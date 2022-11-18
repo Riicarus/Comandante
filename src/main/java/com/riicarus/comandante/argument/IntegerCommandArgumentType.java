@@ -12,6 +12,10 @@ import com.riicarus.comandante.exception.CommandSyntaxException;
  */
 public class IntegerCommandArgumentType extends CommandArgumentType<Integer> {
 
+    public IntegerCommandArgumentType() {
+        super("int");
+    }
+
     @Override
     public Integer parse(final String arg) {
         try {

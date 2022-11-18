@@ -12,6 +12,18 @@ import com.riicarus.comandante.exception.CommandSyntaxException;
  */
 public abstract class CommandArgumentType<T> {
 
+    /**
+     * 参数类型名称
+     */
+    private final String typeName;
+
+    public CommandArgumentType(String typeName) {
+        this.typeName = typeName;
+    }
+
     public abstract T parse(final String arg) throws CommandSyntaxException;
 
+    public String getTypeName() {
+        return typeName;
+    }
 }

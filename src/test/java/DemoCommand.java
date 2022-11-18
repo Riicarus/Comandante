@@ -47,6 +47,19 @@ public class DemoCommand {
                                 + "time now is "
                                 + System.currentTimeMillis())
                 );
+        CommandLauncher.register()
+                .exe("app")
+                .exe("echo")
+                .arg("message", new StringCommandArgumentType())
+                .executor(
+                        context -> CommandLogger.log("app echo: " + context.getData("echo" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "message"))
+                );
+        CommandLauncher.register()
+                .exe("app")
+                .arg("name", new StringCommandArgumentType())
+                .executor(
+                        context -> CommandLogger.log("app name: " + context.getData("app" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "name"))
+                );
     }
 
 }
