@@ -19,10 +19,10 @@ public class DemoCommand {
         CommandLauncher.register()
                 .exe("app")
                 .opt("color", "c")
-                .arg("color", new StringCommandArgumentType())
+                .arg("color_name", new StringCommandArgumentType())
                 .executor(
                         context -> CommandLogger.log("set app color to "
-                                + ((HashMap<String, String>) context.getData("color")).get("color"))
+                                + ((HashMap<String, String>) context.getData("color")).get("color_name"))
                 );
         CommandLauncher.register()
                 .exe("app")
@@ -59,6 +59,18 @@ public class DemoCommand {
                 .arg("name", new StringCommandArgumentType())
                 .executor(
                         context -> CommandLogger.log("app name: " + context.getData("app" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "name"))
+                );
+        CommandLauncher.register()
+                .exe("app")
+                .exe("echo")
+                .exe("move")
+                .arg("from", new StringCommandArgumentType())
+                .arg("to", new StringCommandArgumentType())
+                .executor(
+                        context -> CommandLogger.log("app echo: move from " +
+                                context.getData("move" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "from")
+                        + " to "
+                        + context.getData("from" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "to"))
                 );
     }
 

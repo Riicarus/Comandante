@@ -109,6 +109,52 @@ public class TestMain {
 至此, 就可以使用命令插件的基础服务了.  
 
 ## 扩展
+### 执行器
+主要是执行器参数的获取问题:  
+执行器方法在调用时会被传入一个 `CommandContext` 对象, 其中的 `data` 属性保存了指令解析/执行过程中产生的所有参数.  
+
+#### 指令参数获取
+对于指令中传入参数的获取, 主要有两种:  
+1. 属于 `opt` 节点的参数:
+   ```java
+   CommandLauncher.register()
+        .exe("app")
+        .opt("font", "f")
+        .arg("font_main", new StringCommandArgumentType())
+        .arg("font_next", new StringCommandArgumentType())
+        .executor(
+                context -> CommandLogger.log("set app font to "
+                        + ((HashMap<String, String>) context.getData("font")).get("font_main")
+                        + "/"
+                        + ((HashMap<String, String>) context.getData("font")).get("font_next"))
+        );
+   ```
+2. 属于 `exe` 节点的参数:  
+   ```java
+   CommandLauncher.register()
+        .exe("app")
+        .exe("echo")
+        .arg("message", new StringCommandArgumentType())
+        .executor(
+                context -> CommandLogger.log("app echo: " + context.getData("echo" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "message"))
+        );
+
+   // 多个相连的参数获取 
+   CommandLauncher.register()
+        .exe("app")
+        .exe("echo")
+        .exe("move")
+        .arg("from", new StringCommandArgumentType())
+        .arg("to", new StringCommandArgumentType())
+        .executor(
+                context -> CommandLogger.log("app echo: move from " +
+                        context.getData("move" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "from")
+                + " to "
+                + context.getData("from" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "to"))
+        ); 
+   ```
+
+
 ### IO 扩展
 #### 指令输入
 Comandante 内置了完善的输入输出机制, 都可以通过 `CommandLauncher` 提供的 API 调用实现.  
