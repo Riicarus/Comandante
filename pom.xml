@@ -15,11 +15,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>com.riicarus</groupId>
-            <artifactId>comandante-definition</artifactId>
-            <version>1.0</version>
-        </dependency>
     </dependencies>
 
     <build>

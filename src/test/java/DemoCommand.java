@@ -1,5 +1,4 @@
 import com.riicarus.comandante.argument.StringCommandArgumentType;
-import com.riicarus.comandante.definition.BaseCommand;
 import com.riicarus.comandante.main.CommandLauncher;
 import com.riicarus.comandante.main.CommandLogger;
 import com.riicarus.comandante.manage.CommandDispatcher;
@@ -13,7 +12,7 @@ import java.util.HashMap;
  * @create 2022-10-15 15:52
  * @since 1.0
  */
-public class DemoCommand extends BaseCommand {
+public class DemoCommand {
 
     @SuppressWarnings("unchecked")
     public static void defineCommand() {
