@@ -1,7 +1,7 @@
 package com.riicarus.comandante.executor;
 
 import com.riicarus.comandante.exception.CommandExecutionException;
-import com.riicarus.comandante.main.Logger;
+import com.riicarus.comandante.main.CommandLogger;
 import com.riicarus.comandante.manage.CommandContext;
 import com.riicarus.comandante.tree.*;
 
@@ -55,7 +55,7 @@ public class CommandHelper implements CommandExecutor {
         if (node == null) {
             throw new CommandExecutionException("Command node could not be null.");
         }
-        Logger.log("Format: exe act sub-act [opt] <arg>");
+        CommandLogger.log("Format: exe act sub-act [opt] <arg>");
     }
 
     /**

@@ -1,4 +1,4 @@
-import com.riicarus.comandante.main.CommandUtil;
+import com.riicarus.comandante.main.CommandLauncher;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,9 +20,9 @@ public class TestMain {
         DemoCommand.defineCommand();
         File file = new File("D:\\tmp\\comandante-output.txt");
 
-        CommandUtil.redirectOutput(new FileOutputStream(file));
-        CommandUtil.setLogFile("D:\\tmp\\comandante-log.txt");
-        CommandUtil.enable();
+        CommandLauncher.redirectOutput(new FileOutputStream(file));
+        CommandLauncher.setLogFile("D:\\tmp\\comandante-log.txt");
+        CommandLauncher.enable();
         Thread thread = new Thread(new ConsoleIOListener());
         thread.start();
 
@@ -30,7 +30,7 @@ public class TestMain {
 
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 1000; i++) {
-            Thread thread_ = new Thread(() -> CommandUtil.dispatchToCache("app --color 'red' --font 'Soft' " + integer.incrementAndGet()));
+            Thread thread_ = new Thread(() -> CommandLauncher.dispatchToCache("app --color 'red' --font 'Soft' " + integer.incrementAndGet()));
 
             threads.add(thread_);
         }

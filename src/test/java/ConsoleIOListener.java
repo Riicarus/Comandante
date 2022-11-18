@@ -1,4 +1,4 @@
-import com.riicarus.comandante.main.CommandUtil;
+import com.riicarus.comandante.main.CommandLauncher;
 
 import java.util.Scanner;
 
@@ -25,7 +25,7 @@ public class ConsoleIOListener implements Runnable {
     public void run() {
         String str;
         while ((str = doGetCommand()) != null) {
-            CommandUtil.dispatchToCache(str);
+            CommandLauncher.dispatchToCache(str);
         }
     }
 }

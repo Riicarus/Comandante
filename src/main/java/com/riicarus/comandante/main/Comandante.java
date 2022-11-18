@@ -37,7 +37,7 @@ public class Comandante {
     private volatile boolean run = false;
 
     /**
-     * 不对外暴露核心类, 只提供给 CommandUtil 进行 API 暴露<br/>
+     * 不对外暴露核心类, 只提供给 CommandLauncher 进行 API 暴露<br/>
      */
     protected Comandante() {
         this.commandDispatcher = new CommandDispatcher();
@@ -78,7 +78,7 @@ public class Comandante {
 
     /**
      * 停止指令执行线程的工作<br/>
-     * 不建议在此处关闭 Logger 的流, 因为可能后续会有指令注册等操作会使用到 Logger<br/>
+     * 不建议在此处关闭 CommandLogger 的流, 因为可能后续会有指令注册等操作会使用到 CommandLogger<br/>
      */
     protected void stop() {
         run = false;
@@ -86,7 +86,7 @@ public class Comandante {
 
     /**
      * 用于创建指令执行线程, 在一个单独的线程中进行指令处理工作<br/>
-     * 主要用于处理外界通过 CommandUtil 传入的指令字符串, 对其进行分发和执行<br/>
+     * 主要用于处理外界通过 CommandLauncher 传入的指令字符串, 对其进行分发和执行<br/>
      */
     static class CommandRunner implements Runnable {
 
@@ -104,9 +104,9 @@ public class Comandante {
                     command = comandante.commandInputHandler.consume();
                     comandante.commandDispatcher.dispatch(command);
                 } catch (Exception e) {
-                    Logger.log(e.getMessage());
+                    CommandLogger.log(e.getMessage());
                 } finally {
-                    Logger.log("");
+                    CommandLogger.log("");
                 }
             }
         }

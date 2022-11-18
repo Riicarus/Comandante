@@ -1,9 +1,8 @@
 package com.riicarus.comandante.command;
 
-import com.riicarus.comandante.definition.BaseCommand;
-import com.riicarus.comandante.main.CommandUtil;
-import com.riicarus.comandante.config.Config;
-import com.riicarus.comandante.main.Logger;
+import com.riicarus.comandante.main.CommandLauncher;
+import com.riicarus.comandante.config.CommandConfig;
+import com.riicarus.comandante.main.CommandLogger;
 
 import java.util.Set;
 
@@ -15,43 +14,43 @@ import java.util.Set;
  * @create 2022-10-17 17:57
  * @since 1.0
  */
-public class InnerCommand extends BaseCommand {
+public class InnerCommand {
 
     public static void defineCommand() {
-        CommandUtil.register().exe("comandante")
+        CommandLauncher.register().exe("comandante")
                 .opt("version", "v")
                 .executor(
-                        (args) -> Logger.log(Config.getVersion()),
+                        (args) -> CommandLogger.log(CommandConfig.getVersion()),
                         "查看 Comandante 版本号"
         );
-        CommandUtil.register().exe("comandante")
+        CommandLauncher.register().exe("comandante")
                 .opt("author", "a")
                 .executor(
-                        (args) -> Logger.log(Config.getAuthor()),
+                        (args) -> CommandLogger.log(CommandConfig.getAuthor()),
                         "查看 Comandante 作者"
         );
-        CommandUtil.register().exe("comandante")
+        CommandLauncher.register().exe("comandante")
                 .opt("doc", "d")
                 .executor(
-                        (args) -> Logger.log(Config.getDoc()),
+                        (args) -> CommandLogger.log(CommandConfig.getDoc()),
                         "查看 Comandante 文档"
         );
-        CommandUtil.register().exe("comandante")
+        CommandLauncher.register().exe("comandante")
                 .opt("info", "i")
                 .executor(
                         (args) -> {
-                            Logger.log(Config.getVersion());
-                            Logger.log(Config.getAuthor());
-                            Logger.log(Config.getDoc());
+                            CommandLogger.log(CommandConfig.getVersion());
+                            CommandLogger.log(CommandConfig.getAuthor());
+                            CommandLogger.log(CommandConfig.getDoc());
                         },
                         "查看 Comandante 信息"
                 );
-        CommandUtil.register().exe("comandante").exe("list")
+        CommandLauncher.register().exe("comandante").exe("list")
                 .opt("all")
                 .executor(
                         args -> {
-                            Set<String> commandSet = CommandUtil.listAllExecutionCommand();
-                            commandSet.forEach(Logger::log);
+                            Set<String> commandSet = CommandLauncher.listAllExecutionCommand();
+                            commandSet.forEach(CommandLogger::log);
                         },
                         "列出所有已注册指令"
                 );

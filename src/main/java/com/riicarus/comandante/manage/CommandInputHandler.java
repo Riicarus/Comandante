@@ -2,7 +2,7 @@ package com.riicarus.comandante.manage;
 
 import com.riicarus.comandante.exception.CommandConsumeException;
 import com.riicarus.comandante.exception.CommandProduceException;
-import com.riicarus.comandante.main.Logger;
+import com.riicarus.comandante.main.CommandLogger;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -11,7 +11,7 @@ import java.util.concurrent.BlockingQueue;
  * [FEATURE INFO]<br/>
  * 指令输入处理器, 使用生产者消费者模式<br/>
  * 维护了一个指令阻塞队列, 最大指令数量为 10<br/>
- * 消费者为 CommandRunner, 生产者为 CommandUtil 提供的 API: CommandUtil.dispatchToCache(String)<br/>
+ * 消费者为 CommandRunner, 生产者为 CommandLauncher 提供的 API: CommandLauncher.dispatchToCache(String)<br/>
  *
  * @author Skyline
  * @create 2022-10-15 16:31
@@ -59,7 +59,7 @@ public class CommandInputHandler {
      * @throws CommandProduceException 指令生产异常, 属于受检异常
      */
     public void input(String command) throws CommandProduceException {
-        Logger.log("Command Echo: " + command);
+        CommandLogger.log("Command Echo: " + command);
         produce(command);
     }
 

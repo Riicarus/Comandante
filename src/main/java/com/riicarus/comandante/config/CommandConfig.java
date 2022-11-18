@@ -1,6 +1,6 @@
 package com.riicarus.comandante.config;
 
-import com.riicarus.comandante.main.Logger;
+import com.riicarus.comandante.main.CommandLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +17,7 @@ import java.util.Properties;
  * @create 2022-10-17 17:46
  * @since 1.0
  */
-public class Config {
+public class CommandConfig {
 
     protected final static String CONFIG_PATH = "config.properties";
 
@@ -45,7 +45,7 @@ public class Config {
         InputStream in = null;
         InputStreamReader reader = null;
         try {
-            in = Config.class.getClassLoader().getResourceAsStream(CONFIG_PATH);
+            in = CommandConfig.class.getClassLoader().getResourceAsStream(CONFIG_PATH);
             reader = new InputStreamReader(Objects.requireNonNull(in), StandardCharsets.UTF_8);
             properties.load(reader);
         } catch (Exception e) {
@@ -59,13 +59,13 @@ public class Config {
                     in.close();
                 }
             } catch (IOException e) {
-                Logger.log("Close stream failed.");
+                CommandLogger.log("Close stream failed.");
             }
         }
 
-        Config.version = properties.getProperty("version");
-        Config.author = properties.getProperty("author");
-        Config.doc = properties.getProperty("doc");
+        CommandConfig.version = properties.getProperty("version");
+        CommandConfig.author = properties.getProperty("author");
+        CommandConfig.doc = properties.getProperty("doc");
     }
 
     public static String getVersion() {
