@@ -18,14 +18,18 @@ public class TestMain {
 
     public static void main(String[] args) throws FileNotFoundException {
         DemoCommand.defineCommand();
-        File file = new File("D:\\tmp\\comandante-output.txt");
 
-        CommandLauncher.redirectOutput(new FileOutputStream(file));
+        // testRedirectOutput();
+
         CommandLauncher.setLogFile("D:\\tmp\\comandante-log.txt");
         CommandLauncher.enable();
         Thread thread = new Thread(new ConsoleIOListener());
         thread.start();
 
+        // testMultiThread();
+    }
+
+    private static void testMultiThread() {
         AtomicInteger integer = new AtomicInteger(0);
 
         List<Thread> threads = new ArrayList<>();
@@ -36,7 +40,12 @@ public class TestMain {
         }
 
         threads.forEach(Thread::start);
+    }
 
+    private static void testRedirectOutput() throws FileNotFoundException {
+        File file = new File("D:\\tmp\\comandante-output.txt");
+
+        CommandLauncher.redirectOutput(new FileOutputStream(file));
     }
 
 }

@@ -2,38 +2,62 @@
 version: 2.0   
 
 ## 概述
-### 指令结构
-一般的, 指令由四个部分组成: `[exe] [action] [option] [argument]`. 
-- `exe` 表示一个可运行的服务(或程序);  
-- `action` 表示服务可以进行的操作;  
-- `option` 表示操作可选的固定参数,  
-  必须以 `-` (短指令)或者 `--` (长指令)开头,  
-  我们强烈建议每个 `option` 都同时具备长指令和短指令;  
-- `argument` 表示需要输入的参数.  
+### 指令介绍
+#### 指令组成
+一般的, 指令由三个部分组成: `exe`, `opt`, `arg`. 
+- `exe` 表示一个可运行的服务(或程序);   
+- `opt` 表示操作可选的固定参数,  
+  必须具有以 `--` 开头的**长指令**, 也可以选择提供以 `-` 开头的**短指令**.  
+- `arg` 表示需要输入的参数.  
 
-如果一个 `action` 不足以完成对应指令, 可以在其后增加一个 `subaction`, 但是只能有一个 `subaction`. 组合起来就是: `[exe] [action] [subaction] [option] [argument]`.  
+> 例1:  
+> - `app --color/-c color_name`
+> - `app echo message`
 
-如果一个 `action` 后有多个 `option` 且都为短 `option`, 那么他们可以合并为一个部分.  
+#### 指令结构设计:
+- 指令树有一个根节点, 没有实际意义, 只保存指令的第一个 `exe` 节点, 我们称这类 `exe` 节点为**主指令节点**.  
+- 指令树主干由 `exe` 节点和 `arg` 节点组成.  
+- 分支节点由 `option` 及其后续 `arg` 节点组成. 
 
-指令结构搭配:  
-- `exe` 后可以搭配 `action` 或 `option`
-- `action` 后可以搭配 `subaction` 或 `option`
-- `subaction` 只能在 `action` 后, 可搭配 `option`
-- `option` 后可以搭配 `option` 或 `argument`
-- `argument` 后可以搭配 `option`
+> 例2:  
+> 在指令 `app --color color_name --font font_main font_next echo message` 中, 主指令节点为 `app`, 指令分支节点为 `--color color_name` 和 `--font font_main font_next`, 去掉指令分支节点, 剩下的就是主干节点 `app echo message`.  
 
-> tips:  
+
+#### 指令语义:  
+- 我们将**注册了指令执行器的节点**称为**语义节点**.  
+- 指令树主干上的每一个节点都可以是语义节点.  
+- 一个`opt`分支都**有且只有一个**语义节点, 为其分支的**尾节点**.
+- 指令解析时, 会解析所有`opt`的语义, 并将其执行, 但是只会解析当前指令对应指令树主干节点上的最后一个节点, 如果它有语义, 就执行.  
+
+> 例3:  
+> 在例2的指令中, 两个分支节点都具有语义, 会被最终执行; 指令对应指令树主干结点的部分可能有不止一个语义, 但是我们只关系尾节点 `message` 是否有语义, 如果有, 就也会被执行.  
+
+#### 短指令合并:  
+这是一个指令语法糖, 用于将指令中没有参数的 `opt` 短指令合并到一起输入, 更加便捷.  
+
+> 例4:  
 > 如果几个连续的短指令写在一起, 可以省略前面的 `-`, 然后将它们合并到一个短指令中.  
 > 如:  
 > `plugin list -i -a -d dir` 可以写为 `plugin list -iad dir`  
-> 插件会自动将它们解析为没有缩写的状态.
->   
-> 如果参数中包含空格, 需要使用 `'` 将参数括起来, 如果要使用 `'` 原来的意义, 请使用转义字符 `\'`.  
-> 如:  
-> `plugin list -iad 'D:\tmp\jars\my \'jar\''`
+> *插件会自动将它们解析为没有缩写的状态.*
+
+#### 参数传递规则
+由于内部节点解析逻辑优先级不同, 如果参数值和当前同层级的 `exe` 节点名称相同, 会优先将其解析为 `exe` 节点.  
+为避免这个问题, 在可能发生冲突的参数传递时, 可以使用 `'` 将参数括起来, 这样就能保证指令被正确解析为参数.  
+
+同样, 传入指令字符串的节点分割操作是依据 ` `(空格) 来完成的, 如果参数中包含 ` `, 会导致指令解析错误. 我们同样可以使用 `'` 包围参数, 来避免发生错误.  
+
+如果想要在参数中输入 `'`, 而不是作为参数括符使用, 需要在 `'` 前面加上 `\` 来表示它是一个普通的字符串.   
+
+> 例5:  
+> 在例2指令的基础上, 如果我们还有 `app echo time --format format_str` 指令, 这时在 `time` 节点上就可能发生解析冲突.  
+> 使用 `'` 包围参数来解决这个冲突:  
+> `app echo 'time'`  
+> 其他参数传递避免冲突的用法:  
+> `app echo 'hello, I've said \'hello\' to you'`
 
 ### 简单使用
-指令定义类需要继承抽象类 `BaseCommand`, 重写 `BaseCommand#defineCommand()` 方法.  
+定义一个指令定义类, 包含一个静态的方法, 推荐命名为 `defineCommand()`.  
 ```java
 public class DemoCommand extends BaseCommand {
 
@@ -42,19 +66,28 @@ public class DemoCommand extends BaseCommand {
     }
 }
 ```
-然后定义一个指令定义方法:  
+然后在对应方法中注册指令:  
 ```java
 public class DemoCommand {
       // ...
 
-      public void defineCommand() {
-        CommandUtil.register().execution("plugin").action("load")
-                .option("dir", "d").argument("dir", new StringCommandArgumentType())
+    public void defineCommand() {
+        CommandLauncher.register().exe("comandante")
+                .opt("version", "v")
                 .executor(
-                (args) -> Logger.log("load plugin from dir: " + args[0]),
-                "从文件夹加载插件"
-        );
-      }
+                        (args) -> CommandCommandLogger.log(CommandConfig.getVersion()),
+                        "查看 Comandante 版本号"
+                );
+
+        CommandLauncher.register()
+                .exe("app")
+                .opt("color", "c")
+                .arg("color", new StringCommandArgumentType())
+                .executor(
+                        context -> CommandCommandLogger.log("set app color to "
+                                + ((HashMap<String, String>) context.getData("color")).get("color"))
+                );
+    }
 }
 ```
 启动指令服务:  
@@ -62,95 +95,106 @@ public class DemoCommand {
 public class TestMain {
 
     public static void main(String[] args) {
+        // 这里会真正将指令注册进指令树中
         DemoCommand.defineCommand();
-        CommandUtil.enable();
+        // 启动指令解析执行进程
+        CommandLauncher.enable();
     }
 }
 ```
-至此, 就可以使用命令插件的基础服务了.
+至此, 就可以使用命令插件的基础服务了.  
 
 ## 扩展
 ### IO 扩展
 #### 指令输入
-Comandante 内置了完善的输入输出机制, 都可以通过 `CommandUtil` 提供的 API 调用实现.  
-指令输入的接口是 `CommmandUtil.dispatchToCache(String)` 方法, 使用该方法接收外界传入的指令字符串, 并由指令处理线程进行后续分发和执行处理.  
-用户可以自行定义指令的输入方式, 无论是从文件中读取进行批处理还是从控制台输入, 只需要构建好获取指令的逻辑, 然后将获取到的指令通过 `CommandUtil.dispatchToCache(String)` 方法传给指令插件即可.  
+Comandante 内置了完善的输入输出机制, 都可以通过 `CommandLauncher` 提供的 API 调用实现.  
+指令输入的接口是 `CommandLauncher.dispatchToCache(String)` 方法, 使用该方法接收外界传入的指令字符串, 并由指令处理线程进行后续分发和执行处理.  
+用户可以自行定义指令的输入方式, 无论是从文件中读取进行批处理还是从控制台输入, 只需要构建好获取指令的逻辑, 然后将获取到的指令通过 `CommandLauncher.dispatchToCache(String)` 方法传给指令插件即可.  
 指令输入支持多线程, `CommandInputHandler` 内部通过生产者消费者模式进行输出指令处理.  
 
 #### 重定向输出
 Comandante 同时支持输出重定向, 可以重定向插件内部所有输出到任意的输出流中.  
-该功能由 `CommandUtil.redirectOutput(OutputStream)` 方法提供, 该方法会设置全局日志输出工具类 `Logger` 的输出流, 来达到全局重定向输出的目的.  
-同时, 该接口支持设置输出流的字符集, 只需要调用 `CommandUtil.redirectOutut(OutputStream, StandardCharsets)` 方法进行输出重定即可.  
+该功能由 `CommandLauncher.redirectOutput(OutputStream)` 方法提供, 该方法会设置全局日志输出工具类 `CommandLogger` 的输出流, 来达到全局重定向输出的目的.  
+同时, 该接口支持设置输出流的字符集, 只需要调用 `CommandLauncher.redirectOutut(OutputStream, StandardCharsets)` 方法进行输出重定向即可.  
+  
+同样的, 我们可以调用 `CommandLauncher.setLogFile(String path)` 方法来设置将日志输出到某个流或者文件中, 这个方法也支持设置字符集. 设置成功后, 所有经过  `CommandLogger.log(String)` 方法的输出, 都会被输出到对应的日志流中.  
 
-> 由上可以看出, 指令插件所有的输出都是调用 `Logger.log(String)` 方法进行的.  
+> 由上可以看出, 指令插件所有的输出都是调用 `CommandLogger.log(String)` 方法进行的.  
 > 所以如果想要完美实现重定向输出的功能, 需要在自定义指令或其他配置中都是用该方法进行输出.  
+> 推荐将日志输出流设置为某一个文件, 用于保存运行时的日志.  
 
 ## 内置指令
 目前 Comandante 有如下内置指令:  
 ```bash
-comandante --version  查看 Comandante 版本号
-comandante --author  查看 Comandante 作者
-comandante --doc  查看 Comandante 文档
-comandante --info  查看 Comandante 信息
-comandante --help  帮助指令
-comandante list -a 列出所有已注册指令
+comandante --help/h      查看指令帮助
+comandante --author/a    查看 Comandante 作者
+comandante --doc/d       查看 Comandante 文档
+comandante --version/v   查看 Comandante 版本号
+comandante --info/i      查看 Comandante 信息
+comandante list --all    列出所有已注册指令
 ```
 对所有已加载指令(可以是自定义的指令), 在其 `exe` 节点上, 我们都为其装配了对应的 help 指令, 如:  
 ```bash
-comandante --help
-exe --help
+comandante --help/-h
+app --help/-h
 ```
-help 指令会输出该指令节点下所有的指令搭配, 其中 `option` 节点会用 `[]` 括起来, `argument` 节点会用 `<>` 括起来, 如:  
+help 指令会输出该指令节点下所有的指令搭配, 其中 `option` 节点加上 `--/-` 进行长短指令使用的提示, `argument` 节点会在其后面加上 `(type)` 来描述参数的类型; 如果在注册时设置了执行器的 `usage` 属性, 会在指令后方加入对应的描述, 如:  
 ```bash
+app -h
+Command Echo: app -h
+Format: exe --opt/-o arg
+app --help/h 查看指令帮助
+app --color/c color(string) 
+app --font/f font_main(string) font_next(string) 
+app name(string) 
+app echo time hello(string) 
+app echo message(string) 
+
 comandante -h
-Input comandante: comandante -h.
-Format: exe act sub-act [opt] <arg>
-comandante [help]  帮助指令
-comandante [author]  查看 Comandante 作者
-comandante [doc]  查看 Comandante 文档
-comandante list [all]  列出所有已注册指令
-comandante [version]  查看 Comandante 版本号
-comandante [info]  查看 Comandante 信息
-Command execute complete.
+Command Echo: comandante -h
+Format: exe --opt/-o arg
+comandante --help/h 查看指令帮助
+comandante --author/a 查看 Comandante 作者
+comandante --doc/d 查看 Comandante 文档
+comandante --version/v 查看 Comandante 版本号
+comandante --info/i 查看 Comandante 信息
+comandante list --all 列出所有已注册指令
 ```
 
 ## API
 ### 注册指令
 ```java
 // 获取指令构建器
-CommandBuilder commandBuider = CommandUtil.register();
+CommandBuilder commandBuider = CommandLauncher.register();
 // 注册 ExecutionCommand 节点
-CommandBuilder#execution(String);
-// 注册 ActionCommand 节点
-CommandBuilder#action(String);
-// 注册 SubActionCommand 节点
-CommandBuilder#subAction(String);
+CommandBuilder#exe(String);
 // 注册 OptionCommand 节点
-CommandBuilder#option(String, String);
+CommandBuilder#opt(String, String);
 // 注册 ArgumentCommand 节点
-CommandBuilder#argument(String, CommandArgumentType<T>);
-// 注册指令执行器
+CommandBuilder#arg(String, CommandArgumentType<T>);
+// 注册指令执行器, 可设置 usage
 CommandBuilder#executor(CommandExecutor);
+CommandBuilder#executor(CommandExecutor, String);
 ```
 ### 启动/停止指令处理线程
 ```java
 // 启动
-CommandUtil.enable();
+CommandLauncher.enable();
 // 停止
-CommandUtil.disable();
+CommandLauncher.disable();
 ```
 ### IO
 ```java
 // 重定向输出
-CommandUtil.redirectOutput(OutputStream);
-CommandUtil.redirectOutput(OutputStream, StandardCharsets);
+CommandLauncher.redirectOutput(OutputStream);
+CommandLauncher.redirectOutput(OutputStream, StandardCharsets);
 // 设置日志文件输出 文件路径必须为绝对路径
-CommandUtil.setLogFile(String);
-CommandUtil.setLogFile(String, StandardCharsets);
+CommandLauncher.setLogFile(String);
+CommandLauncher.setLogFile(String, StandardCharsets);
 // 指令输入
-CommandUtil.dispatchToCache(String);
-// 输出日志
-Logger.log();
-// 关闭输出流, 不要关闭默认输出流
-Logger.log()
+CommandLauncher.dispatchToCache(String);
+// 全局输出
+CommandLogger.log();
+// 关闭输出流和日志输出流, 如果是默认输出流请不要关闭
+CommandLogger.close()
 ```
