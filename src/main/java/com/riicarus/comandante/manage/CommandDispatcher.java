@@ -112,9 +112,9 @@ public class CommandDispatcher {
                 commandRawParts.addAll(Arrays.asList(simpleCommandPart.split(COMMAND_PART_SEPARATOR)));
             }
 
-            // 解析当前参数括符括起来的参数定义
+            // 解析当前参数括符括起来的参数定义, 保留参数括符, 用于解决后续 ExecutionNode 和 ArgumentNode 的解析冲突
             String quotedArgumentPart =
-                    commandStr.substring(indexOfArgumentQuote.get(2 * i) + 1, indexOfArgumentQuote.get(2 * i + 1));
+                    commandStr.substring(indexOfArgumentQuote.get(2 * i), indexOfArgumentQuote.get(2 * i + 1) + 1);
 
             // 被括起来的就一并放入, 表示一个参数
             commandRawParts.add(quotedArgumentPart);
@@ -253,7 +253,8 @@ public class CommandDispatcher {
 
         // 处理 OptionNode 的后续参数节点
         while (!argumentNode.getArguments().isEmpty()) {
-            String arg = commandStrParts.get(index + 1);
+            String raw_arg = commandStrParts.get(index + 1);
+            String arg = raw_arg.startsWith(ARGUMENT_QUOTE) ? raw_arg.substring(1, raw_arg.length() - 1) : raw_arg;
             args.put(argumentNode.getName(), argumentNode.parse(arg));
 
             argumentNode = argumentNode.getArgument(ArgumentNode.OPTION_ARGUMENT_NAME);
@@ -261,7 +262,9 @@ public class CommandDispatcher {
             context.deleteNotMainPart(index - context.getDeletedCount());
         }
         // 处理最后一个参数节点
-        args.put(argumentNode.getName(), argumentNode.parse(commandStrParts.get(index + 1)));
+        String raw_arg = commandStrParts.get(index + 1);
+        String arg = raw_arg.startsWith(ARGUMENT_QUOTE) ? raw_arg.substring(1, raw_arg.length() - 1) : raw_arg;
+        args.put(argumentNode.getName(), argumentNode.parse(arg));
         index++;
         context.deleteNotMainPart(index - context.getDeletedCount());
         context.putData(optionNode.getName(), args);
@@ -294,7 +297,9 @@ public class CommandDispatcher {
             ArgumentNode<?> argumentNode = context.getCurrentNode().getArgument(ArgumentNode.EXECUTION_ARGUMENT_NAME);
             if (argumentNode != null) {
                 String key = context.getCurrentNode().getName() + EXE_ARG_DATA_SEPARATOR + argumentNode.getName();
-                context.putData(key, argumentNode.parse(commandMainPart));
+                String arg = commandMainPart.startsWith(ARGUMENT_QUOTE) ?
+                        commandMainPart.substring(1, commandMainPart.length() - 1) : commandMainPart;
+                context.putData(key, argumentNode.parse(arg));
                 context.setCurrentNode(argumentNode);
 
                 continue;
