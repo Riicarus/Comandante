@@ -17,7 +17,11 @@ version: 2.0
 #### 指令结构设计:
 - 指令树有一个根节点, 没有实际意义, 只保存指令的第一个 `exe` 节点, 我们称这类 `exe` 节点为**主指令节点**.  
 - 指令树主干由 `exe` 节点和 `arg` 节点组成.  
-- 分支节点由 `option` 及其后续 `arg` 节点组成. 
+- 分支节点由 `opt` 及其后续 `arg` 节点组成. 
+- `opt` 节点只能有至多一个 `arg` 子节点.
+- `opt` 节点之后的 `arg` 子节点的子节点只能是 `arg`.    
+- `exe` 节点只能有至多一个 `arg` 子节点.
+- `exe` 节点之后的 `arg` 子节点的子节点可以是除 `opt` 节点外任意类型的节点.
 
 > 例2:  
 > 在指令 `app --color color_name --font font_main font_next echo message` 中, 主指令节点为 `app`, 指令分支节点为 `--color color_name` 和 `--font font_main font_next`, 去掉指令分支节点, 剩下的就是主干节点 `app echo message`.  
