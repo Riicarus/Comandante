@@ -67,10 +67,23 @@ public class DemoCommand {
                 .arg("from", new StringCommandArgumentType())
                 .arg("to", new StringCommandArgumentType())
                 .executor(
-                        context -> CommandLogger.log("app echo: move from " +
-                                context.getData("move" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "from")
-                        + " to "
-                        + context.getData("from" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "to"))
+                        context -> CommandLogger.log("app echo: move from "
+                                + context.getData("move" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "from")
+                                + " to "
+                                + context.getData("from" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "to"))
+                );
+        CommandLauncher.register()
+                .exe("app")
+                .exe("register")
+                .exe("put")
+                .arg("element", new StringCommandArgumentType())
+                .executor(
+                        context -> {
+                            String element = (String) context.getData("put" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "element");
+                            CommandLogger.log("app put element to register. Element="
+                                    + element);
+                            context.putData("register_element", element);
+                        }
                 );
     }
 

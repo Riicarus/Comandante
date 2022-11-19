@@ -1,7 +1,11 @@
 # Comandante
-version: 2.0   
+>  version: 2.0   
 
 ## 概述
+Comandante 是一个基于 Java 的命令行插件, 用于提供便捷的指令注册、解析以及执行的功能.  
+Comandante 同时支持自定义多线程处理输入指令.
+
+## 基础
 ### 指令介绍
 #### 指令组成
 一般的, 指令由三个部分组成: `exe`, `opt`, `arg`. 
@@ -113,7 +117,7 @@ public class TestMain {
 主要是执行器参数的获取问题:  
 执行器方法在调用时会被传入一个 `CommandContext` 对象, 其中的 `data` 属性保存了指令解析/执行过程中产生的所有参数.  
 
-#### 指令参数获取
+#### 指令传入参数
 对于指令中传入参数的获取, 主要有两种:  
 1. 属于 `opt` 节点的参数:
    ```java
@@ -154,6 +158,18 @@ public class TestMain {
         ); 
    ```
 
+#### 指令执行产生参数
+在指令执行过程中, 可能会有多个具有语义的部分被执行, 同时产生一些参数, 而后续执行的执行器需要前面产生的参数. 这就引出了一些需要注意的点:  
+1. 有参数传递顺序的语义对应的指令要按顺序输入.  
+2. 需要将产生的参数放入 `CommandContext.data` 中, 提供给之后的执行器使用.
+3. 执行器从 `CommandContext.data` 中获取参数.  
+
+```java
+// 向 CommandContext.data 放入参数
+CommandContext#putData(String key, Object value);
+// 从 CommandContext.data 取出参数
+CommandContext#getData(String key);
+```
 
 ### IO 扩展
 #### 指令输入
