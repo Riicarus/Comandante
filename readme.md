@@ -27,6 +27,7 @@ Comandante 同时支持自定义多线程处理输入指令.
 - `opt` 节点之后的 `arg` 子节点的子节点只能是 `arg`.    
 - `exe` 节点只能有至多一个 `arg` 子节点.
 - `exe` 节点之后的 `arg` 子节点的子节点可以是除 `opt` 节点外任意类型的节点.
+- `arg` 节点之后不能注册任何 `opt` 节点. 所有的 `opt` 节点都会被注册到当前的 `exe` 节点下.  
 
 > 例2:  
 > 在指令 `app --color color_name --font font_main font_next echo message` 中, 主指令节点为 `app`, 指令分支节点为 `--color color_name` 和 `--font font_main font_next`, 去掉指令分支节点, 剩下的就是主干节点 `app echo message`.  
