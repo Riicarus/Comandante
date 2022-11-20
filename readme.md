@@ -1,9 +1,10 @@
 # Comandante
->  version: 2.0   
+>  version: 2.1   
 
 ## 概述
 Comandante 是一个基于 Java 的命令行插件, 用于提供便捷的指令注册、解析以及执行的功能.  
-Comandante 同时支持自定义多线程处理输入指令.
+Comandante 同时支持自定义多线程处理输入指令.  
+对于一些错误的指令, Comandante 还可以给出一些相关的建议.  
 
 ## 基础
 ### 指令介绍

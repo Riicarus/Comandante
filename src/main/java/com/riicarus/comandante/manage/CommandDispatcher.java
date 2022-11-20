@@ -175,7 +175,8 @@ public class CommandDispatcher {
 
         ExecutionNode mainExecutionNode = rootNode.getExecution(mainExecutionStr);
         if (mainExecutionNode == null) {
-            throw new CommandNotFoundException("Can not find ExecutionNode[" + mainExecutionStr + "].");
+            throw new CommandNotFoundException("Can not find ExecutionNode[" + mainExecutionStr + "].",
+                    context, mainExecutionStr);
         }
 
         context.setMainExecutionNode(mainExecutionNode);
@@ -218,7 +219,8 @@ public class CommandDispatcher {
             // 获取 OptionNode
             OptionNode optionNode = mainExecutionNode.getAnyOption(commandStr);
             if (optionNode == null) {
-                throw new CommandNotFoundException("Can not find OptionNode[" + commandStr + "].");
+                throw new CommandNotFoundException("Can not find OptionNode[" + commandStr + "].",
+                        context, commandStr);
             }
             CommandExecutor commandExecutor = extractOptionAndArgument(optionNode, commandStrParts, currentStrPartIndex, context);
             context.addOptionExecutor(commandExecutor);
@@ -253,7 +255,12 @@ public class CommandDispatcher {
 
         // 处理 OptionNode 的后续参数节点
         while (!argumentNode.getArguments().isEmpty()) {
-            String raw_arg = commandStrParts.get(index + 1);
+            String raw_arg;
+            try {
+                raw_arg = commandStrParts.get(index + 1);
+            } catch (IndexOutOfBoundsException e) {
+                throw new CommandSyntaxException("option[" + optionNode.getName() + "] need arguments.");
+            }
             String arg = raw_arg.startsWith(ARGUMENT_QUOTE) ? raw_arg.substring(1, raw_arg.length() - 1) : raw_arg;
             args.put(argumentNode.getName(), argumentNode.parse(arg));
 
@@ -262,7 +269,12 @@ public class CommandDispatcher {
             context.deleteNotMainPart(index - context.getDeletedCount());
         }
         // 处理最后一个参数节点
-        String raw_arg = commandStrParts.get(index + 1);
+        String raw_arg;
+        try {
+            raw_arg = commandStrParts.get(index + 1);
+        } catch (IndexOutOfBoundsException e) {
+            throw new CommandSyntaxException("option[" + optionNode.getName() + "] need arguments.");
+        }
         String arg = raw_arg.startsWith(ARGUMENT_QUOTE) ? raw_arg.substring(1, raw_arg.length() - 1) : raw_arg;
         args.put(argumentNode.getName(), argumentNode.parse(arg));
         index++;
@@ -305,7 +317,8 @@ public class CommandDispatcher {
                 continue;
             }
 
-            throw new CommandNotFoundException("Can not find node of part[" + commandMainPart + "].");
+            throw new CommandNotFoundException("Can not find node of part[" + commandMainPart + "].",
+                    context, commandMainPart);
         }
     }
 
