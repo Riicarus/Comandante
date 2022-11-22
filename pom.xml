@@ -6,15 +6,22 @@
 
     <groupId>com.riicarus</groupId>
     <artifactId>Comandante</artifactId>
-    <version>2.1</version>
+    <version>2.2</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+
+        <riicarus.util.version>1.0</riicarus.util.version>
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>com.riicarus</groupId>
+            <artifactId>riicarus-util</artifactId>
+            <version>${riicarus.util.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

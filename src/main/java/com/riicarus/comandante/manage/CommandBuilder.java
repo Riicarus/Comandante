@@ -5,6 +5,7 @@ import com.riicarus.comandante.exception.CommandBuildException;
 import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.executor.CommandHelper;
 import com.riicarus.comandante.tree.*;
+import com.riicarus.util.Asserts;
 
 /**
  * [FEATURE INFO]<br/>
@@ -62,9 +63,7 @@ public class CommandBuilder {
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
     public CommandBuilder exe(String name) throws CommandBuildException {
-        if (name == null || "".equals(name.trim())) {
-            throw new CommandBuildException("Node name can not be null.");
-        }
+        Asserts.notEmpty(name, new CommandBuildException("Node name can not be null."));
 
         ExecutionNode executionNode;
         boolean addMainExecution = currentNode instanceof RootNode;
@@ -126,9 +125,7 @@ public class CommandBuilder {
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
     public CommandBuilder opt(String name, String alias) throws CommandBuildException {
-        if (name == null || "".equals(name.trim())) {
-            throw new CommandBuildException("Node name can not be null.");
-        }
+        Asserts.notEmpty(name, new CommandBuildException("Node name can not be null."));
 
         // 如果该 OptionNode 节点没有被注册过
         if (!mainExecutionNode.containsOption(name, alias)) {
@@ -156,20 +153,13 @@ public class CommandBuilder {
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
     public <T> CommandBuilder arg(String name, CommandArgumentType<T> type) throws CommandBuildException {
-        if (name == null || "".equals(name.trim()) || type == null) {
-            throw new CommandBuildException("Node name or type can not be null.");
-        }
+        Asserts.notEmpty(name, new CommandBuildException("Node name can not be null."));
+        Asserts.notNull(type, new CommandBuildException("Node type can not be null"));
+
+        Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("ArgumentNode can not be registered behind RootNode."));
 
         ArgumentNode<?> argumentNode = new ArgumentNode<>(name, type, currentNode);
-
-        boolean canAdd = !(currentNode instanceof RootNode);
-
-        if (canAdd) {
-            argumentNode = currentNode.addArgument(argumentNode);
-        } else {
-            throw new CommandBuildException("ArgumentNode can not be registered behind RootNode.");
-        }
-
+        argumentNode = currentNode.addArgument(argumentNode);
         currentNode = argumentNode;
 
         return this;
@@ -183,9 +173,7 @@ public class CommandBuilder {
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
     public void executor(CommandExecutor commandExecutor) throws CommandBuildException {
-        if (currentNode instanceof RootNode) {
-            throw new CommandBuildException("RootNode can not have a command executor");
-        }
+        Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("RootNode can not have a command executor"));
 
         currentNode.setCommandExecutor(commandExecutor);
     }
@@ -199,9 +187,7 @@ public class CommandBuilder {
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
     public void executor(CommandExecutor commandExecutor, final String usage) throws CommandBuildException {
-        if (currentNode instanceof RootNode) {
-            throw new CommandBuildException("RootNode can not have a command executor");
-        }
+        Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("RootNode can not have a command executor"));
 
         currentNode.setCommandExecutor(commandExecutor);
         currentNode.setUsage(usage);

@@ -5,6 +5,7 @@ import com.riicarus.comandante.manage.CommandDispatcher;
 import com.riicarus.comandante.manage.CommandInputHandler;
 import com.riicarus.comandante.manage.CommandRegister;
 import com.riicarus.comandante.tree.ExecutionNode;
+import com.riicarus.util.Asserts;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -48,10 +49,8 @@ public class Comandante {
     /**
      * 启用命令处理线程, 保证只有一个线程在运行<br/>
      */
-    protected synchronized void startCommandRunner() {
-        if (run) {
-            throw new CommandLoadException("命令行已在运行中.");
-        }
+    protected synchronized void startCommandRunner() throws CommandLoadException {
+        Asserts.isFalse(run, new CommandLoadException("CommandRunner is already running."));
 
         commandRunnerThread.start();
 

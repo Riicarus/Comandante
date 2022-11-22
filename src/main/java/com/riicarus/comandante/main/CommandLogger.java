@@ -1,5 +1,8 @@
 package com.riicarus.comandante.main;
 
+import com.riicarus.comandante.exception.CommandLoadException;
+import com.riicarus.util.Asserts;
+
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
@@ -45,7 +48,9 @@ public class CommandLogger {
      *
      * @param out 输出流
      */
-    protected static void setOut(OutputStream out) {
+    protected static void setOut(OutputStream out) throws CommandLoadException {
+        Asserts.notNull(out, new CommandLoadException("OutputStream can not be null."));
+
         printStream = new PrintStream(out, true);
     }
 
@@ -56,7 +61,10 @@ public class CommandLogger {
      * @param charsets 输出流字符集
      * @throws UnsupportedEncodingException 解码方式不支持异常
      */
-    protected static void setOut(OutputStream out, StandardCharsets charsets) throws UnsupportedEncodingException {
+    protected static void setOut(OutputStream out, StandardCharsets charsets) throws UnsupportedEncodingException, CommandLoadException {
+        Asserts.notNull(out, new CommandLoadException("OutputStream can not be null."));
+        Asserts.notNull(charsets, new CommandLoadException("Charsets can not be null."));
+
         printStream = new PrintStream(out, true, charsets.toString());
     }
 
@@ -65,7 +73,9 @@ public class CommandLogger {
      *
      * @param path 输出文件路径, 必须为绝对路径
      */
-    protected static void setLog(String path) {
+    protected static void setLog(String path) throws CommandLoadException {
+        Asserts.notEmpty(path, new CommandLoadException("Log path can not be null or empty"));
+
         if (path.startsWith("/") || path.indexOf(":") > 0) {
             try {
                 FileOutputStream fos = new FileOutputStream(path);
@@ -85,7 +95,10 @@ public class CommandLogger {
      * @param path 输出文件路径, 必须为绝对路径
      * @param charsets 输出流字符集
      */
-    protected static void setLog(String path, StandardCharsets charsets) {
+    protected static void setLog(String path, StandardCharsets charsets) throws CommandLoadException {
+        Asserts.notEmpty(path, new CommandLoadException("Log path can not be null or empty"));
+        Asserts.notNull(charsets, new CommandLoadException("Charsets can not be null."));
+
         if (path.startsWith("/") || path.indexOf(":") > 0) {
             try {
                 FileOutputStream fos = new FileOutputStream(path);

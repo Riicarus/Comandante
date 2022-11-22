@@ -1,6 +1,7 @@
 package com.riicarus.comandante.argument;
 
 import com.riicarus.comandante.exception.CommandSyntaxException;
+import com.riicarus.util.Asserts;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,8 @@ public class ListCommandArgumentType extends CommandArgumentType<List<String>> {
 
     @Override
     public List<String> parse(String arg) throws CommandSyntaxException {
+        Asserts.notNull(arg, new CommandSyntaxException("Arg can not be null."));
+
         List<String> list = new ArrayList<>();
 
         String[] elements = arg.split(ELEMENT_SPLIT_STRING);

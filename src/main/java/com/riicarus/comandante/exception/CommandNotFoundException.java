@@ -21,8 +21,5 @@ public class CommandNotFoundException extends RuntimeException {
 
     public CommandNotFoundException(String message, CommandContext context, String notFountStr) {
         super(message + new CommandSuggester(context, notFountStr).suggest());
-
-//        this.suggester = new CommandSuggester(context, notFountStr);
-//        suggester.suggest();
     }
 }

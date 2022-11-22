@@ -5,6 +5,8 @@ import com.riicarus.comandante.main.CommandLogger;
 import com.riicarus.comandante.manage.CommandContext;
 import com.riicarus.comandante.manage.CommandDispatcher;
 import com.riicarus.comandante.tree.*;
+import com.riicarus.util.Asserts;
+import com.riicarus.util.exception.NullObjectException;
 
 import java.util.*;
 
@@ -45,13 +47,12 @@ public class CommandHelper implements CommandExecutor {
      * 指令执行方法, 在指令注册时被定义, 由 CommandDispatcher 进行调用<br/>
      *
      * @param context 指令上下文
-     * @throws Exception 执行时抛出的异常
+     * @throws CommandExecutionException 指令执行异常, 运行时异常
      */
     @Override
-    public void execute(CommandContext context) throws Exception {
-        if (node == null) {
-            throw new CommandExecutionException("Command node could not be null.");
-        }
+    public void execute(CommandContext context) throws CommandExecutionException, NullObjectException {
+        Asserts.notNull(node, new CommandExecutionException("Command node could not be null."));
+
         String commandFormat =
                 "Format: " +
                 "exe" + CommandDispatcher.COMMAND_PART_SEPARATOR +
@@ -60,7 +61,11 @@ public class CommandHelper implements CommandExecutor {
                 "arg";
         CommandLogger.log(commandFormat);
         List<String> helpMessages = new ArrayList<>();
-        findThroughMainTree(node, "", helpMessages);
+        try {
+            findThroughMainTree(node, "", helpMessages);
+        } catch (NullObjectException e) {
+            throw new CommandExecutionException(e);
+        }
 
         helpMessages.forEach(CommandLogger::log);
     }
@@ -75,11 +80,15 @@ public class CommandHelper implements CommandExecutor {
      * @param helpMessage 由 ExecutionCommandNode 到当前节点的父节点构建的指令部分字符串
      * @param helpMessages 所有可执行指令的 helpMessages 集合
      */
-    private void findThroughMainTree(AbstractNode currentNode, String helpMessage, List<String> helpMessages) {
+    private void findThroughMainTree(AbstractNode currentNode, String helpMessage, List<String> helpMessages) throws NullObjectException {
+        Asserts.notNull(currentNode, "CurrentNode can not be null.");
+        Asserts.notNull(helpMessages, "HelpMessage can not be null.");
+
         // 处理当前节点的 help message
         String name = currentNode.getName();
         StringBuilder currentHelpMessage = new StringBuilder(helpMessage);
         currentHelpMessage.append(name);
+
         // 处理参数节点的提示
         if (currentNode instanceof ArgumentNode) {
             String typeName = ((ArgumentNode<?>) currentNode).getType().getTypeName();
@@ -117,7 +126,11 @@ public class CommandHelper implements CommandExecutor {
 
         // 遍历主干节点上的所有子节点
         for (AbstractNode child : children) {
-            findThroughMainTree(child, currentHelpMessage.toString(), helpMessages);
+            try {
+                findThroughMainTree(child, currentHelpMessage.toString(), helpMessages);
+            } catch (NullObjectException e) {
+                CommandLogger.log(e.getMessage());
+            }
         }
     }
 

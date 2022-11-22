@@ -2,6 +2,7 @@ package com.riicarus.comandante.tree;
 
 import com.riicarus.comandante.exception.CommandBuildException;
 import com.riicarus.comandante.executor.CommandExecutor;
+import com.riicarus.util.Asserts;
 
 import java.util.HashMap;
 
@@ -56,50 +57,65 @@ public abstract class AbstractNode {
         this.previousNode = previousNode;
     }
 
-    public ExecutionNode addExecution(ExecutionNode node) {
+    public ExecutionNode addExecution(ExecutionNode node) throws CommandBuildException {
+        Asserts.notNull(node,
+                new CommandBuildException("ExecutionNode behind Node[" + this.getName() + "] add failed: input node is null."));
+
         // 允许添加 ExecutionNode 节点并且不存在对应名称的节点
-        if (getExecutions() != null && !getExecutions().containsKey(node.getName())) {
+        Asserts.notNull(getExecutions(),
+                new CommandBuildException("ExecutionNode[" + node.getName() + "] behind Node[" + this.getName() + "] add failed: " +
+                "Node[" + this.getName() + "] can not add ExceptionNode"));
+
+        if (!getExecutions().containsKey(node.getName())) {
             getExecutions().put(node.getName(), node);
         }
 
         ExecutionNode execution = getExecution(node.getName());
-        if (execution != null) {
-            return execution;
-        }
 
-        throw new CommandBuildException("ExecutionNode[" + name + "] add failed.");
+        Asserts.notNull(execution, new CommandBuildException("ExecutionNode[" + name + "] add failed."));
+        return execution;
     }
 
-    public OptionNode addOption(OptionNode node) {
+    public OptionNode addOption(OptionNode node) throws CommandBuildException {
+        Asserts.notNull(node,
+                new CommandBuildException("OptionNode behind Node[" + this.getName() + "] add failed: input node is null."));
+
         // 允许添加 OptionNode 节点并且不存在对应名称的节点
-        if (getOptions() != null && !getOptions().containsKey(node.getName())) {
+        Asserts.notNull(getOptions(),
+                new CommandBuildException("OptionNode[" + node.getName() + "] behind Node[" + this.getName() + "] add failed: " +
+                        "Node[" + this.getName() + "] can not add OptionNode"));
+
+        if (!getOptions().containsKey(node.getName())) {
             getOptions().put(node.getName(), node);
         }
 
         // 返回当前在指令树中对应的节点(可能该节点没有被添加进去)
         OptionNode optionNode = getOption(node.getName());
-        if (optionNode != null) {
-            return optionNode;
-        }
 
-        throw new CommandBuildException("OptionNode[" + name + "] add failed.");
+        Asserts.notNull(optionNode, new CommandBuildException("OptionNode[" + name + "] add failed."));
+        return optionNode;
     }
 
-    public ArgumentNode<?> addArgument(ArgumentNode<?> node) {
+    public ArgumentNode<?> addArgument(ArgumentNode<?> node) throws CommandBuildException {
+        Asserts.notNull(node,
+                new CommandBuildException("ArgumentNode behind Node[" + this.getName() + "] add failed: input node is null."));
+
         // 如果是属于 OptionNode 的参数节点, 就将注册的名称改为 ArgumentNode.OPTION_ARGUMENT_NAME, 便于在 CommandDispatcher 中获取对应节点
         String nodeName = node.isOptionArg() ? ArgumentNode.OPTION_ARGUMENT_NAME : ArgumentNode.EXECUTION_ARGUMENT_NAME;
 
         // 允许添加 ArgumentNode 节点并且当前没有被注册
-        if (getArguments() != null && !getArguments().containsKey(nodeName)) {
+        Asserts.notNull(getArguments(),
+                new CommandBuildException("ArgumentNode[" + node.getName() + "] behind Node[" + this.getName() + "] add failed: " +
+                        "Node[" + this.getName() + "] can not add ArgumentNode"));
+
+        if (!getArguments().containsKey(nodeName)) {
             getArguments().put(nodeName, node);
         }
 
         ArgumentNode<?> argumentNode = getArgument(nodeName);
-        if (argumentNode != null) {
-            return argumentNode;
-        }
 
-        throw new CommandBuildException("ArgumentNode[" + name + "] add failed.");
+        Asserts.notNull(argumentNode, new CommandBuildException("ArgumentNode[" + name + "] add failed."));
+        return argumentNode;
     }
 
     public void setUsage(String usage) {
@@ -148,7 +164,7 @@ public abstract class AbstractNode {
 
     public OptionNode getOption(String name) {
         HashMap<String, OptionNode> options = getOptions();
-        if (options == null || options.isEmpty() || name == null) {
+        if (options == null || options.isEmpty()) {
             return null;
         }
 

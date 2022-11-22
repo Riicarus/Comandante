@@ -5,6 +5,8 @@ import com.riicarus.comandante.exception.CommandNotFoundException;
 import com.riicarus.comandante.exception.CommandSyntaxException;
 import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.tree.*;
+import com.riicarus.util.Asserts;
+import com.riicarus.util.exception.NullObjectException;
 
 import java.util.*;
 
@@ -39,8 +41,11 @@ public class CommandDispatcher {
      * 分发并执行指令
      *
      * @param commandStr 指令字符串
+     * @throws CommandExecutionException 指令执行异常, 运行时异常
+     * @throws CommandNotFoundException 找不到指令异常, 运行时异常
+     * @throws NullObjectException 空对象异常, 运行时异常
      */
-    public void dispatch(final String commandStr) throws CommandExecutionException, CommandNotFoundException {
+    public void dispatch(final String commandStr) throws CommandExecutionException, CommandNotFoundException, NullObjectException {
         String[] commandRawParts = split(commandStr);
 
         List<String> commandStrParts = expandShortOption(commandRawParts);
@@ -71,8 +76,11 @@ public class CommandDispatcher {
      *
      * @param commandStr 指令字符串
      * @return 分割后的字符串数组
+     * @throws CommandSyntaxException 指令语法错误异常, 运行时异常
      */
-    private String[] split(String commandStr) {
+    private String[] split(String commandStr) throws CommandSyntaxException {
+        Asserts.notNull(commandStr, new CommandSyntaxException("Command String can not be null."));
+
         List<Integer> indexOfArgumentQuote = new ArrayList<>();
         List<String> commandRawParts = new ArrayList<>();
 
@@ -96,7 +104,7 @@ public class CommandDispatcher {
 
         // 参数括符为奇数
         if (indexOfArgumentQuote.size() % 2 == 1) {
-            throw new CommandSyntaxException("The number of argument quote should be even");
+            throw new CommandSyntaxException("The number of argument quote should be even.");
         }
 
         // 分割指令
@@ -167,17 +175,19 @@ public class CommandDispatcher {
      *
      * @param context 指令上下文
      * @throws CommandNotFoundException 找不到指令异常, 运行时异常
+     * @throws NullObjectException 空对象异常, 运行时异常
      */
-    private void findMainExecutionNode(final CommandContext context) throws CommandNotFoundException {
+    private void findMainExecutionNode(final CommandContext context) throws CommandNotFoundException, NullObjectException {
+        Asserts.notNull(context, "Context can not be null.");
+
         String mainExecutionStr = context.getCommandStrParts().get(0);
         // 第一次调用节点肯定为 RootNode
         RootNode rootNode = (RootNode) context.getCurrentNode();
 
         ExecutionNode mainExecutionNode = rootNode.getExecution(mainExecutionStr);
-        if (mainExecutionNode == null) {
-            throw new CommandNotFoundException("Can not find ExecutionNode[" + mainExecutionStr + "].",
-                    context, mainExecutionStr);
-        }
+
+        Asserts.notNull(mainExecutionNode, new CommandNotFoundException("Can not find ExecutionNode[" + mainExecutionStr + "].",
+                context, mainExecutionStr));
 
         context.setMainExecutionNode(mainExecutionNode);
         context.setCurrentNode(mainExecutionNode);
@@ -188,8 +198,11 @@ public class CommandDispatcher {
      * 同时会将指令主干节点对应字符串列表更新到 CommandContext 中<br/>
      *
      * @param context 指令上下文
+     * @throws NullObjectException 空对象异常, 运行时异常
      */
-    private void extractOptions(final CommandContext context) {
+    private void extractOptions(final CommandContext context) throws NullObjectException {
+        Asserts.notNull(context, "Context can not be null.");
+
         ExecutionNode mainExecutionNode = context.getMainExecutionNode();
         HashMap<String, OptionNode> allOptions = mainExecutionNode.getAllOptions();
 
@@ -237,11 +250,15 @@ public class CommandDispatcher {
      * @param index 当前 OptionNode 对应指令部分字符串中的索引
      * @param context 指令上下文
      * @return ParamUnit
+     * @throws NullObjectException 空对象异常, 运行时异常
      */
     private CommandExecutor extractOptionAndArgument(final OptionNode optionNode,
                                                final List<String> commandStrParts,
                                                int index,
-                                               final CommandContext context) {
+                                               final CommandContext context) throws NullObjectException {
+        Asserts.notNull(context, "Context can not be null.");
+        Asserts.notNull(optionNode, "OptionNode can not be null.");
+
         // 移除 OptionNode 对应的字符串部分
         context.deleteNotMainPart(index - context.getDeletedCount());
 
@@ -292,8 +309,12 @@ public class CommandDispatcher {
      * 每次迭代都会更新 CommandContext 中相关变量的值<br/>
      *
      * @param context 指令上下文
+     * @throws CommandNotFoundException 找不到指令异常, 运行时异常
+     * @throws NullObjectException 空对象异常, 运行时异常
      */
-    private void findThroughMainTree(final CommandContext context) {
+    private void findThroughMainTree(final CommandContext context) throws CommandNotFoundException, NullObjectException {
+        Asserts.notNull(context, "Context can not be null.");
+
         // 第一个指令部分字符串已经在 findMainExecutionNode() 中被解析过了, 因此从第二个开始
         List<String> commandMainParts = context.getCommandMainParts().subList(1, context.getCommandMainParts().size());
         // 遍历主干节点字符串, 直到全部找到对应的节点

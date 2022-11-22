@@ -59,7 +59,7 @@ public class CommandInputHandler {
      * @throws CommandProduceException 指令生产异常, 属于受检异常
      */
     public void input(String command) throws CommandProduceException {
-        CommandLogger.log("Command Echo: " + command);
+        CommandLogger.log("COMMAND RECEIVER ECHO: " + command);
         produce(command);
     }
 

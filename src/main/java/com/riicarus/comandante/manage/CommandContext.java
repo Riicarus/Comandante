@@ -2,6 +2,9 @@ package com.riicarus.comandante.manage;
 
 import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.tree.*;
+import com.riicarus.util.Asserts;
+import com.riicarus.util.exception.EmptyStringException;
+import com.riicarus.util.exception.NullObjectException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -65,7 +68,10 @@ public class CommandContext {
         increaseDeletedCount();
     }
 
-    public void putData(String key, Object value) {
+    public void putData(String key, Object value) throws NullObjectException, EmptyStringException {
+        Asserts.notEmpty(key, "Key of data in CommandContext can not be null or empty.");
+        Asserts.notNull(value, "Value of data in CommandContext can not be null.");
+
         getData().put(key, value);
     }
 

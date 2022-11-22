@@ -1,6 +1,7 @@
 package com.riicarus.comandante.main;
 
 import com.riicarus.comandante.command.InnerCommand;
+import com.riicarus.comandante.exception.CommandLoadException;
 import com.riicarus.comandante.exception.CommandProduceException;
 import com.riicarus.comandante.config.CommandConfig;
 import com.riicarus.comandante.manage.CommandBuilder;
@@ -79,7 +80,11 @@ public class CommandLauncher {
      * @param outputStream 目标输出流
      */
     public static void redirectOutput(OutputStream outputStream) {
-        CommandLogger.setOut(outputStream);
+        try {
+            CommandLogger.setOut(outputStream);
+        } catch (CommandLoadException e) {
+            CommandLogger.log(e.getMessage());
+        }
     }
 
     /**
@@ -91,7 +96,7 @@ public class CommandLauncher {
     public static void redirectOutput(OutputStream outputStream, StandardCharsets charsets) {
         try {
             CommandLogger.setOut(outputStream, charsets);
-        } catch (UnsupportedEncodingException e) {
+        } catch (CommandLoadException | UnsupportedEncodingException e) {
             CommandLogger.setOut(outputStream);
         }
     }
@@ -102,7 +107,11 @@ public class CommandLauncher {
      * @param path 日志文件路径, 必须为绝对路径
      */
     public static void setLogFile(String path) {
-        CommandLogger.setLog(path);
+        try {
+            CommandLogger.setLog(path);
+        } catch (CommandLoadException e) {
+            CommandLogger.log(e.getMessage());
+        }
     }
 
     /**
@@ -112,7 +121,11 @@ public class CommandLauncher {
      * @param charsets 输出流字符集
      */
     public static void setLogFile(String path, StandardCharsets charsets) {
-        CommandLogger.setLog(path, charsets);
+        try {
+            CommandLogger.setLog(path, charsets);
+        } catch (CommandLoadException e) {
+            CommandLogger.log(e.getMessage());
+        }
     }
 
     /**

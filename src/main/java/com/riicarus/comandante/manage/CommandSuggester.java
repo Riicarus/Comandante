@@ -1,10 +1,14 @@
 package com.riicarus.comandante.manage;
 
+import com.riicarus.comandante.exception.CommandExecutionException;
 import com.riicarus.comandante.executor.CommandHelper;
 import com.riicarus.comandante.tree.AbstractNode;
 import com.riicarus.comandante.tree.ArgumentNode;
 import com.riicarus.comandante.tree.ExecutionNode;
 import com.riicarus.comandante.tree.OptionNode;
+import com.riicarus.util.Asserts;
+import com.riicarus.util.exception.AssertsFailException;
+import com.riicarus.util.exception.NullObjectException;
 
 import java.util.*;
 
@@ -35,7 +39,9 @@ public class CommandSuggester {
     }
 
     public String suggest() {
-        if (notFoundStr == null || notFoundStr.trim().isEmpty()) {
+        try {
+            Asserts.notEmpty(notFoundStr, "");
+        } catch (AssertsFailException e) {
             return "";
         }
 
@@ -61,43 +67,40 @@ public class CommandSuggester {
         for (AbstractNode childNode : children) {
             String name = childNode.getName();
             if (name.startsWith(notFoundStr)) {
-                if (childNode instanceof ExecutionNode) {
-                    suggestionList.add(name);
-                } else if (childNode instanceof OptionNode) {
-                    suggestionList.add(CommandDispatcher.LONG_OPTION_PREFIX_STRING
-                            + name
-                            + CommandHelper.LONG_SHORT_OPTION_SEPARATOR
-                            + CommandDispatcher.SHORT_OPTION_PREFIX_STRING
-                            + ((OptionNode) childNode).getAlias());
-                } else if (childNode instanceof ArgumentNode) {
-                    suggestionList.add(name
-                            + CommandHelper.ARG_TYPE_QUOTE_LEFT
-                            + ((ArgumentNode<?>) childNode).getType().getTypeName()
-                            + CommandHelper.ARG_TYPE_QUOTE_RIGHT);
-                }
+                String suggestion = formatSuggestionOfNode(childNode);
+                suggestionList.add(suggestion);
             }
         }
 
         if (suggestionList.isEmpty()) {
             for (AbstractNode childNode : children) {
-                String name = childNode.getName();
-                if (childNode instanceof ExecutionNode) {
-                    suggestionList.add(name);
-                } else if (childNode instanceof OptionNode) {
-                    suggestionList.add(CommandDispatcher.LONG_OPTION_PREFIX_STRING
-                            + name
-                            + CommandHelper.LONG_SHORT_OPTION_SEPARATOR
-                            + CommandDispatcher.SHORT_OPTION_PREFIX_STRING
-                            + ((OptionNode) childNode).getAlias());
-                } else if (childNode instanceof ArgumentNode) {
-                    suggestionList.add(name
-                            + CommandHelper.ARG_TYPE_QUOTE_LEFT
-                            + ((ArgumentNode<?>) childNode).getType().getTypeName()
-                            + CommandHelper.ARG_TYPE_QUOTE_RIGHT);
-                }
+                String suggestion = formatSuggestionOfNode(childNode);
+                suggestionList.add(suggestion);
             }
         }
 
-        return suggestionList.isEmpty() ? "" : "\nYou may want to use one of these sub-command: " + suggestionList + ".";
+        return suggestionList.isEmpty() ? "" : "\nYou may want to use one of these (sub)command: " + suggestionList + ".";
+    }
+
+    private String formatSuggestionOfNode(AbstractNode node) throws NullObjectException, CommandExecutionException {
+        Asserts.notNull(node, "Node can not be null.");
+
+        String name = node.getName();
+        if (node instanceof ExecutionNode) {
+            return name;
+        } else if (node instanceof OptionNode) {
+            return CommandDispatcher.LONG_OPTION_PREFIX_STRING
+                    + name
+                    + CommandHelper.LONG_SHORT_OPTION_SEPARATOR
+                    + CommandDispatcher.SHORT_OPTION_PREFIX_STRING
+                    + ((OptionNode) node).getAlias();
+        } else if (node instanceof ArgumentNode) {
+            return name
+                   + CommandHelper.ARG_TYPE_QUOTE_LEFT
+                   + ((ArgumentNode<?>) node).getType().getTypeName()
+                   + CommandHelper.ARG_TYPE_QUOTE_RIGHT;
+        }
+
+        throw new CommandExecutionException("Get suggestion of node[" + name + "] failed.");
     }
 }
