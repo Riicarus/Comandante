@@ -5,6 +5,7 @@ import com.riicarus.util.Asserts;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
 
 /**
  * [FEATURE INFO]<br/>
@@ -39,6 +40,11 @@ public class CommandLogger {
      * 能否进行日志输出
      */
     private static boolean loggable = false;
+    /**
+     * 时间格式化
+     */
+    private static final SimpleDateFormat SDF_LOG = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
+    private static final String LOG_STRING_PREFIX = ">";
 
     private CommandLogger() {
     }
@@ -118,9 +124,11 @@ public class CommandLogger {
      * @param s 要输出的内容
      */
     public static void log(String s) {
+        String logTimeStr = SDF_LOG.format(System.currentTimeMillis());
+        String formattedLog = "comandante[" + logTimeStr + "]" + LOG_STRING_PREFIX + s;
         printStream.println(s);
         if (loggable) {
-            logStream.println(s);
+            logStream.println(formattedLog);
         }
     }
 
