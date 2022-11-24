@@ -1,10 +1,12 @@
 package com.riicarus.comandante.command;
 
+import com.riicarus.comandante.argument.IntegerCommandArgumentType;
 import com.riicarus.comandante.main.CommandLauncher;
 import com.riicarus.comandante.config.CommandConfig;
 import com.riicarus.comandante.main.CommandLogger;
 
-import java.util.List;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 
 /**
@@ -17,6 +19,7 @@ import java.util.Set;
  */
 public class InnerCommand {
 
+    @SuppressWarnings("unchecked")
     public static void defineCommand() {
         CommandLauncher.register().exe("comandante")
                 .opt("version", "v")
@@ -40,14 +43,14 @@ public class InnerCommand {
                 .opt("info", "i")
                 .executor(
                         context -> {
-                            CommandLogger.log(CommandConfig.getVersion());
-                            CommandLogger.log(CommandConfig.getAuthor());
-                            CommandLogger.log(CommandConfig.getDoc());
+                            CommandLogger.log("version=" + CommandConfig.getVersion());
+                            CommandLogger.log("author=" + CommandConfig.getAuthor());
+                            CommandLogger.log("doc_link=" + CommandConfig.getDoc());
                         },
                         "查看 Comandante 信息"
                 );
         CommandLauncher.register().exe("comandante").exe("list")
-                .opt("all")
+                .opt("command", "c")
                 .executor(
                         context -> {
                             Set<String> commandSet = CommandLauncher.listAllExecutionCommand();
@@ -59,10 +62,30 @@ public class InnerCommand {
                 .opt("usage", "u")
                 .executor(
                         context -> {
-                            List<String> commandUsage = CommandLauncher.listCommandUsage();
-                            commandUsage.forEach(CommandLogger::log);
+                            HashMap<String, Integer> commandUsage = CommandLauncher.listCommandUsage();
+                            commandUsage.forEach((k, v) -> CommandLogger.log(k + "   usage: " + v));
                         },
                         "列出指令使用情况"
+                );
+        CommandLauncher.register().exe("comandante").exe("list")
+                .opt("usage-desc")
+                .arg("limit", new IntegerCommandArgumentType())
+                .executor(
+                        context -> {
+                            int limit = ((HashMap<String, Integer>) context.getData("usage-desc")).get("limit");
+                            LinkedHashMap<String, Integer> commandUsageDesc = CommandLauncher.listCommandUsageDesc(limit);
+                            commandUsageDesc.forEach((k, v) -> CommandLogger.log(k + "   usage: " + v));
+                        }
+                );
+        CommandLauncher.register().exe("comandante").exe("list")
+                .opt("usage-asc")
+                .arg("limit", new IntegerCommandArgumentType())
+                .executor(
+                        context -> {
+                            int limit = ((HashMap<String, Integer>) context.getData("usage-asc")).get("limit");
+                            LinkedHashMap<String, Integer> commandUsageAsc = CommandLauncher.listCommandUsageAsc(limit);
+                            commandUsageAsc.forEach((k, v) -> CommandLogger.log(k + "   usage: " + v));
+                        }
                 );
     }
 }

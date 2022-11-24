@@ -4,8 +4,7 @@ import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.executor.CommandHelper;
 import com.riicarus.comandante.tree.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * [FEATURE INFO]<br/>
@@ -40,8 +39,8 @@ public class CommandRegister {
      *
      * @return 指令使用情况列表
      */
-    public List<String> listCommandUsage() {
-        List<String> commandUsage = new ArrayList<>();
+    public HashMap<String, Integer> listCommandUsage() {
+        HashMap<String, Integer> commandUsage = new HashMap<>();
 
         ArrayList<CommandExecutor> executors = rootNode.getExecutors();
         for (CommandExecutor executor : executors) {
@@ -60,10 +59,54 @@ public class CommandRegister {
                 node = node.getPreviousNode();
             }
 
-            commandStr.append("   usage: ").append(executor.getUseCount());
-            commandUsage.add(commandStr.toString());
+            commandUsage.put(commandStr.toString(), executor.getUseCount());
         }
 
         return commandUsage;
+    }
+
+    /**
+     * 使用情况按从低到高排序, 取前 limit 个元素
+     *
+     * @param limit 前多少个元素
+     * @return 排序后的集合
+     */
+    public LinkedHashMap<String, Integer> listCommandUsageAsc(int limit) {
+        HashMap<String, Integer> commandUsage = listCommandUsage();
+        LinkedHashMap<String, Integer> commandUsageDesc = new LinkedHashMap<>();
+
+        ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(commandUsage.entrySet());
+        entries.sort(Comparator.comparingInt(Map.Entry::getValue));
+
+        if (limit > 0) {
+            entries.subList(0, limit).forEach(entry -> commandUsageDesc.put(entry.getKey(), entry.getValue()));
+        } else {
+            entries.forEach(entry -> commandUsageDesc.put(entry.getKey(), entry.getValue()));
+        }
+
+        return commandUsageDesc;
+    }
+
+    /**
+     * 使用情况按从高到低排序, 取前 limit 个元素
+     *
+     * @param limit 前多少个元素
+     * @return 排序后的集合
+     */
+    public LinkedHashMap<String, Integer> listCommandUsageDesc(int limit) {
+        HashMap<String, Integer> commandUsage = listCommandUsage();
+        LinkedHashMap<String, Integer> commandUsageDesc = new LinkedHashMap<>();
+
+        ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(commandUsage.entrySet());
+        entries.sort(Comparator.comparingInt(Map.Entry::getValue));
+        Collections.reverse(entries);
+
+        if (limit > 0) {
+            entries.subList(0, limit).forEach(entry -> commandUsageDesc.put(entry.getKey(), entry.getValue()));
+        } else {
+            entries.forEach(entry -> commandUsageDesc.put(entry.getKey(), entry.getValue()));
+        }
+
+        return commandUsageDesc;
     }
 }

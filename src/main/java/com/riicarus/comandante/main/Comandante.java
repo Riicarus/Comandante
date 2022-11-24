@@ -78,8 +78,16 @@ public class Comandante {
      *
      * @return 指令使用情况列表
      */
-    protected List<String> listCommandUsage() {
+    protected HashMap<String, Integer> listCommandUsage() {
         return commandDispatcher.getCommandRegister().listCommandUsage();
+    }
+
+    protected LinkedHashMap<String, Integer> listCommandUsageDesc(int limit) {
+        return commandDispatcher.getCommandRegister().listCommandUsageDesc(limit);
+    }
+
+    protected LinkedHashMap<String, Integer> listCommandUsageAsc(int limit) {
+        return commandDispatcher.getCommandRegister().listCommandUsageAsc(limit);
     }
 
     /**
