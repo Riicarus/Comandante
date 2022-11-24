@@ -6,7 +6,7 @@ import com.riicarus.comandante.tree.AbstractNode;
 import com.riicarus.comandante.tree.ArgumentNode;
 import com.riicarus.comandante.tree.ExecutionNode;
 import com.riicarus.comandante.tree.OptionNode;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 import com.riicarus.util.exception.AssertsFailException;
 import com.riicarus.util.exception.NullObjectException;
 

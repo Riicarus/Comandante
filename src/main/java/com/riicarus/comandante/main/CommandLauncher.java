@@ -9,6 +9,7 @@ import com.riicarus.comandante.manage.CommandBuilder;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -58,6 +59,15 @@ public class CommandLauncher {
      */
     public static Set<String> listAllExecutionCommand() {
         return COMANDANTE.listAllExecutionCommand();
+    }
+
+    /**
+     * 列出指令使用情况
+     *
+     * @return 指令使用情况列表
+     */
+    public static List<String> listCommandUsage() {
+        return COMANDANTE.listCommandUsage();
     }
 
     /**

@@ -1,7 +1,7 @@
 package com.riicarus.comandante.argument;
 
 import com.riicarus.comandante.exception.CommandSyntaxException;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 
 import java.util.ArrayList;
 import java.util.List;

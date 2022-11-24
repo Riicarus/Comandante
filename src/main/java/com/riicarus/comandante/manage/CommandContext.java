@@ -2,7 +2,7 @@ package com.riicarus.comandante.manage;
 
 import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.tree.*;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 import com.riicarus.util.exception.EmptyStringException;
 import com.riicarus.util.exception.NullObjectException;
 

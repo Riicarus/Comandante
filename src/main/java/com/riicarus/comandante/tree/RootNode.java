@@ -1,5 +1,8 @@
 package com.riicarus.comandante.tree;
 
+import com.riicarus.comandante.executor.CommandExecutor;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -16,6 +19,10 @@ import java.util.Set;
 public class RootNode extends AbstractNode {
 
     private static final String ROOT_NAME = "ROOT";
+    /**
+     * 指令树下所有执行器集合
+     */
+    private final ArrayList<CommandExecutor> executors = new ArrayList<>();
 
     public RootNode() {
         super(ROOT_NAME, new HashMap<>(), null, null, null);
@@ -23,5 +30,13 @@ public class RootNode extends AbstractNode {
 
     public Set<String> listRegisteredExecutions() {
         return getExecutions().keySet();
+    }
+
+    public void registerExecutor(CommandExecutor executor) {
+        executors.add(executor);
+    }
+
+    public ArrayList<CommandExecutor> getExecutors() {
+        return executors;
     }
 }

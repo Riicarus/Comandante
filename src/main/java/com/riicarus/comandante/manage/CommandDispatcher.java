@@ -5,7 +5,7 @@ import com.riicarus.comandante.exception.CommandNotFoundException;
 import com.riicarus.comandante.exception.CommandSyntaxException;
 import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.tree.*;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 import com.riicarus.util.exception.NullObjectException;
 
 import java.util.*;

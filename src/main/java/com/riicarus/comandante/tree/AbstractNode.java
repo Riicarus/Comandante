@@ -2,7 +2,7 @@ package com.riicarus.comandante.tree;
 
 import com.riicarus.comandante.exception.CommandBuildException;
 import com.riicarus.comandante.executor.CommandExecutor;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 
 import java.util.HashMap;
 
@@ -122,16 +122,19 @@ public abstract class AbstractNode {
         this.usage = usage;
     }
 
-    public void setCommandExecutor(CommandExecutor commandExecutor) {
-        setCommandExecutor(commandExecutor, false);
-    }
-
-    public void setCommandExecutor(CommandExecutor commandExecutor, boolean cover) {
-        if (this.commandExecutor != null && !cover) {
-            return;
+    /**
+     * 设置指令执行器
+     *
+     * @param commandExecutor 指令执行器
+     * @return 是否设置成功
+     */
+    public boolean setCommandExecutor(CommandExecutor commandExecutor) {
+        if (this.commandExecutor == null) {
+            this.commandExecutor = commandExecutor;
+            return true;
         }
 
-        this.commandExecutor = commandExecutor;
+        return false;
     }
 
     public String getName() {
@@ -152,6 +155,10 @@ public abstract class AbstractNode {
 
     public HashMap<String, ArgumentNode<?>> getArguments() {
         return arguments;
+    }
+
+    public AbstractNode getPreviousNode() {
+        return previousNode;
     }
 
     public CommandExecutor getCommandExecutor() {

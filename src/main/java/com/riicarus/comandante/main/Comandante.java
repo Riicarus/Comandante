@@ -5,11 +5,9 @@ import com.riicarus.comandante.manage.CommandDispatcher;
 import com.riicarus.comandante.manage.CommandInputHandler;
 import com.riicarus.comandante.manage.CommandRegister;
 import com.riicarus.comandante.tree.ExecutionNode;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * [FEATURE INFO]<br/>
@@ -73,6 +71,15 @@ public class Comandante {
     protected Set<String> listAllExecutionCommand() {
         HashMap<String, ExecutionNode> executions = getCommandRegister().getRootNode().getExecutions();
         return executions == null ? new HashSet<>() : executions.keySet();
+    }
+
+    /**
+     * 列出指令使用情况
+     *
+     * @return 指令使用情况列表
+     */
+    protected List<String> listCommandUsage() {
+        return commandDispatcher.getCommandRegister().listCommandUsage();
     }
 
     /**

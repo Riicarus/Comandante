@@ -1,7 +1,7 @@
 package com.riicarus.comandante.main;
 
 import com.riicarus.comandante.exception.CommandLoadException;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

@@ -4,8 +4,9 @@ import com.riicarus.comandante.argument.CommandArgumentType;
 import com.riicarus.comandante.exception.CommandBuildException;
 import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.comandante.executor.CommandHelper;
+import com.riicarus.comandante.executor.Executable;
 import com.riicarus.comandante.tree.*;
-import com.riicarus.util.Asserts;
+import com.riicarus.util.asserts.Asserts;
 
 /**
  * [FEATURE INFO]<br/>
@@ -78,13 +79,21 @@ public class CommandBuilder {
 
             if (addMainExecution) {
                 mainExecutionNode = executionNode;
-                // 添加 --help/-h 支持
-                OptionNode helpNode = new OptionNode("help", "h", executionNode);
-                helpNode.setUsage("查看指令帮助");
-                CommandHelper commandHelper = new CommandHelper(executionNode);
-                helpNode.setCommandExecutor(commandHelper);
-                helpNode = executionNode.addOption(helpNode);
-                mainExecutionNode.addAllOption(helpNode);
+
+                if (mainExecutionNode.getOption("help") == null) {
+                    // 添加 --help/-h 支持
+                    OptionNode helpNode = new OptionNode("help", "h", executionNode);
+                    helpNode.setUsage("查看指令帮助");
+                    CommandHelper commandHelper = new CommandHelper(helpNode, executionNode);
+
+                    boolean set = helpNode.setCommandExecutor(commandHelper);
+                    if (set) {
+                        rootNode.registerExecutor(commandHelper);
+                    }
+
+                    helpNode = executionNode.addOption(helpNode);
+                    mainExecutionNode.addAllOption(helpNode);
+                }
             }
         } else {
             executionNode = new ExecutionNode(name, currentExecutionNode);
@@ -169,27 +178,37 @@ public class CommandBuilder {
      * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
      * 前驱节点不能是 RootNode<br/>
      *
-     * @param commandExecutor 指令执行器
+     * @param executor 指令执行器
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
-    public void executor(CommandExecutor commandExecutor) throws CommandBuildException {
+    public void executor(Executable executor) throws CommandBuildException {
         Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("RootNode can not have a command executor"));
 
-        currentNode.setCommandExecutor(commandExecutor);
+        CommandExecutor commandExecutor = new CommandExecutor(executor, currentNode);
+
+        boolean set = currentNode.setCommandExecutor(commandExecutor);
+        if (set) {
+            rootNode.registerExecutor(commandExecutor);
+        }
     }
 
     /**
      * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
      * 前驱节点不能是 RootNode<br/>
      *
-     * @param commandExecutor 指令执行器
+     * @param executor 指令执行器
      * @param usage 指令用途说明
      * @throws CommandBuildException 指令构建异常, 属于运行时异常
      */
-    public void executor(CommandExecutor commandExecutor, final String usage) throws CommandBuildException {
+    public void executor(Executable executor, final String usage) throws CommandBuildException {
         Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("RootNode can not have a command executor"));
 
-        currentNode.setCommandExecutor(commandExecutor);
+        CommandExecutor commandExecutor = new CommandExecutor(executor, currentNode);
+
+        boolean set = currentNode.setCommandExecutor(commandExecutor);
+        if (set) {
+            rootNode.registerExecutor(commandExecutor);
+        }
         currentNode.setUsage(usage);
     }
 
