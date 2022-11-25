@@ -11,7 +11,6 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -72,12 +71,12 @@ public class CommandLauncher {
         return COMANDANTE.listCommandUsage();
     }
 
-    public static LinkedHashMap<String, Integer> listCommandUsageDesc(int limit) {
-        return COMANDANTE.listCommandUsageDesc(limit);
+    public static LinkedHashMap<String, Integer> listCommandUsageDesc(HashMap<String, Integer> commandUsage, int limit) {
+        return COMANDANTE.listCommandUsageDesc(commandUsage, limit);
     }
 
-    public static LinkedHashMap<String, Integer> listCommandUsageAsc(int limit) {
-        return COMANDANTE.listCommandUsageAsc(limit);
+    public static LinkedHashMap<String, Integer> listCommandUsageAsc(HashMap<String, Integer> commandUsage, int limit) {
+        return COMANDANTE.listCommandUsageAsc(commandUsage, limit);
     }
 
     /**

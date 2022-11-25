@@ -82,12 +82,12 @@ public class Comandante {
         return commandDispatcher.getCommandRegister().listCommandUsage();
     }
 
-    protected LinkedHashMap<String, Integer> listCommandUsageDesc(int limit) {
-        return commandDispatcher.getCommandRegister().listCommandUsageDesc(limit);
+    protected LinkedHashMap<String, Integer> listCommandUsageDesc(HashMap<String, Integer> commandUsage, int limit) {
+        return commandDispatcher.getCommandRegister().listCommandUsageDesc(commandUsage, limit);
     }
 
-    protected LinkedHashMap<String, Integer> listCommandUsageAsc(int limit) {
-        return commandDispatcher.getCommandRegister().listCommandUsageAsc(limit);
+    protected LinkedHashMap<String, Integer> listCommandUsageAsc(HashMap<String, Integer> commandUsage, int limit) {
+        return commandDispatcher.getCommandRegister().listCommandUsageAsc(commandUsage, limit);
     }
 
     /**

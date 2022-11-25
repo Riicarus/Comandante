@@ -4,6 +4,7 @@ import com.riicarus.comandante.exception.CommandExecutionException;
 import com.riicarus.comandante.exception.CommandNotFoundException;
 import com.riicarus.comandante.exception.CommandSyntaxException;
 import com.riicarus.comandante.executor.CommandExecutor;
+import com.riicarus.comandante.main.CommandLogger;
 import com.riicarus.comandante.tree.*;
 import com.riicarus.util.asserts.Asserts;
 import com.riicarus.util.exception.NullObjectException;
@@ -66,6 +67,7 @@ public class CommandDispatcher {
             if (commandExecutor != null) {
                 commandExecutor.execute(context);
             }
+            context.getOutputData().values().forEach(CommandLogger::log);
         } catch (Exception e) {
             throw new CommandExecutionException("Command[" + commandStr + "] execute failed.");
         }
@@ -296,7 +298,7 @@ public class CommandDispatcher {
         args.put(argumentNode.getName(), argumentNode.parse(arg));
         index++;
         context.deleteNotMainPart(index - context.getDeletedCount());
-        context.putData(optionNode.getName(), args);
+        context.putArgument(optionNode.getName(), args);
 
         return argumentNode.getCommandExecutor();
     }
@@ -332,7 +334,7 @@ public class CommandDispatcher {
                 String key = context.getCurrentNode().getName() + EXE_ARG_DATA_SEPARATOR + argumentNode.getName();
                 String arg = commandMainPart.startsWith(ARGUMENT_QUOTE) ?
                         commandMainPart.substring(1, commandMainPart.length() - 1) : commandMainPart;
-                context.putData(key, argumentNode.parse(arg));
+                context.putArgument(key, argumentNode.parse(arg));
                 context.setCurrentNode(argumentNode);
 
                 continue;

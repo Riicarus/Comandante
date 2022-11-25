@@ -23,7 +23,15 @@ public class CommandContext {
     /**
      * 指令解析时逐步运行产生的数据缓存
      */
-    private final HashMap<String, Object> data = new HashMap<>();
+    private final HashMap<String, Object> cacheData = new HashMap<>();
+    /**
+     * 一个执行器执行完需要输出的数据
+     */
+    private final HashMap<String, String> outputData = new HashMap<>();
+    /**
+     * 命令传入的参数
+     */
+    private final HashMap<String, Object> arguments = new HashMap<>();
     /**
      * 当前上下文解析的指令字符串分割后的字符串列表
      */
@@ -68,19 +76,54 @@ public class CommandContext {
         increaseDeletedCount();
     }
 
-    public void putData(String key, Object value) throws NullObjectException, EmptyStringException {
-        Asserts.notEmpty(key, "Key of data in CommandContext can not be null or empty.");
-        Asserts.notNull(value, "Value of data in CommandContext can not be null.");
+    public void putCacheData(String key, Object value) throws NullObjectException, EmptyStringException {
+        Asserts.notEmpty(key, "Key of cacheData in CommandContext can not be null or empty.");
+        Asserts.notNull(value, "Value of cacheData in CommandContext can not be null.");
 
-        getData().put(key, value);
+        getCacheData().put(key, value);
     }
 
-    public Object getData(String key) {
-        return getData().get(key);
+    public Object getCacheData(String key) {
+        if (getOutputData().containsKey(key)) {
+            removeOutputData(key);
+        }
+        return getCacheData().get(key);
     }
 
-    public HashMap<String, Object> getData() {
-        return data;
+    public HashMap<String, Object> getCacheData() {
+        return cacheData;
+    }
+
+    public void removeOutputData(String key) {
+        Asserts.notEmpty(key, "Key of outputData in CommandContext can not be null or empty.");
+
+        getOutputData().remove(key);
+    }
+
+    public void putOutputData(String key, String value) {
+        Asserts.notEmpty(key, "Key of outputData in CommandContext can not be null or empty.");
+        Asserts.notNull(value, "Value of outputData in CommandContext can not be null.");
+
+        getOutputData().put(key, value);
+    }
+
+    public HashMap<String, String> getOutputData() {
+        return outputData;
+    }
+
+    public void putArgument(String key, Object value) {
+        Asserts.notEmpty(key, "Key of arguments in CommandContext can not be null or empty.");
+        Asserts.notNull(value, "Value of arguments in CommandContext can not be null.");
+
+        getArguments().put(key, value);
+    }
+
+    public Object getArgument(String key) {
+        return getArguments().get(key);
+    }
+
+    public HashMap<String, Object> getArguments() {
+        return arguments;
     }
 
     public List<String> getCommandStrParts() {

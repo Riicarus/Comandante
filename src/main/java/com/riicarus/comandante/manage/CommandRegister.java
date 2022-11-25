@@ -68,11 +68,11 @@ public class CommandRegister {
     /**
      * 使用情况按从低到高排序, 取前 limit 个元素
      *
+     * @param commandUsage 乱序的指令使用情况
      * @param limit 前多少个元素
      * @return 排序后的集合
      */
-    public LinkedHashMap<String, Integer> listCommandUsageAsc(int limit) {
-        HashMap<String, Integer> commandUsage = listCommandUsage();
+    public LinkedHashMap<String, Integer> listCommandUsageAsc(HashMap<String, Integer> commandUsage, int limit) {
         LinkedHashMap<String, Integer> commandUsageDesc = new LinkedHashMap<>();
 
         ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(commandUsage.entrySet());
@@ -90,11 +90,11 @@ public class CommandRegister {
     /**
      * 使用情况按从高到低排序, 取前 limit 个元素
      *
+     * @param commandUsage 乱序的指令使用情况
      * @param limit 前多少个元素
      * @return 排序后的集合
      */
-    public LinkedHashMap<String, Integer> listCommandUsageDesc(int limit) {
-        HashMap<String, Integer> commandUsage = listCommandUsage();
+    public LinkedHashMap<String, Integer> listCommandUsageDesc(HashMap<String, Integer> commandUsage, int limit) {
         LinkedHashMap<String, Integer> commandUsageDesc = new LinkedHashMap<>();
 
         ArrayList<Map.Entry<String, Integer>> entries = new ArrayList<>(commandUsage.entrySet());

@@ -3,7 +3,6 @@ package com.riicarus.comandante.command;
 import com.riicarus.comandante.argument.IntegerCommandArgumentType;
 import com.riicarus.comandante.main.CommandLauncher;
 import com.riicarus.comandante.config.CommandConfig;
-import com.riicarus.comandante.main.CommandLogger;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -24,28 +23,29 @@ public class InnerCommand {
         CommandLauncher.register().exe("comandante")
                 .opt("version", "v")
                 .executor(
-                        context -> CommandLogger.log(CommandConfig.getVersion()),
+                        context -> context.putOutputData("comandante_version", CommandConfig.getVersion()),
                         "查看 Comandante 版本号"
         );
         CommandLauncher.register().exe("comandante")
                 .opt("author", "a")
                 .executor(
-                        context -> CommandLogger.log(CommandConfig.getAuthor()),
+                        context -> context.putOutputData("comandante_author", CommandConfig.getAuthor()),
                         "查看 Comandante 作者"
         );
         CommandLauncher.register().exe("comandante")
                 .opt("doc", "d")
                 .executor(
-                        context -> CommandLogger.log(CommandConfig.getDoc()),
+                        context -> context.putOutputData("comandante_doc", CommandConfig.getDoc()),
                         "查看 Comandante 文档"
         );
         CommandLauncher.register().exe("comandante")
                 .opt("info", "i")
                 .executor(
                         context -> {
-                            CommandLogger.log("version=" + CommandConfig.getVersion());
-                            CommandLogger.log("author=" + CommandConfig.getAuthor());
-                            CommandLogger.log("doc_link=" + CommandConfig.getDoc());
+                            String builder = "version=" + CommandConfig.getVersion() + "\n" +
+                                    "author=" + CommandConfig.getAuthor() + "\n" +
+                                    "doc_link=" + CommandConfig.getDoc();
+                            context.putOutputData("comandante_info", builder);
                         },
                         "查看 Comandante 信息"
                 );
@@ -54,7 +54,10 @@ public class InnerCommand {
                 .executor(
                         context -> {
                             Set<String> commandSet = CommandLauncher.listAllExecutionCommand();
-                            commandSet.forEach(CommandLogger::log);
+                            StringBuilder builder = new StringBuilder();
+                            commandSet.forEach(command -> builder.append(command).append("\n"));
+                            builder.deleteCharAt(builder.length() - 1);
+                            context.putOutputData("command", builder.toString());
                         },
                         "列出所有已注册指令"
                 );
@@ -63,28 +66,50 @@ public class InnerCommand {
                 .executor(
                         context -> {
                             HashMap<String, Integer> commandUsage = CommandLauncher.listCommandUsage();
-                            commandUsage.forEach((k, v) -> CommandLogger.log(k + "   usage: " + v));
+                            context.putCacheData("command_usage", commandUsage);
+                            StringBuilder builder = new StringBuilder();
+                            commandUsage.forEach((k, v) -> builder.append(k).append("   usage: ").append(v).append("\n"));
+                            builder.deleteCharAt(builder.length() - 1);
+                            context.putOutputData("command_usage", builder.toString());
                         },
                         "列出指令使用情况"
                 );
         CommandLauncher.register().exe("comandante").exe("list")
-                .opt("usage-desc")
+                .opt("desc")
                 .arg("limit", new IntegerCommandArgumentType())
                 .executor(
                         context -> {
-                            int limit = ((HashMap<String, Integer>) context.getData("usage-desc")).get("limit");
-                            LinkedHashMap<String, Integer> commandUsageDesc = CommandLauncher.listCommandUsageDesc(limit);
-                            commandUsageDesc.forEach((k, v) -> CommandLogger.log(k + "   usage: " + v));
+                            int limit = ((HashMap<String, Integer>) context.getArgument("desc")).get("limit");
+                            HashMap<String, Integer> command_usage = (HashMap<String, Integer>) context.getCacheData("command_usage");
+
+                            LinkedHashMap<String, Integer> commandUsageDesc =
+                                    CommandLauncher.listCommandUsageDesc(command_usage, limit);
+
+                            context.putCacheData("command_usage_desc", commandUsageDesc);
+
+                            StringBuilder builder = new StringBuilder();
+                            commandUsageDesc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
+                            builder.deleteCharAt(builder.length() - 1);
+                            context.putOutputData("command_usage_desc", builder.toString());
                         }
                 );
         CommandLauncher.register().exe("comandante").exe("list")
-                .opt("usage-asc")
+                .opt("asc")
                 .arg("limit", new IntegerCommandArgumentType())
                 .executor(
                         context -> {
-                            int limit = ((HashMap<String, Integer>) context.getData("usage-asc")).get("limit");
-                            LinkedHashMap<String, Integer> commandUsageAsc = CommandLauncher.listCommandUsageAsc(limit);
-                            commandUsageAsc.forEach((k, v) -> CommandLogger.log(k + "   usage: " + v));
+                            int limit = ((HashMap<String, Integer>) context.getArgument("asc")).get("limit");
+                            HashMap<String, Integer> command_usage = (HashMap<String, Integer>) context.getCacheData("command_usage");
+
+                            LinkedHashMap<String, Integer> commandUsageAsc =
+                                    CommandLauncher.listCommandUsageAsc(command_usage, limit);
+
+                            context.putCacheData("command_usage_asc", commandUsageAsc);
+
+                            StringBuilder builder = new StringBuilder();
+                            commandUsageAsc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
+                            builder.deleteCharAt(builder.length() - 1);
+                            context.putOutputData("command_usage_asc", builder.toString());
                         }
                 );
     }
