@@ -91,7 +91,8 @@ public class InnerCommand {
                             commandUsageDesc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
                             builder.deleteCharAt(builder.length() - 1);
                             context.putOutputData("command_usage_desc", builder.toString());
-                        }
+                        },
+                        "指令使用情况, 正序, 需配合 --usage"
                 );
         CommandLauncher.register().exe("comandante").exe("list")
                 .opt("asc")
@@ -110,7 +111,8 @@ public class InnerCommand {
                             commandUsageAsc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
                             builder.deleteCharAt(builder.length() - 1);
                             context.putOutputData("command_usage_asc", builder.toString());
-                        }
+                        },
+                        "指令使用情况, 倒序, 需配合 --usage"
                 );
     }
 }

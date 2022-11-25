@@ -117,7 +117,11 @@ public class TestMain {
 ## 扩展
 ### 执行器
 主要是执行器参数的获取问题:  
-执行器方法在调用时会被传入一个 `CommandContext` 对象, 其中的 `data` 属性保存了指令解析/执行过程中产生的所有参数.  
+执行器方法在调用时会被传入一个 `CommandContext` 对象, 其中的 `arguments` 属性保存了指令解析/执行过程中产生的所有参数.  
+```java
+private final HashMap<String, Object> arguments = new HashMap<>();
+```
+指令传入参数在存入 `arguments` 前, 会自动被根据指令参数在定义时唯一确定的 `CommandArgumentType<T>` 类型, 转换成对应类型的数据.  
 
 #### 指令传入参数
 对于指令中传入参数的获取, 主要有两种:  
@@ -130,9 +134,9 @@ public class TestMain {
         .arg("font_next", new StringCommandArgumentType())
         .executor(
                 context -> CommandLogger.log("set app font to "
-                        + ((HashMap<String, String>) context.getData("font")).get("font_main")
+                        + ((HashMap<String, String>) context.getArgument("font")).get("font_main")
                         + "/"
-                        + ((HashMap<String, String>) context.getData("font")).get("font_next"))
+                        + ((HashMap<String, String>) context.getArgument("font")).get("font_next"))
         );
    ```
 2. 属于 `exe` 节点的参数:  
@@ -142,7 +146,7 @@ public class TestMain {
         .exe("echo")
         .arg("message", new StringCommandArgumentType())
         .executor(
-                context -> CommandLogger.log("app echo: " + context.getData("echo" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "message"))
+                context -> CommandLogger.log("app echo: " + context.getArgument("echo" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "message"))
         );
 
    // 多个相连的参数获取 
@@ -154,23 +158,65 @@ public class TestMain {
         .arg("to", new StringCommandArgumentType())
         .executor(
                 context -> CommandLogger.log("app echo: move from " +
-                        context.getData("move" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "from")
+                        context.getArgument("move" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "from")
                 + " to "
-                + context.getData("from" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "to"))
-        ); 
+                + context.getArgument("from" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "to"))
+        );
    ```
 
 #### 指令执行产生参数
 在指令执行过程中, 可能会有多个具有语义的部分被执行, 同时产生一些参数, 而后续执行的执行器需要前面产生的参数. 这就引出了一些需要注意的点:  
 1. 有参数传递顺序的语义对应的指令要按顺序输入.  
-2. 需要将产生的参数放入 `CommandContext.data` 中, 提供给之后的执行器使用.
-3. 执行器从 `CommandContext.data` 中获取参数.  
+2. 需要将产生的参数放入 `CommandContext.cacheData` 中, 提供给之后的执行器使用.
+3. 执行器从 `CommandContext.cacheData` 中获取参数.  
 
 ```java
 // 向 CommandContext.data 放入参数
-CommandContext#putData(String key, Object value);
+CommandContext#putCacheData(String key, Object value);
 // 从 CommandContext.data 取出参数
-CommandContext#getData(String key);
+CommandContext#getCacheData(String key);
+```
+
+### 连续语义扩展
+一部分 `opt` 类型指令可能会具有和前一个指令相连的语义, 但是我们的执行器是依次顺序执行的, 不会对相连的 `opt` 对应的执行器进行特殊处理. 这时候需要我们使用到 `CommandContext` 的缓存机制, 来实现对连续语义执行器的语义扩展.  
+这里用到的缓存机制主要包括两个:  
+1. 执行数据缓存(保存在 `CommandContext.cacheData` 中)
+2. 输出数据缓存(保存在 `CommandContext.outputData` 中)
+
+由于在连续语义执行过程中, 例如内置指令: `comandante list --usage/-u --desc limit(int)`. `--usage` 的语义是列出所有的指令使用情况, 而 `--desc limit(int)` 则是将其从高到底排序并取出前 `limit` 个. 在单个语义的情况下, `--usage` 的结果会被打印出来, 但是我们不希望在连续语义的情况下也进行输出, 这是就需要将输出放入输出数据缓存中, 同时将执行结果的数据放入执行数据缓存中, 要求输出数据缓存和执行数据缓存的 `key` 要相同. 如果后续有执行器从执行数据缓存中取出了数据, 那么插件会删除掉输出数据缓存中的数据, 表示对应的语义有相连的语义, 靠前的语义不需要再进行输出.  
+
+以下是插件中内置指令的源码实践:  
+```java
+CommandLauncher.register().exe("comandante").exe("list")
+        .opt("usage", "u")
+        .executor(
+                context -> {
+                    HashMap<String, Integer> commandUsage = CommandLauncher.listCommandUsage();
+                    context.putCacheData("command_usage", commandUsage);
+                    StringBuilder builder = new StringBuilder();
+                    commandUsage.forEach((k, v) -> builder.append(k).append("   usage: ").append(v).append("\n"));
+                    builder.deleteCharAt(builder.length() - 1);
+                    context.putOutputData("command_usage", builder.toString());
+                },
+                "列出指令使用情况"
+        );
+CommandLauncher.register().exe("comandante").exe("list")
+        .opt("desc")
+        .arg("limit", new IntegerCommandArgumentType())
+        .executor(
+                context -> {
+                    int limit = ((HashMap<String, Integer>) context.getArgument("desc")).get("limit");
+                    HashMap<String, Integer> command_usage = (HashMap<String, Integer>) context.getCacheData("command_usage");
+                    LinkedHashMap<String, Integer> commandUsageDesc =
+                            CommandLauncher.listCommandUsageDesc(command_usage, limit);
+                    context.putCacheData("command_usage_desc", commandUsageDesc);
+                    StringBuilder builder = new StringBuilder();
+                    commandUsageDesc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
+                    builder.deleteCharAt(builder.length() - 1);
+                    context.putOutputData("command_usage_desc", builder.toString());
+                },
+                "指令使用情况, 正序, 需配合 --usage"
+        );
 ```
 
 ### IO 扩展
@@ -194,12 +240,15 @@ Comandante 同时支持输出重定向, 可以重定向插件内部所有输出�
 ## 内置指令
 目前 Comandante 有如下内置指令:  
 ```bash
-comandante --help/h      查看指令帮助
-comandante --author/a    查看 Comandante 作者
-comandante --doc/d       查看 Comandante 文档
-comandante --version/v   查看 Comandante 版本号
-comandante --info/i      查看 Comandante 信息
-comandante list --all    列出所有已注册指令
+comandante --help/h                     查看指令帮助
+comandante --author/a                   查看 Comandante 作者
+comandante --doc/d                      查看 Comandante 文档
+comandante --version/v                  查看 Comandante 版本号
+comandante --info/i                     查看 Comandante 信息
+comandante list --asc limit(int)        指令使用情况, 倒序, 需配合 --usage
+comandante list --usage/u               列出指令使用情况
+comandante list --command/c             列出所有已注册指令
+comandante list --desc limit(int)       指令使用情况, 正序, 需配合 --usage
 ```
 对所有已加载指令(可以是自定义的指令), 在其 `exe` 节点上, 我们都为其装配了对应的 help 指令, 如:  
 ```bash
