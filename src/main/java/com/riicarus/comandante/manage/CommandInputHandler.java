@@ -13,7 +13,7 @@ import java.util.concurrent.BlockingQueue;
  * 维护了一个指令阻塞队列, 最大指令数量为 10<br/>
  * 消费者为 CommandRunner, 生产者为 CommandLauncher 提供的 API: CommandLauncher.dispatchToCache(String)<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 16:31
  * @since 1.0
  */

@@ -8,7 +8,7 @@ import java.util.HashMap;
  * OptionNode 不会构成链式结构, 任何其父节点只能注册一层 OptionNode 节点<br/>
  * OptionNode 的参数固定, 不支持可选参数<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-11-16 16:52
  * @since 1.0.0
  */

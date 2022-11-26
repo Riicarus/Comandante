@@ -4,7 +4,7 @@ package com.riicarus.comandante.argument;
  * [FEATURE INFO]<br/>
  * String 类型参数
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 15:55
  * @since 1.0
  */

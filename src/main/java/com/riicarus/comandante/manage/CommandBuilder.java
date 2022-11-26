@@ -18,7 +18,7 @@ import com.riicarus.util.asserts.Asserts;
  *  5. 使用 arg() 定义一个 ArgumentNode<br/>
  *  6. 使用 executor() 定义一个 指令执行器, 会被注册到上一个调用方法生成的节点上<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 0:23
  * @since 1.0
  */

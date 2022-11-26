@@ -5,7 +5,7 @@ import java.util.Scanner;
 /**
  * [FEATURE INFO]<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-11-8 15:49
  * @since 1.0
  */

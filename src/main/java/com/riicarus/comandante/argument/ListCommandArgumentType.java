@@ -10,7 +10,7 @@ import java.util.List;
  * [FEATURE INFO]<br/>
  * List 类型参数
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-11-5 13:44
  * @since 1.0
  */

@@ -13,7 +13,7 @@ import java.util.*;
  * [FEATURE INFO]<br/>
  * comandante 交互中心, 维护 指令分发器 和 指令输入控制器, 并控制指令处理线程<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 16:23
  * @since 1.0
  */

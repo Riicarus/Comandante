@@ -10,7 +10,7 @@ import java.util.*;
  * [FEATURE INFO]<br/>
  * 指令注册器, 维护指令树根节点, 提供指令构建器
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 10:46
  * @since 1.0
  */

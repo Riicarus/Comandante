@@ -26,7 +26,7 @@ import java.util.Set;
  *  4. 提供指令字符串输入接口, 用于分发并执行外界指令: dispatchToCache()<br/>
  *  5. 提供获取已加载指令接口: listAllExecutionCommand()<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-11-8 13:16
  * @since 1.2
  */

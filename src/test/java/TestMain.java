@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * [FEATURE INFO]<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-16 2:06
  * @since 1.0
  */

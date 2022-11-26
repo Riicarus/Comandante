@@ -4,7 +4,7 @@ package com.riicarus.comandante.exception;
  * [FEATURE INFO]<br/>
  * 指令语法错误异常, 用于抛出在指令分发过程中解析指令时出现的指令语法错误
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 16:01
  * @since 1.0
  */

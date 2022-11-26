@@ -15,7 +15,7 @@ import java.util.*;
  * [FEATURE INFO]<br/>
  * 指令分发器
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 23:27
  * @since 1.0
  */

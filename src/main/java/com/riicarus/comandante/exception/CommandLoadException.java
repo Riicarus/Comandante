@@ -4,7 +4,7 @@ package com.riicarus.comandante.exception;
  * [FEATURE INFO]<br/>
  * 指令加载异常, 用于抛出指令在加载过程中抛出的运行时异常
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 19:28
  * @since 1.0
  */

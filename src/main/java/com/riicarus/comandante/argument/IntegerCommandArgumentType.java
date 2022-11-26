@@ -6,7 +6,7 @@ import com.riicarus.comandante.exception.CommandSyntaxException;
  * [FEATURE INFO]<br/>
  * Integer 类型参数
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 16:00
  * @since 1.0
  */

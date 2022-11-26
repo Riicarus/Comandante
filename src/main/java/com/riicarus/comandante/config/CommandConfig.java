@@ -13,7 +13,7 @@ import java.util.Properties;
  * [FEATURE INFO]<br/>
  * 指令配置
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-17 17:46
  * @since 1.0
  */

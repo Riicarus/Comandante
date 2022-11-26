@@ -16,7 +16,7 @@ import java.util.*;
  * 会遍历 ExecutionCommandNode 下的每一个节点,<br/>
  * 如果为注册了 Executor 的节点或者为 尾节点(尾节点一定是有 Executor 的), 就为其输出一个指令使用格式<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-19 17:13
  * @since 1.0
  */

@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * [FEATURE INFO]<br/>
  * 指令执行器, 用于定义指令可执行节点的执行方法和相关属性
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-15 0:09
  * @since 1.0
  */

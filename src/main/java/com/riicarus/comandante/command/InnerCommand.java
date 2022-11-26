@@ -12,7 +12,7 @@ import java.util.Set;
  * [FEATURE INFO]<br/>
  * 内置指令
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-10-17 17:57
  * @since 1.0
  */

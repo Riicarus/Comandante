@@ -18,7 +18,7 @@ import java.text.SimpleDateFormat;
  * <br/>
  * 只提供静态 api, 不支持新建实例<br/>
  *
- * @author Skyline
+ * @author Riicarus
  * @create 2022-11-8 17:06
  * @since 1.2
  */
