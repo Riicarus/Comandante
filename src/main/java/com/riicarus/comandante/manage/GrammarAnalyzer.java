@@ -38,6 +38,7 @@ public class GrammarAnalyzer {
     }
 
     public List<AnalyzedExecutor> analyze(String commandStr) {
+        resetForNextCommand();
         lexicalAnalyzer.input(commandStr);
         next();
         S();
@@ -51,12 +52,23 @@ public class GrammarAnalyzer {
             end = true;
         } else {
             tokenCount++;
-            System.out.println(token);
         }
     }
 
     protected void resetArguments() {
         this.arguments.clear();
+    }
+
+    protected void resetForNextCommand() {
+        this.token = null;
+        this.tokenCount = 0;
+        this.prevItem = CommandItem.ROOT;
+        this.prevMainItem = CommandItem.ROOT;
+        this.end = false;
+        this.prevExecutableType = null;
+
+        this.analyzedExecutors.clear();
+        resetArguments();
     }
 
     protected void updatePrevItem(CommandItem item) {

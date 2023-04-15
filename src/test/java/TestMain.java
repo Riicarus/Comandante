@@ -25,6 +25,7 @@ public class TestMain {
         // dispatcher.dispatch("app echo 'hello'' --color red");
         // dispatcher.dispatch("app echo '\\\\he\\'llo' '  ' --color red | grep hello");
         dispatcher.dispatch("app echo '\\\\he\\'llo' --color red | grep hello");
+        dispatcher.dispatch("comandante -v");
         // dispatcher.dispatch("app echo hello --color red | grep hello");
 
         // testRedirectOutput();
