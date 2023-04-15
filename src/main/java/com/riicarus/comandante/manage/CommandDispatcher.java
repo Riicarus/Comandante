@@ -3,6 +3,7 @@ package com.riicarus.comandante.manage;
 import com.riicarus.comandante.exception.CommandExecutionException;
 import com.riicarus.comandante.exception.CommandNotFoundException;
 import com.riicarus.comandante.exception.CommandSyntaxException;
+import com.riicarus.comandante.executor.AnalyzedExecutor;
 import com.riicarus.util.asserts.Asserts;
 import com.riicarus.util.exception.NullObjectException;
 
@@ -50,7 +51,9 @@ public class CommandDispatcher {
      * @throws NullObjectException       runtime exception
      */
     public void dispatch(final String commandStr) throws CommandExecutionException, CommandNotFoundException, NullObjectException {
-        grammarAnalyzer.analyze(commandStr);
+        List<AnalyzedExecutor> executors = grammarAnalyzer.analyze(commandStr);
+        System.out.println(executors);
+
 
 //        List<String> commandStrParts = expandShortOption(commandRawParts);
 //

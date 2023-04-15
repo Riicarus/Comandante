@@ -2,6 +2,7 @@ package com.riicarus.comandante.manage;
 
 import com.riicarus.comandante.exception.CommandNotFoundException;
 import com.riicarus.comandante.exception.CommandSyntaxException;
+import com.riicarus.comandante.executor.AnalyzedExecutor;
 import com.riicarus.comandante.executor.CommandExecutor;
 
 import java.util.LinkedList;
@@ -22,7 +23,7 @@ public class GrammarAnalyzer {
     private final CommandItemManager itemManager;
 
     private final List<String> arguments = new LinkedList<>();
-    private final List<CommandExecutor> executors = new LinkedList<>();
+    private final List<AnalyzedExecutor> analyzedExecutors = new LinkedList<>();
 
     private CommandToken token;
     private int tokenCount = 0;
@@ -36,14 +37,12 @@ public class GrammarAnalyzer {
         this.itemManager = itemManager;
     }
 
-    public void analyze(String commandStr) {
+    public List<AnalyzedExecutor> analyze(String commandStr) {
         lexicalAnalyzer.input(commandStr);
         next();
         S();
 
-        System.out.println(prevItem);
-        System.out.println(arguments);
-        System.out.println(executors);
+        return analyzedExecutors;
     }
 
     protected void next() {
@@ -54,6 +53,10 @@ public class GrammarAnalyzer {
             tokenCount++;
             System.out.println(token);
         }
+    }
+
+    protected void resetArguments() {
+        this.arguments.clear();
     }
 
     protected void updatePrevItem(CommandItem item) {
@@ -91,7 +94,8 @@ public class GrammarAnalyzer {
         // M -> End, O -> End, A -> End
         CommandExecutor executor = itemManager.findExecutor(prevItem);
         if (executor != null) {
-            executors.add(executor);
+            analyzedExecutors.add(new AnalyzedExecutor(executor, arguments));
+            resetArguments();
         }
     }
 
@@ -170,7 +174,8 @@ public class GrammarAnalyzer {
             // M -> T, O -> T, A -> T
             CommandExecutor executor = itemManager.findExecutor(prevCommandItem);
             if (executor != null) {
-                executors.add(executor);
+                analyzedExecutors.add(new AnalyzedExecutor(executor, arguments));
+                resetArguments();
             }
         }
     }
@@ -244,7 +249,8 @@ public class GrammarAnalyzer {
             // O -> O, A -> O
             CommandExecutor executor = itemManager.findExecutor(prevItem);
             if (executor != null) {
-                executors.add(executor);
+                analyzedExecutors.add(new AnalyzedExecutor(executor, arguments));
+                resetArguments();
             }
         }
 
