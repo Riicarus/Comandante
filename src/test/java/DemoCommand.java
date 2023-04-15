@@ -1,4 +1,3 @@
-import com.riicarus.comandante.argument.StringCommandArgumentType;
 import com.riicarus.comandante.main.CommandLauncher;
 
 /**
@@ -14,22 +13,22 @@ public class DemoCommand {
         CommandLauncher.register().builder()
                 .main("app")
                 .main("echo")
-                .arg("message", new StringCommandArgumentType())
+                .arg("message")
                 .executor(
                         context -> System.out.println("app echos")
                 );
         CommandLauncher.register().builder()
                 .main("app")
                 .main("echo")
-                .arg("message", new StringCommandArgumentType())
+                .arg("message")
                 .opt("color", "c")
-                .arg("color_name", new StringCommandArgumentType())
+                .arg("color_name")
                 .executor(
                         context -> System.out.println("app echos message with color")
                 );
         CommandLauncher.register().builder()
                 .main("grep")
-                .arg("value", new StringCommandArgumentType())
+                .arg("value")
                 .executor(
                         context -> System.out.println("grep ...")
                 );

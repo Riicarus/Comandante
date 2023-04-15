@@ -1,31 +1,27 @@
 package com.riicarus.comandante.main;
 
 import com.riicarus.comandante.command.InnerCommand;
+import com.riicarus.comandante.config.CommandConfig;
 import com.riicarus.comandante.exception.CommandLoadException;
 import com.riicarus.comandante.exception.CommandProduceException;
-import com.riicarus.comandante.config.CommandConfig;
-import com.riicarus.comandante.manage.CommandBuilder;
 import com.riicarus.comandante.manage.CommandRegister;
 
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Set;
 
 /**
  * [FEATURE INFO]<br/>
  * 对外 API, 只有静态方法, 可全局使用<br/>
  * 核心功能主要由维护的核心类 Comandante 单例实现的<br/>
  * <br/>
- *
+ * <p>
  * 主要功能:<br/>
- *  1. 提供指令注册接口: register()<br/>
- *  2. 提供指令处理线程 CommandRunner 的启动和关闭接口: enable(), disable()<br/>
- *  3. 提供 CommandLogger 全局输出重定向接口: redirectOutput()<br/>
- *  4. 提供指令字符串输入接口, 用于分发并执行外界指令: dispatchToCache()<br/>
- *  5. 提供获取已加载指令接口: listAllExecutionCommand()<br/>
+ * 1. 提供指令注册接口: register()<br/>
+ * 2. 提供指令处理线程 CommandRunner 的启动和关闭接口: enable(), disable()<br/>
+ * 3. 提供 CommandLogger 全局输出重定向接口: redirectOutput()<br/>
+ * 4. 提供指令字符串输入接口, 用于分发并执行外界指令: dispatchToCache()<br/>
+ * 5. 提供获取已加载指令接口: listAllExecutionCommand()<br/>
  *
  * @author Riicarus
  * @create 2022-11-8 13:16
@@ -43,7 +39,8 @@ public class CommandLauncher {
         CommandConfig.loadConfig();
     }
 
-    private CommandLauncher() {}
+    private CommandLauncher() {
+    }
 
     /**
      * 指令注册接口, 返回一个提供注册功能的指令构建器
@@ -52,32 +49,6 @@ public class CommandLauncher {
      */
     public static CommandRegister register() {
         return COMANDANTE.getCommandRegister();
-    }
-
-    /**
-     * 获取所有已加载指令的 Execution 部分
-     *
-     * @return 所有已加载指令的 Execution 部分集合
-     */
-//    public static Set<String> listAllExecutionCommand() {
-//        return COMANDANTE.listAllExecutionCommand();
-//    }
-
-    /**
-     * 列出指令使用情况
-     *
-     * @return 指令使用情况列表
-     */
-    public static HashMap<String, Integer> listCommandUsage() {
-        return COMANDANTE.listCommandUsage();
-    }
-
-    public static LinkedHashMap<String, Integer> listCommandUsageDesc(HashMap<String, Integer> commandUsage, int limit) {
-        return COMANDANTE.listCommandUsageDesc(commandUsage, limit);
-    }
-
-    public static LinkedHashMap<String, Integer> listCommandUsageAsc(HashMap<String, Integer> commandUsage, int limit) {
-        return COMANDANTE.listCommandUsageAsc(commandUsage, limit);
     }
 
     /**
@@ -111,7 +82,7 @@ public class CommandLauncher {
      * 重定向指令插件 CommandLogger 全局输出
      *
      * @param outputStream 目标输出流
-     * @param charsets 输出流字符集
+     * @param charsets     输出流字符集
      */
     public static void redirectOutput(OutputStream outputStream, StandardCharsets charsets) {
         try {
@@ -137,7 +108,7 @@ public class CommandLauncher {
     /**
      * 设置日志文件输出流
      *
-     * @param path 日志文件路径, 必须为绝对路径
+     * @param path     日志文件路径, 必须为绝对路径
      * @param charsets 输出流字符集
      */
     public static void setLogFile(String path, StandardCharsets charsets) {

@@ -2,11 +2,11 @@ package com.riicarus.comandante.manage;
 
 /**
  * [FEATURE INFO]<br/>
- * type of a command token
+ * Type of a command token, used in the lexical analyzer to defer different tokens.
  *
  * @author Riicarus
  * @create 2023-4-12 11:37
- * @since 1.0.0
+ * @since 2.0
  */
 public enum CommandTokenType {
 

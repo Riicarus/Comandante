@@ -1,11 +1,7 @@
 package com.riicarus.comandante.command;
 
-import com.riicarus.comandante.argument.IntegerCommandArgumentType;
 import com.riicarus.comandante.config.CommandConfig;
 import com.riicarus.comandante.main.CommandLauncher;
-
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 /**
  * [FEATURE INFO]<br/>
@@ -17,7 +13,6 @@ import java.util.LinkedHashMap;
  */
 public class InnerCommand {
 
-    @SuppressWarnings("unchecked")
     public static void defineCommand() {
         CommandLauncher.register().builder()
                 .main("comandante")
@@ -60,65 +55,6 @@ public class InnerCommand {
                         context -> {
                         },
                         "列出所有已注册指令"
-                );
-        CommandLauncher.register().builder()
-                .main("comandante")
-                .main("list")
-                .opt("usage", "u")
-                .executor(
-                        context -> {
-                            HashMap<String, Integer> commandUsage = CommandLauncher.listCommandUsage();
-                            context.putCacheData("command_usage", commandUsage);
-                            StringBuilder builder = new StringBuilder();
-                            commandUsage.forEach((k, v) -> builder.append(k).append("   usage: ").append(v).append("\n"));
-                            builder.deleteCharAt(builder.length() - 1);
-                            context.putOutputData("command_usage", builder.toString());
-                        },
-                        "列出指令使用情况"
-                );
-        CommandLauncher.register().builder()
-                .main("comandante")
-                .main("list")
-                .opt("desc")
-                .arg("limit", new IntegerCommandArgumentType())
-                .executor(
-                        context -> {
-                            int limit = ((HashMap<String, Integer>) context.getArgument("desc")).get("limit");
-                            HashMap<String, Integer> command_usage = (HashMap<String, Integer>) context.getCacheData("command_usage");
-
-                            LinkedHashMap<String, Integer> commandUsageDesc =
-                                    CommandLauncher.listCommandUsageDesc(command_usage, limit);
-
-                            context.putCacheData("command_usage_desc", commandUsageDesc);
-
-                            StringBuilder builder = new StringBuilder();
-                            commandUsageDesc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
-                            builder.deleteCharAt(builder.length() - 1);
-                            context.putOutputData("command_usage_desc", builder.toString());
-                        },
-                        "指令使用情况, 正序, 需配合 --usage"
-                );
-        CommandLauncher.register().builder()
-                .main("comandante")
-                .main("list")
-                .opt("asc")
-                .arg("limit", new IntegerCommandArgumentType())
-                .executor(
-                        context -> {
-                            int limit = ((HashMap<String, Integer>) context.getArgument("asc")).get("limit");
-                            HashMap<String, Integer> command_usage = (HashMap<String, Integer>) context.getCacheData("command_usage");
-
-                            LinkedHashMap<String, Integer> commandUsageAsc =
-                                    CommandLauncher.listCommandUsageAsc(command_usage, limit);
-
-                            context.putCacheData("command_usage_asc", commandUsageAsc);
-
-                            StringBuilder builder = new StringBuilder();
-                            commandUsageAsc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
-                            builder.deleteCharAt(builder.length() - 1);
-                            context.putOutputData("command_usage_asc", builder.toString());
-                        },
-                        "指令使用情况, 倒序, 需配合 --usage"
                 );
     }
 }

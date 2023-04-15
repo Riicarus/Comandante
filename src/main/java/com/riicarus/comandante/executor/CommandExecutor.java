@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * [FEATURE INFO]<br/>
- * CommandExecutor, is used to define the executable ownerNode's execute() and some related fields
+ * CommandExecutor, is used to define the executable item's execute() and some related fields.
  *
  * @author Riicarus
  * @create 2022-10-15 0:09

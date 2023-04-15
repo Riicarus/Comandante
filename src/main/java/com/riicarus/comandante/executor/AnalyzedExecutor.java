@@ -5,7 +5,7 @@ import java.util.List;
 
 /**
  * [FEATURE INFO]<br/>
- * Analyzed command executor with arguments
+ * Analyzed command executor with arguments.
  *
  * @author Riicarus
  * @create 2023-4-15 20:53
@@ -14,7 +14,9 @@ import java.util.List;
 public class AnalyzedExecutor {
 
     private final CommandExecutor executor;
-
+    /**
+     * Argument of this executor.
+     */
     private final List<String> arguments = new LinkedList<>();
 
     public AnalyzedExecutor(CommandExecutor executor, List<String> arguments) {

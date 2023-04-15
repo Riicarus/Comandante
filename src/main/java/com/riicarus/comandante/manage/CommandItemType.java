@@ -2,11 +2,11 @@ package com.riicarus.comandante.manage;
 
 /**
  * [FEATURE INFO]<br/>
- * Lexical token value, stored in the highest 4 bits of a item's markword.
+ * Command item type, stored in the highest 4 bits of a item's markword.
  *
  * @author Riicarus
  * @create 2023-4-11 11:22
- * @since 1.0.0
+ * @since 2.0
  */
 public enum CommandItemType {
 

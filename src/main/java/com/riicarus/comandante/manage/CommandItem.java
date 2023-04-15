@@ -4,20 +4,18 @@ import java.util.Objects;
 
 /**
  * [FEATURE INFO]<br/>
- * Lexical item is the definition of command tree items.<br/>
+ * Command item is the definition of command tree items.<br/>
  * It's constructed in command building process and stored as a identifier of different command parts.
  *
  * @author Riicarus
  * @create 2023-4-11 11:21
- * @since 1.0.0
+ * @since 2.0
  */
 public class CommandItem {
-
     /**
      * The ROOT's item definition.
      */
     public static final CommandItem ROOT = new CommandItem(CommandItemType.ARGUMENT, 0, 0, "ROOT", null);
-
     /**
      * markword contains three parts: <br/>
      * [0:13]: current item's serial id <br/>
@@ -25,14 +23,12 @@ public class CommandItem {
      * [28:31]: command item type <br/>
      */
     private final int markword;
-
     /**
      * Value is the detail info of the item <br/>
      * It's used to defer items with the same type. <br/>
      * Especially, for argument item, name simply means FixCommandItemValue.ARGUMENT--#.
      */
     private final String name;
-
     /**
      * For opt item, subName is its alias. While for argument item, subName is its name.
      */

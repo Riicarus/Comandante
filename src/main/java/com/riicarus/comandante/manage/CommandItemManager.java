@@ -15,28 +15,22 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1.0.0
  */
 public class CommandItemManager {
-
     /**
      * ItemCount increases when a new item is built and stored to lexicalItems.
      */
     private final AtomicInteger itemCount = new AtomicInteger(0);
-
     /**
      * Use a map to maintain each lexical item. The key is the item's name, the value is the item set with the same name.
      */
     private final HashMap<String, HashSet<CommandItem>> lexicalItems = new HashMap<>();
-
     /**
      * Use a map to bind opt items with their alias. The key is the item's alias, the value is the item set with the same alias.
      */
     private final HashMap<String, HashSet<CommandItem>> optItemsForAlias = new HashMap<>();
-
     /**
      * Use a map to maintain the binding of CommandItem and its executor.
      */
     private final HashMap<CommandItem, CommandExecutor> executors = new HashMap<>();
-
-    public CommandItemManager() {}
 
     /**
      * Add a lexical item to lexicalItems set.

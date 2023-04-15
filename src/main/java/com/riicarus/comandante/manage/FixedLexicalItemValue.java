@@ -2,11 +2,11 @@ package com.riicarus.comandante.manage;
 
 /**
  * [FEATURE INFO]<br/>
- * some fixed value for lexical token
+ * Some fixed value for command item.
  *
  * @author Riicarus
  * @create 2023-4-11 11:23
- * @since 1.0.0
+ * @since 2.0
  */
 public enum FixedLexicalItemValue {
 

@@ -67,23 +67,6 @@ public class Comandante {
     }
 
     /**
-     * 列出指令使用情况
-     *
-     * @return 指令使用情况列表
-     */
-    protected HashMap<String, Integer> listCommandUsage() {
-        return commandDispatcher.getCommandRegister().listCommandUsage();
-    }
-
-    protected LinkedHashMap<String, Integer> listCommandUsageDesc(HashMap<String, Integer> commandUsage, int limit) {
-        return commandDispatcher.getCommandRegister().listCommandUsageDesc(commandUsage, limit);
-    }
-
-    protected LinkedHashMap<String, Integer> listCommandUsageAsc(HashMap<String, Integer> commandUsage, int limit) {
-        return commandDispatcher.getCommandRegister().listCommandUsageAsc(commandUsage, limit);
-    }
-
-    /**
      * 停止指令执行线程的工作<br/>
      * 不建议在此处关闭 CommandLogger 的流, 因为可能后续会有指令注册等操作会使用到 CommandLogger<br/>
      */
