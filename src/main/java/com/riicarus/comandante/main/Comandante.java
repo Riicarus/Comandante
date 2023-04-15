@@ -4,7 +4,6 @@ import com.riicarus.comandante.exception.CommandLoadException;
 import com.riicarus.comandante.manage.CommandDispatcher;
 import com.riicarus.comandante.manage.CommandInputHandler;
 import com.riicarus.comandante.manage.CommandRegister;
-import com.riicarus.comandante.tree.ExecutionNode;
 import com.riicarus.util.asserts.Asserts;
 
 import java.util.*;
@@ -63,14 +62,8 @@ public class Comandante {
         return commandInputHandler;
     }
 
-    /**
-     * 列出所有已加载的 execution 指令部分<br/>
-     *
-     * @return 已加载的 Execution 指令部分集合
-     */
-    protected Set<String> listAllExecutionCommand() {
-        HashMap<String, ExecutionNode> executions = getCommandRegister().getRootNode().getExecutions();
-        return executions == null ? new HashSet<>() : executions.keySet();
+    public CommandDispatcher getCommandDispatcher() {
+        return commandDispatcher;
     }
 
     /**
@@ -116,7 +109,7 @@ public class Comandante {
                 String command;
                 try {
                     command = comandante.commandInputHandler.consume();
-                    comandante.commandDispatcher.dispatch(command);
+                    // comandante.commandDispatcher.dispatch(command);
                 } catch (Exception e) {
                     CommandLogger.log(e.getMessage());
                 } finally {

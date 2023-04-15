@@ -5,6 +5,7 @@ import com.riicarus.comandante.exception.CommandLoadException;
 import com.riicarus.comandante.exception.CommandProduceException;
 import com.riicarus.comandante.config.CommandConfig;
 import com.riicarus.comandante.manage.CommandBuilder;
+import com.riicarus.comandante.manage.CommandRegister;
 
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
@@ -49,8 +50,8 @@ public class CommandLauncher {
      *
      * @return 指令构建器
      */
-    public static CommandBuilder register() {
-        return COMANDANTE.getCommandRegister().getBuilder();
+    public static CommandRegister register() {
+        return COMANDANTE.getCommandRegister();
     }
 
     /**
@@ -58,9 +59,9 @@ public class CommandLauncher {
      *
      * @return 所有已加载指令的 Execution 部分集合
      */
-    public static Set<String> listAllExecutionCommand() {
-        return COMANDANTE.listAllExecutionCommand();
-    }
+//    public static Set<String> listAllExecutionCommand() {
+//        return COMANDANTE.listAllExecutionCommand();
+//    }
 
     /**
      * 列出指令使用情况

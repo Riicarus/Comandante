@@ -1,12 +1,11 @@
 package com.riicarus.comandante.command;
 
 import com.riicarus.comandante.argument.IntegerCommandArgumentType;
-import com.riicarus.comandante.main.CommandLauncher;
 import com.riicarus.comandante.config.CommandConfig;
+import com.riicarus.comandante.main.CommandLauncher;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.Set;
 
 /**
  * [FEATURE INFO]<br/>
@@ -20,25 +19,29 @@ public class InnerCommand {
 
     @SuppressWarnings("unchecked")
     public static void defineCommand() {
-        CommandLauncher.register().exe("comandante")
+        CommandLauncher.register().builder()
+                .main("comandante")
                 .opt("version", "v")
                 .executor(
                         context -> context.putOutputData("comandante_version", CommandConfig.getVersion()),
                         "查看 Comandante 版本号"
-        );
-        CommandLauncher.register().exe("comandante")
+                );
+        CommandLauncher.register().builder()
+                .main("comandante")
                 .opt("author", "a")
                 .executor(
                         context -> context.putOutputData("comandante_author", CommandConfig.getAuthor()),
                         "查看 Comandante 作者"
-        );
-        CommandLauncher.register().exe("comandante")
+                );
+        CommandLauncher.register().builder()
+                .main("comandante")
                 .opt("doc", "d")
                 .executor(
                         context -> context.putOutputData("comandante_doc", CommandConfig.getDoc()),
                         "查看 Comandante 文档"
-        );
-        CommandLauncher.register().exe("comandante")
+                );
+        CommandLauncher.register().builder()
+                .main("comandante")
                 .opt("info", "i")
                 .executor(
                         context -> {
@@ -49,19 +52,18 @@ public class InnerCommand {
                         },
                         "查看 Comandante 信息"
                 );
-        CommandLauncher.register().exe("comandante").exe("list")
+        CommandLauncher.register().builder()
+                .main("comandante")
+                .main("list")
                 .opt("command", "c")
                 .executor(
                         context -> {
-                            Set<String> commandSet = CommandLauncher.listAllExecutionCommand();
-                            StringBuilder builder = new StringBuilder();
-                            commandSet.forEach(command -> builder.append(command).append("\n"));
-                            builder.deleteCharAt(builder.length() - 1);
-                            context.putOutputData("command", builder.toString());
                         },
                         "列出所有已注册指令"
                 );
-        CommandLauncher.register().exe("comandante").exe("list")
+        CommandLauncher.register().builder()
+                .main("comandante")
+                .main("list")
                 .opt("usage", "u")
                 .executor(
                         context -> {
@@ -74,7 +76,9 @@ public class InnerCommand {
                         },
                         "列出指令使用情况"
                 );
-        CommandLauncher.register().exe("comandante").exe("list")
+        CommandLauncher.register().builder()
+                .main("comandante")
+                .main("list")
                 .opt("desc")
                 .arg("limit", new IntegerCommandArgumentType())
                 .executor(
@@ -94,7 +98,9 @@ public class InnerCommand {
                         },
                         "指令使用情况, 正序, 需配合 --usage"
                 );
-        CommandLauncher.register().exe("comandante").exe("list")
+        CommandLauncher.register().builder()
+                .main("comandante")
+                .main("list")
                 .opt("asc")
                 .arg("limit", new IntegerCommandArgumentType())
                 .executor(

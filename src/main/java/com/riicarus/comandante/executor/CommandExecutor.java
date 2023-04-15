@@ -1,13 +1,12 @@
 package com.riicarus.comandante.executor;
 
 import com.riicarus.comandante.manage.CommandContext;
-import com.riicarus.comandante.tree.AbstractNode;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令执行器, 用于定义指令可执行节点的执行方法和相关属性
+ * CommandExecutor, is used to define the executable ownerNode's execute() and some related fields
  *
  * @author Riicarus
  * @create 2022-10-15 0:09
@@ -15,32 +14,26 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CommandExecutor {
     /**
-     * 执行器
-     */
-    private Executable executor;
-    /**
-     * 指令执行器所属的节点
-     */
-    private final AbstractNode node;
-    /**
-     * 调用次数
+     * executor invoke count
      */
     private final AtomicInteger useCount = new AtomicInteger(0);
+    /**
+     * execute interface
+     */
+    private Executable executor;
 
-    public CommandExecutor(Executable executor, AbstractNode node) {
+    private final String usage;
+
+    public CommandExecutor(Executable executor, String usage) {
         this.executor = executor;
-        this.node = node;
-    }
-
-    protected CommandExecutor(AbstractNode node) {
-        this.node = node;
+        this.usage = usage;
     }
 
     /**
-     * 指令执行方法, 调用执行器执行, 由 CommandDispatcher 进行调用<br/>
+     * command execute method, invokes the command executor, and will be invoked by CommandDispatcher<br/>
      *
-     * @param context 指令上下文
-     * @throws Exception 执行时抛出的异常
+     * @param context command execute context
+     * @throws Exception runtime exception
      */
     public final void execute(CommandContext context) throws Exception {
         useCount.incrementAndGet();
@@ -51,15 +44,11 @@ public class CommandExecutor {
         return executor;
     }
 
-    public AbstractNode getNode() {
-        return node;
+    public void setExecutor(Executable executor) {
+        this.executor = executor;
     }
 
     public int getUseCount() {
         return useCount.get();
-    }
-
-    public void setExecutor(Executable executor) {
-        this.executor = executor;
     }
 }

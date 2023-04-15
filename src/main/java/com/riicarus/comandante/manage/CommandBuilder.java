@@ -3,20 +3,18 @@ package com.riicarus.comandante.manage;
 import com.riicarus.comandante.argument.CommandArgumentType;
 import com.riicarus.comandante.exception.CommandBuildException;
 import com.riicarus.comandante.executor.CommandExecutor;
-import com.riicarus.comandante.executor.CommandHelper;
 import com.riicarus.comandante.executor.Executable;
-import com.riicarus.comandante.tree.*;
 import com.riicarus.util.asserts.Asserts;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令构建器, 用于定义一条指令<br/>
- *
- * 主要功能:<br/>
- *  1. 使用 exe() 定义一个 ExecutionNode<br/>
- *  4. 使用 opt() 定义一个 OptionNode<br/>
- *  5. 使用 arg() 定义一个 ArgumentNode<br/>
- *  6. 使用 executor() 定义一个 指令执行器, 会被注册到上一个调用方法生成的节点上<br/>
+ * Command Builder is used to build a command<br/>
+ * <p>
+ * function:<br/>
+ * 1. use main() to define a MainNode<br/>
+ * 4. use opt() to define an OptionNode<br/>
+ * 5. use arg() to define an ArgumentNode<br/>
+ * 6. use executor() to define a command executor, which will be registered to it's owner node<br/>
  *
  * @author Riicarus
  * @create 2022-10-15 0:23
@@ -25,194 +23,169 @@ import com.riicarus.util.asserts.Asserts;
 public class CommandBuilder {
 
     /**
-     * 保持一个指令树根节点的引用, 将一个指令分支注册到根节点上
+     * Item manager is used to build lexical items and construct a grammar rule.
      */
-    private final RootNode rootNode;
-    /**
-     * 当前被构建出的节点, 会随着一条指令的构建逐渐更新, 但是保持为当前指令链的尾节点
-     */
-    private AbstractNode currentNode;
-    /**
-     * 当前被构建出的 ExecutionNode 节点, 会随着一条指令的构建逐渐更新, 但是保持为当前指令链的尾 ExecutionNode 节点
-     */
-    private ExecutionNode currentExecutionNode;
-    /**
-     * 当前被构建出的注册在 RootNode 下的 ExecutionNode, 需要保存所有的 OptionNode 信息
-     */
-    private ExecutionNode mainExecutionNode;
+    private final CommandItemManager commandItemManager;
 
-    public CommandBuilder(final RootNode rootNode) {
-        this.rootNode = rootNode;
-        this.currentNode = rootNode;
-        this.currentExecutionNode = null;
-        this.mainExecutionNode = null;
+    private CommandItem prevItem;
+    private CommandItem prevMainItem;
+
+    public CommandBuilder(final CommandItemManager commandItemManager) {
+        this.commandItemManager = commandItemManager;
+        this.prevItem = CommandItem.ROOT;
+        this.prevMainItem = CommandItem.ROOT;
     }
 
     /**
-     * 构建 ExecutionNode 节点, <br/>
-     * 如果当前节点为 RootNode 或 ExecutionNode, 注册到当前节点下<br/>
-     * 如果当前节点为 ArgumentNode, 根据 Argument#optionArg 属性决定,<br/>
-     * true: 注册到 CurrentExecutionNode 下, false: 注册到当前节点下<br/>
-     * 如果当前节点为 OptionNode, 注册到 CurrentExecutionNode 下<br/>
+     * Build MainNode, <br/>
+     * Register MainNode to the previous node(current node), which must be RootNode or MainNode.<br/>
      * <br/>
-     * 更新 CurrentNode 和 CurrentExecutionNode<br/>
+     * Update CurrentNode and CurrentExecutionNode.<br/>
      * <br/>
-     * 会被自动注册入一个 CommandHelper 节点, 用于执行 'xxx -h/--help' 指令<br/>
+     * Will automatically add a CommandHelper, which is used to provide 'xxx -h/--help' command<br/>
      *
-     * @param name 指令部分字符串
-     * @return 指令构建器
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     * @param name command string item
+     * @return CommandBuilder
+     * @throws CommandBuildException runtime exception
      */
-    public CommandBuilder exe(String name) throws CommandBuildException {
+    public CommandBuilder main(String name) throws CommandBuildException {
         Asserts.notEmpty(name, new CommandBuildException("Node name can not be null."));
 
-        ExecutionNode executionNode;
-        boolean addMainExecution = currentNode instanceof RootNode;
-        boolean addToCurrentNode =
-                currentNode instanceof RootNode ||
-                currentNode instanceof ExecutionNode ||
-                (currentNode instanceof ArgumentNode && !((ArgumentNode<?>) currentNode).isOptionArg());
-
-        if (addToCurrentNode) {
-            executionNode = new ExecutionNode(name, currentNode);
-            executionNode = currentNode.addExecution(executionNode);
-
-            if (addMainExecution) {
-                mainExecutionNode = executionNode;
-
-                if (mainExecutionNode.getOption("help") == null) {
-                    // 添加 --help/-h 支持
-                    OptionNode helpNode = new OptionNode("help", "h", executionNode);
-                    helpNode.setUsage("查看指令帮助");
-                    CommandHelper commandHelper = new CommandHelper(helpNode, executionNode);
-
-                    boolean set = helpNode.setCommandExecutor(commandHelper);
-                    if (set) {
-                        rootNode.registerExecutor(commandHelper);
-                    }
-
-                    helpNode = executionNode.addOption(helpNode);
-                    mainExecutionNode.addAllOption(helpNode);
-                }
-            }
-        } else {
-            executionNode = new ExecutionNode(name, currentExecutionNode);
-            executionNode = currentExecutionNode.addExecution(executionNode);
+        if (!canRegisterMain()) {
+            throw new CommandBuildException("MainNode's place in this command is wrong, name: " + name);
         }
 
-        currentNode = executionNode;
-        currentExecutionNode = executionNode;
+        CommandItem item;
+        if (!commandItemManager.containsItem(name, prevMainItem)) {
+             item = new CommandItem(CommandItemType.RESERVED_WORD,
+                    prevItem.getSerialId(),
+                    commandItemManager.generateSerialId(),
+                    name,
+                    null);
+            commandItemManager.addLexicalItem(item, prevMainItem);
+        } else {
+            item = commandItemManager.getItem(name, prevMainItem);
+        }
+        prevMainItem = item;
+        prevItem = item;
 
         return this;
     }
 
     /**
-     * Option 节点可以不设置短指令, 只设置长指令
+     * The OptionNode can only have full name without alias
      *
-     * @param name 长指令部分字符串
-     * @return 指令构建器
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     * @param name full name of option node
+     * @return CommandBuilder
+     * @throws CommandBuildException runtime exception
      */
     public CommandBuilder opt(String name) throws CommandBuildException {
-        return opt(name, null);
+        return opt(name, "");
     }
 
 
     /**
-     * 构建 OptionNode 节点<br/>
-     * 如果 MainExecutionNode 中不包含 name 或 alias 相同的节点<br/>
-     * 将其注册到 CurrentExecutionNode 下<br/>
-     * 并在 MainExecutionNode 中保存<br/>
-     * OptionNode 节点不会构成链式结构, 任何其父节点只能注册一层 OptionNode 节点<br/>
+     * Build OptionNode,<br/>
+     * If there's no same node with the name or alias in MainNode, register it to current node.<br/>
+     * OptionNodes will not form a chain, but will only be register to the MainNode.<br/>
      * <br/>
-     * 更新 CurrentNode<br/>
+     * Update CurrentNode after register.<br/>
      * <br/>
      *
-     * @param name 指令部分字符串, 用于长指令, 使用 '--'
-     * @param alias 指令部分简写, 用户短指令, 使用 '-'
-     * @return 指令构建器
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     * @param name  full name of option node
+     * @param alias alias for full name, usually the first character of full name
+     * @return CommandBuilder
+     * @throws CommandBuildException runtime exception
      */
     public CommandBuilder opt(String name, String alias) throws CommandBuildException {
         Asserts.notEmpty(name, new CommandBuildException("Node name can not be null."));
 
-        // 如果该 OptionNode 节点没有被注册过
-        if (!mainExecutionNode.containsOption(name, alias)) {
-            OptionNode optionNode = new OptionNode(name, alias, currentExecutionNode);
-            optionNode = currentExecutionNode.addOption(optionNode);
-            mainExecutionNode.addAllOption(optionNode);
+        if (!commandItemManager.containsItem(name, prevMainItem)) {
+            CommandItem item = new CommandItem(CommandItemType.RESERVED_WORD,
+                    prevMainItem.getSerialId(),
+                    commandItemManager.generateSerialId(),
+                    name,
+                    alias);
+            commandItemManager.addLexicalItem(item, prevMainItem);
 
-            currentNode = optionNode;
+            prevItem = item;
+        } else {
+            prevItem = commandItemManager.getItem(name, prevMainItem);
         }
 
         return this;
     }
 
     /**
-     * 构建 ArgumentNode 节点<br/>
-     * 将其注册到 CurrentNode 下 <br/>
-     * 前驱节点不能是 RootNode <br/>
+     * Build ArgumentNode<br/>
+     * Register it to CurrentNode which can not be RootNode.<br/>
      * <br/>
-     * 更新 CurrentNode<br/>
+     * Update CurrentNode after register.<br/>
      * <br/>
      *
-     * @param name 指令部分字符串
-     * @param type 参数类型定义
-     * @return 指令构建器
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     * @param name command string item, name of argument node
+     * @param type CommandArgumentType
+     * @return CommandBuilder
+     * @throws CommandBuildException runtime exception
      */
     public <T> CommandBuilder arg(String name, CommandArgumentType<T> type) throws CommandBuildException {
         Asserts.notEmpty(name, new CommandBuildException("Node name can not be null."));
         Asserts.notNull(type, new CommandBuildException("Node type can not be null"));
 
-        Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("ArgumentNode can not be registered behind RootNode."));
+        if (CommandItem.ROOT.equals(prevItem)) {
+            throw new CommandBuildException("Argument item can not be registered behind Root.");
+        }
 
-        ArgumentNode<?> argumentNode = new ArgumentNode<>(name, type, currentNode);
-        argumentNode = currentNode.addArgument(argumentNode);
-        currentNode = argumentNode;
+        if (!commandItemManager.containsItem(FixedLexicalItemValue.ARGUMENT.getValue(), prevItem)) {
+            CommandItem item = new CommandItem(CommandItemType.ARGUMENT,
+                    prevItem.getSerialId(),
+                    commandItemManager.generateSerialId(),
+                    FixedLexicalItemValue.ARGUMENT.getValue(),
+                    name);
+            commandItemManager.addLexicalItem(item, prevItem);
+
+            prevItem = item;
+        } else {
+            prevItem = commandItemManager.getItem(FixedLexicalItemValue.ARGUMENT.getValue(), prevItem);
+        }
 
         return this;
     }
 
     /**
-     * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
-     * 前驱节点不能是 RootNode<br/>
+     * Build Command Executor and register it to current node which can not be RootNode as one executable node<br/>
      *
-     * @param executor 指令执行器
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     * @param executor CommandBuilder
+     * @throws CommandBuildException runtime exception
      */
     public void executor(Executable executor) throws CommandBuildException {
-        Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("RootNode can not have a command executor"));
-
-        CommandExecutor commandExecutor = new CommandExecutor(executor, currentNode);
-
-        boolean set = currentNode.setCommandExecutor(commandExecutor);
-        if (set) {
-            rootNode.registerExecutor(commandExecutor);
+        if (CommandItem.ROOT.equals(prevItem)) {
+            throw new CommandBuildException("Executor can not be registered behind Root.");
         }
+
+        CommandExecutor commandExecutor = new CommandExecutor(executor, "");
+
+        commandItemManager.bindExecutor(prevItem, commandExecutor);
     }
 
     /**
-     * 构建指令执行器, 将其注册到当前构建出的节点中, 作为一个可执行节点<br/>
-     * 前驱节点不能是 RootNode<br/>
+     * Build command executor and register it to the current built node which can not be RootNode as one executable node<br/>
      *
-     * @param executor 指令执行器
-     * @param usage 指令用途说明
-     * @throws CommandBuildException 指令构建异常, 属于运行时异常
+     * @param executor implements of Executable interface
+     * @param usage    usage info for this command
+     * @throws CommandBuildException runtime exception
      */
     public void executor(Executable executor, final String usage) throws CommandBuildException {
-        Asserts.notInstanceOf(currentNode, RootNode.class, new CommandBuildException("RootNode can not have a command executor"));
-
-        CommandExecutor commandExecutor = new CommandExecutor(executor, currentNode);
-
-        boolean set = currentNode.setCommandExecutor(commandExecutor);
-        if (set) {
-            rootNode.registerExecutor(commandExecutor);
+        if (CommandItem.ROOT.equals(prevItem)) {
+            throw new CommandBuildException("Executor can not be registered behind Root.");
         }
-        currentNode.setUsage(usage);
+
+        CommandExecutor commandExecutor = new CommandExecutor(executor, usage);
+
+        commandItemManager.bindExecutor(prevItem, commandExecutor);
     }
 
-    public RootNode getRootNode() {
-        return rootNode;
+    protected boolean canRegisterMain() {
+        return CommandItem.ROOT.equals(prevItem) || (CommandItemType.RESERVED_WORD.getValue() == prevItem.getType() && prevItem.getSubName() == null);
     }
 }

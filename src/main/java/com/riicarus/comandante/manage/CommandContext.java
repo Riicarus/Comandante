@@ -1,7 +1,6 @@
 package com.riicarus.comandante.manage;
 
 import com.riicarus.comandante.executor.CommandExecutor;
-import com.riicarus.comandante.tree.*;
 import com.riicarus.util.asserts.Asserts;
 import com.riicarus.util.exception.EmptyStringException;
 import com.riicarus.util.exception.NullObjectException;
@@ -37,10 +36,6 @@ public class CommandContext {
      */
     private final List<String> commandStrParts;
     /**
-     * 在 commandMainParts 中删除掉的非主干节点的数量
-     */
-    private int deletedCount = 0;
-    /**
      * 当前指令按序解析出的 OptionNode 部分对应的 指令执行器
      */
     private final LinkedList<CommandExecutor> optionExecutors = new LinkedList<>();
@@ -49,17 +44,12 @@ public class CommandContext {
      */
     private final List<String> commandMainParts;
     /**
-     * 当前指令的主节点
+     * 在 commandMainParts 中删除掉的非主干节点的数量
      */
-    private ExecutionNode mainExecutionNode;
-    /**
-     * 当前解析到的节点
-     */
-    private AbstractNode currentNode;
+    private int deletedCount = 0;
 
-    public CommandContext(final List<String> commandStrParts, final RootNode rootNode) {
+    public CommandContext(final List<String> commandStrParts) {
         this.commandStrParts = commandStrParts;
-        this.currentNode = rootNode;
         this.commandMainParts = new ArrayList<>(commandStrParts);
     }
 
@@ -142,19 +132,4 @@ public class CommandContext {
         return commandMainParts;
     }
 
-    public ExecutionNode getMainExecutionNode() {
-        return mainExecutionNode;
-    }
-
-    public AbstractNode getCurrentNode() {
-        return currentNode;
-    }
-
-    public void setMainExecutionNode(ExecutionNode mainExecutionNode) {
-        this.mainExecutionNode = mainExecutionNode;
-    }
-
-    public void setCurrentNode(AbstractNode currentNode) {
-        this.currentNode = currentNode;
-    }
 }

@@ -1,4 +1,5 @@
 import com.riicarus.comandante.main.CommandLauncher;
+import com.riicarus.comandante.manage.CommandDispatcher;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,12 +20,19 @@ public class TestMain {
     public static void main(String[] args) throws FileNotFoundException {
         DemoCommand.defineCommand();
 
+        CommandDispatcher dispatcher = CommandLauncher.COMANDANTE.getCommandDispatcher();
+        // dispatcher.dispatch("app ec9ho 'hello' --color red & app echo world");
+        // dispatcher.dispatch("app echo 'hello'' --color red");
+        // dispatcher.dispatch("app echo '\\\\he\\'llo' '  ' --color red | grep hello");
+        dispatcher.dispatch("app echo '\\\\he\\'llo' --color red | grep hello");
+        // dispatcher.dispatch("app echo hello --color red | grep hello");
+
         // testRedirectOutput();
 
-        CommandLauncher.setLogFile("D:\\tmp\\comandante-log.txt");
-        CommandLauncher.enable();
-        Thread thread = new Thread(new ConsoleIOListener());
-        thread.start();
+//        CommandLauncher.setLogFile("D:\\tmp\\comandante-log.txt");
+//        CommandLauncher.enable();
+//        Thread thread = new Thread(new ConsoleIOListener());
+//        thread.start();
 
         // testMultiThread();
     }
