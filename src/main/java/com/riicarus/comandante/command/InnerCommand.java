@@ -2,6 +2,7 @@ package com.riicarus.comandante.command;
 
 import com.riicarus.comandante.config.CommandConfig;
 import com.riicarus.comandante.main.CommandLauncher;
+import com.riicarus.comandante.main.CommandLogger;
 import com.riicarus.comandante.manage.CommandContext;
 
 /**
@@ -19,21 +20,33 @@ public class InnerCommand {
                 .main("comandante")
                 .opt("version", "v")
                 .executor(
-                        context -> context.put(CommandContext.INNER_DATA_PREFIX + "comandante_version", CommandConfig.getVersion()),
+                        context -> {
+                            String version = CommandConfig.getVersion();
+                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_version", version);
+                            CommandLogger.log(version);
+                        },
                         "查看 Comandante 版本号"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
                 .opt("author", "a")
                 .executor(
-                        context -> context.put(CommandContext.INNER_DATA_PREFIX + "comandante_author", CommandConfig.getAuthor()),
+                        context -> {
+                            String author = CommandConfig.getAuthor();
+                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_author", author);
+                            CommandLogger.log(author);
+                        },
                         "查看 Comandante 作者"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
                 .opt("doc", "d")
                 .executor(
-                        context -> context.put(CommandContext.INNER_DATA_PREFIX + "comandante_doc", CommandConfig.getDoc()),
+                        context -> {
+                            String doc = CommandConfig.getDoc();
+                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_doc", doc);
+                            CommandLogger.log(doc);
+                        },
                         "查看 Comandante 文档"
                 );
         CommandLauncher.register().builder()
@@ -41,10 +54,11 @@ public class InnerCommand {
                 .opt("info", "i")
                 .executor(
                         context -> {
-                            String builder = "version=" + CommandConfig.getVersion() + "\n" +
+                            String info = "version=" + CommandConfig.getVersion() + "\n" +
                                     "author=" + CommandConfig.getAuthor() + "\n" +
                                     "doc_link=" + CommandConfig.getDoc();
-                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_info", builder);
+                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_info", info);
+                            CommandLogger.log(info);
                         },
                         "查看 Comandante 信息"
                 );

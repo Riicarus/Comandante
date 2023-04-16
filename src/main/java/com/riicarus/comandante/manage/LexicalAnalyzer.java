@@ -12,7 +12,7 @@ import java.util.Queue;
  *
  * @author Riicarus
  * @create 2023-4-11 11:14
- * @since 1.0.0
+ * @since 3.0
  */
 public class LexicalAnalyzer {
 

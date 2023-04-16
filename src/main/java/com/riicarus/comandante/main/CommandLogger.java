@@ -9,39 +9,38 @@ import java.text.SimpleDateFormat;
 
 /**
  * [FEATURE INFO]<br/>
- * 全局日志输出, 支持设置输出流进行输出重定向<br/>
- * 默认输出流为 System.out<br/>
- * 重定向输出流后, 所有的输出都会被重定向<br/>
- * 重定向方法限制为 protected, 由 CommandLauncher 调用进行重定向, 避免暴露给外界进行不必要的重定向<br/>
+ * Global logger supports to redirect the output stream.<br/>
+ * The default output stream is System.out<br/>
+ * While redirecting the output stream, all output will be redirect to it.<br/>
+ * The redirecting method is limited to protected and use CommandLauncher to expose the redirect API to avoid unnecessary output redirection.<br/>
  * <br/>
- * 建议所有的输出都是用 CommandLogger.log() 进行处理<br/>
+ * We suggest that all output is processed by CommandLogger.log(). <br/>
  * <br/>
- * 只提供静态 api, 不支持新建实例<br/>
+ * Just provide static API, do not create new instance.<br/>
  *
  * @author Riicarus
  * @create 2022-11-8 17:06
  * @since 1.2
  */
 public class CommandLogger {
-
     /**
-     * 输出流
+     * Output stream.
      */
     private static PrintStream printStream = System.out;
     /**
-     * 日志输出流
+     * Log output stream.
      */
     private static PrintStream logStream;
     /**
-     * 日志输出文件路径, 只能是绝对路径
+     * The log output file stream, which can only be absolute path.
      */
     private static String logFilePath;
     /**
-     * 能否进行日志输出
+     * Can output log.
      */
     private static boolean loggable = false;
     /**
-     * 时间格式化
+     * The time format.
      */
     private static final SimpleDateFormat SDF_LOG = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss SSS");
     private static final String LOG_STRING_PREFIX = ">";
@@ -50,9 +49,9 @@ public class CommandLogger {
     }
 
     /**
-     * 设置全局输出流
+     * Set global output stream.
      *
-     * @param out 输出流
+     * @param out output stream
      */
     protected static void setOut(OutputStream out) throws CommandLoadException {
         Asserts.notNull(out, new CommandLoadException("OutputStream can not be null."));
@@ -61,11 +60,11 @@ public class CommandLogger {
     }
 
     /**
-     * 设置全局输出流
+     * Set global output stream with given charset.
      *
-     * @param out 输出流
-     * @param charsets 输出流字符集
-     * @throws UnsupportedEncodingException 解码方式不支持异常
+     * @param out output stream
+     * @param charsets charset of output stream
+     * @throws UnsupportedEncodingException IOException
      */
     protected static void setOut(OutputStream out, StandardCharsets charsets) throws UnsupportedEncodingException, CommandLoadException {
         Asserts.notNull(out, new CommandLoadException("OutputStream can not be null."));
@@ -75,9 +74,9 @@ public class CommandLogger {
     }
 
     /**
-     * 设置日志文件输出流
+     * Set log output stream.
      *
-     * @param path 输出文件路径, 必须为绝对路径
+     * @param path output file path, must be absolute path
      */
     protected static void setLog(String path) throws CommandLoadException {
         Asserts.notEmpty(path, new CommandLoadException("Log path can not be null or empty"));
@@ -96,10 +95,10 @@ public class CommandLogger {
     }
 
     /**
-     * 设置日志文件输出流
+     * Set log output stream with charset.
      *
-     * @param path 输出文件路径, 必须为绝对路径
-     * @param charsets 输出流字符集
+     * @param path output file path, must be absolute path
+     * @param charsets log output charset
      */
     protected static void setLog(String path, StandardCharsets charsets) throws CommandLoadException {
         Asserts.notEmpty(path, new CommandLoadException("Log path can not be null or empty"));
@@ -119,9 +118,9 @@ public class CommandLogger {
     }
 
     /**
-     * 输出信息
+     * Log a stream to output stream. If log file is set, it will also be put to the file.
      *
-     * @param s 要输出的内容
+     * @param s output string
      */
     public static void log(String s) {
         String logTimeStr = SDF_LOG.format(System.currentTimeMillis());
@@ -133,7 +132,7 @@ public class CommandLogger {
     }
 
     /**
-     * 关闭所有的流
+     * Close all output stream.
      */
     public static void close() {
         printStream.close();

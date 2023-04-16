@@ -8,7 +8,8 @@ import com.riicarus.util.asserts.Asserts;
 
 /**
  * [FEATURE INFO]<br/>
- * comandante 交互中心, 维护 指令分发器 和 指令输入控制器, 并控制指令处理线程<br/>
+ * Comandante is the interact center, maintains the CommandDispatcher and InputHandler. <br/>
+ * It uses a thread to handle command input, analysis and execution. <br/>
  *
  * @author Riicarus
  * @create 2022-10-15 16:23
@@ -16,24 +17,24 @@ import com.riicarus.util.asserts.Asserts;
  */
 public class Comandante {
     /**
-     * 指令分发器
+     * The command dispatcher dispatches command inputs given by input handler and executes them.
      */
     private final CommandDispatcher commandDispatcher;
     /**
-     * IO
+     * Get command input.
      */
     private final CommandInputHandler commandInputHandler;
     /**
-     * 指令处理线程
+     * The thread running CommandRunner, which is the command analyzing and executing thread.
      */
     private final Thread commandRunnerThread;
     /**
-     * 是否为运行状态
+     * If the command runner thread is running.
      */
     private volatile boolean run = false;
 
     /**
-     * 不对外暴露核心类, 只提供给 CommandLauncher 进行 API 暴露<br/>
+     * Do not expose contractor outside, just provide to CommandLauncher to expose least API.
      */
     protected Comandante() {
         this.commandDispatcher = new CommandDispatcher();
@@ -42,7 +43,7 @@ public class Comandante {
     }
 
     /**
-     * 启用命令处理线程, 保证只有一个线程在运行<br/>
+     * Start the command runner thread, ensure there's only one thread which is running.
      */
     protected synchronized void startCommandRunner() throws CommandLoadException {
         Asserts.isFalse(run, new CommandLoadException("CommandRunner is already running."));
@@ -65,16 +66,17 @@ public class Comandante {
     }
 
     /**
-     * 停止指令执行线程的工作<br/>
-     * 不建议在此处关闭 CommandLogger 的流, 因为可能后续会有指令注册等操作会使用到 CommandLogger<br/>
+     * Stop runner thread.<br/>
+     * We do not suppose you to close the stream of CommandLogger
+     * because there may be some command register actions which will use the CommandLogger.
      */
     protected void stop() {
         run = false;
     }
 
     /**
-     * 用于创建指令执行线程, 在一个单独的线程中进行指令处理工作<br/>
-     * 主要用于处理外界通过 CommandLauncher 传入的指令字符串, 对其进行分发和执行<br/>
+     * Use to create the command runner thread, we prefer that there's a single thread to handle the command process work.<br/>
+     * It's mainly used to process the command input strings passing through InputHandler, dispatches and executes them.
      */
     static class CommandRunner implements Runnable {
 

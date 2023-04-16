@@ -11,7 +11,7 @@ import java.util.Properties;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令配置
+ * Comandante config
  *
  * @author Riicarus
  * @create 2022-10-17 17:46
@@ -20,24 +20,21 @@ import java.util.Properties;
 public class CommandConfig {
 
     protected final static String CONFIG_PATH = "config.properties";
-
     /**
-     * 命令行插件版本
+     * Version of Comandante.
      */
     private static String version;
-
     /**
-     * 插件作者
+     * Author of Comandante.
      */
     private static String author;
-
     /**
-     * 插件文档链接
+     * Document link of Comandante.
      */
     private static String doc;
 
     /**
-     * 从配置文件路径中加载 properties 文件, 读取属性到对应的字段中
+     * Load properties from the given CONFIG_PATH.
      */
     public static void loadConfig() {
         Properties properties = new Properties();

@@ -9,9 +9,8 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令输入处理器, 使用生产者消费者模式<br/>
- * 维护了一个指令阻塞队列, 最大指令数量为 10<br/>
- * 消费者为 CommandRunner, 生产者为 CommandLauncher 提供的 API: CommandLauncher.dispatchToCache(String)<br/>
+ * The command input handler uses producer-consumer pattern and maintains a block command input queue with 10 max size.<br/>
+ * The consumer is CommandRunner, and the producer is the API provided by CommandLauncher: CommandLauncher.dispatchToCache(String);<br/>
  *
  * @author Riicarus
  * @create 2022-10-15 16:31
@@ -19,13 +18,16 @@ import java.util.concurrent.BlockingQueue;
  */
 public class CommandInputHandler {
 
+    /**
+     * The command input blocking queue.
+     */
     private static final BlockingQueue<String> commandQueue = new ArrayBlockingQueue<>(10, true);
 
     /**
-     * 生产指令, 将其放入阻塞队列
+     * Produce commands and put them to the blocking queue
      *
-     * @param command 指令字符串
-     * @throws CommandProduceException 指令生产异常, 属于受检异常
+     * @param command command input stream
+     * @throws CommandProduceException exception
      */
     private void produce(String command) throws CommandProduceException {
         try {
@@ -36,10 +38,10 @@ public class CommandInputHandler {
     }
 
     /**
-     * 消费指令, 从阻塞队列中取出一条指令, 由 CommandRunner 调用
+     * Consume one command from the blocking queue, invoked by CommandRunner.
      *
-     * @return 指令字符串
-     * @throws CommandConsumeException 指令消费异常, 属于受检异常
+     * @return command string
+     * @throws CommandConsumeException exception
      */
     public String consume() throws CommandConsumeException {
         String command ;
@@ -53,10 +55,10 @@ public class CommandInputHandler {
     }
 
     /**
-     * 提供给外界使用的指令输入方法, 调用 produce() 方法将指令放入阻塞队列
+     * The command input method provided to outsider, uses produce() method to put the input command to the blocking queue.
      *
-     * @param command 指令字符串
-     * @throws CommandProduceException 指令生产异常, 属于受检异常
+     * @param command command input string
+     * @throws CommandProduceException exception
      */
     public void input(String command) throws CommandProduceException {
         CommandLogger.log("COMMAND RECEIVER ECHO: " + command);

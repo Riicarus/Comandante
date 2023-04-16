@@ -2,7 +2,7 @@ package com.riicarus.comandante.exception;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令加载异常, 用于抛出指令在加载过程中抛出的运行时异常
+ * Command load exception, used to throw the exception during command loading or launching process.
  *
  * @author Riicarus
  * @create 2022-10-15 19:28

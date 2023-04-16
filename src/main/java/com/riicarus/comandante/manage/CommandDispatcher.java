@@ -46,7 +46,6 @@ public class CommandDispatcher {
      */
     public void dispatch(final String commandStr) throws CommandExecutionException, CommandNotFoundException, NullObjectException {
         List<AnalyzedExecutor> executors = grammarAnalyzer.analyze(commandStr);
-        System.out.println(executors);
 
         CommandContext context = new CommandContext();
         for (AnalyzedExecutor executor : executors) {

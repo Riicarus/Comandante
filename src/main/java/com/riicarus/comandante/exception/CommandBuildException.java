@@ -2,7 +2,7 @@ package com.riicarus.comandante.exception;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令构建错误, 用于抛出指令构建过程中的运行时异常
+ * Command build exception, used to throw the exception during command build process
  *
  * @author Riicarus
  * @create 2022-10-16 0:09

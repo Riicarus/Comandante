@@ -2,7 +2,7 @@ package com.riicarus.comandante.exception;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令生产异常, 用于抛出外部指令字符串存入 CommandInputHandler 指令消费缓冲区时出现的受检异常
+ * Command produce exception, used to throw the exception during the CommandInputHandler's consuming process from the blocking queue.
  *
  * @author Riicarus
  * @create 2022-11-8 15:26
@@ -10,7 +10,6 @@ package com.riicarus.comandante.exception;
  */
 public class CommandProduceException extends Exception {
 
-    public CommandProduceException() {
-    }
+    public CommandProduceException() {}
 
 }

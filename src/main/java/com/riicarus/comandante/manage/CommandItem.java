@@ -9,7 +9,7 @@ import java.util.Objects;
  *
  * @author Riicarus
  * @create 2023-4-11 11:21
- * @since 2.0
+ * @since 3.0
  */
 public class CommandItem {
     /**

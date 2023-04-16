@@ -26,7 +26,6 @@ public class CommandBuilder {
      * Item manager is used to build lexical items and construct a grammar rule.
      */
     private final CommandItemManager commandItemManager;
-
     /**
      * Previous built item in one command.
      */

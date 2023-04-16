@@ -12,16 +12,15 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * [FEATURE INFO]<br/>
- * 对外 API, 只有静态方法, 可全局使用<br/>
- * 核心功能主要由维护的核心类 Comandante 单例实现的<br/>
+ * The API for outsider, there's only static method for global usage.<br/>
+ * The main feature is accomplished by the maintained Comandante instance.
  * <br/>
- * <p>
- * 主要功能:<br/>
- * 1. 提供指令注册接口: register()<br/>
- * 2. 提供指令处理线程 CommandRunner 的启动和关闭接口: enable(), disable()<br/>
- * 3. 提供 CommandLogger 全局输出重定向接口: redirectOutput()<br/>
- * 4. 提供指令字符串输入接口, 用于分发并执行外界指令: dispatchToCache()<br/>
- * 5. 提供获取已加载指令接口: listAllExecutionCommand()<br/>
+ * <br/>
+ * Main feature:<br/>
+ * 1. Provide command register api: register()<br/>
+ * 2. Provide command process thread's(CommandRunner) open and close api: enable(), disable()<br/>
+ * 3. Provide global output redirection api: redirectOutput()<br/>
+ * 4. Provide command string input api, used to dispatch and execute command: dispatchToCache()<br/>
  *
  * @author Riicarus
  * @create 2022-11-8 13:16
@@ -30,7 +29,7 @@ import java.nio.charset.StandardCharsets;
 public class CommandLauncher {
 
     /**
-     * 核心类单例, 饿汉式
+     * The single instance of core class Comandante.
      */
     public static final Comandante COMANDANTE = new Comandante();
 
@@ -43,32 +42,32 @@ public class CommandLauncher {
     }
 
     /**
-     * 指令注册接口, 返回一个提供注册功能的指令构建器
+     * The command register method, return a command register, used to get command builder from it.
      *
-     * @return 指令构建器
+     * @return CommandRegister
      */
     public static CommandRegister register() {
         return COMANDANTE.getCommandRegister();
     }
 
     /**
-     * 启动 CommandRunner 线程
+     * Start a CommandRunner thread.
      */
     public static void enable() {
         COMANDANTE.startCommandRunner();
     }
 
     /**
-     * 结束 CommandRunner 线程
+     * Stop the current CommandRunner thread.
      */
     public static void disable() {
         COMANDANTE.stop();
     }
 
     /**
-     * 重定向指令插件 CommandLogger 全局输出
+     * Redirect CommandLogger's global output.
      *
-     * @param outputStream 目标输出流
+     * @param outputStream destination output stream
      */
     public static void redirectOutput(OutputStream outputStream) {
         try {
@@ -79,10 +78,10 @@ public class CommandLauncher {
     }
 
     /**
-     * 重定向指令插件 CommandLogger 全局输出
+     * Redirect CommandLogger's global output with the given charset.
      *
-     * @param outputStream 目标输出流
-     * @param charsets     输出流字符集
+     * @param outputStream destination output stream
+     * @param charsets     output stream's charset
      */
     public static void redirectOutput(OutputStream outputStream, StandardCharsets charsets) {
         try {
@@ -93,9 +92,9 @@ public class CommandLauncher {
     }
 
     /**
-     * 设置日志文件输出流
+     * Set the output stream of CommandLogger's log file.
      *
-     * @param path 日志文件路径, 必须为绝对路径
+     * @param path the absolute path of log file
      */
     public static void setLogFile(String path) {
         try {
@@ -106,10 +105,10 @@ public class CommandLauncher {
     }
 
     /**
-     * 设置日志文件输出流
+     * Set the output stream of CommandLogger's log file with the given charset.
      *
-     * @param path     日志文件路径, 必须为绝对路径
-     * @param charsets 输出流字符集
+     * @param path     the absolute path of log file
+     * @param charsets the charset of the log file stream
      */
     public static void setLogFile(String path, StandardCharsets charsets) {
         try {
@@ -120,10 +119,10 @@ public class CommandLauncher {
     }
 
     /**
-     * 外界指令字符串输入接口<br/>
-     * 先将输入的指令保存到 CommandInputHandler 的缓存队列中, 等待 CommandRunner 去消费<br/>
+     * The interface for input command string.<br/>
+     * We firstly store the command to the cache queue of CommandInputHandler and wait for consume.
      *
-     * @param command 指令字符串
+     * @param command command input stream
      */
     public static void dispatchToCache(String command) {
         try {
