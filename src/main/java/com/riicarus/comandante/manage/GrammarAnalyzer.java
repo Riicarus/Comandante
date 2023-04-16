@@ -203,12 +203,12 @@ public class GrammarAnalyzer {
                 A1();
             } else {
                 throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                        "Want: MAIN or ARGUMENT, get: " + token.getType() + ". \n " +
+                        "Want: MAIN or ARGUMENT, get: " + token.getType() + ". \n" +
                         "Please check your command input, and the pipeline(|) or command linker(&) can only be followed by MAIN.");
             }
         } else {
             throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                    "Want: MAIN or ARGUMENT, get: " + token.getType() + ". \n " +
+                    "Want: MAIN or ARGUMENT, get: " + token.getType() + ". \n" +
                     "Please check your command input.");
         }
     }
@@ -234,7 +234,7 @@ public class GrammarAnalyzer {
                 next();
             } else {
                 throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                        "Want: PIPELINE(|) or COMMAND_LINKER(&), get: " + token.getType() + ". \n " +
+                        "Want: PIPELINE(|) or COMMAND_LINKER(&), get: " + token.getType() + ". \n" +
                         "Please check your command input.");
             }
 
@@ -255,14 +255,14 @@ public class GrammarAnalyzer {
                 next();
             } else {
                 throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                        "Want: ARGUMENT_QUOTE, get: " + token.getType() + ". \n " +
+                        "Want: ARGUMENT_QUOTE, get: " + token.getType() + ". \n" +
                         "Please check your command input.");
             }
         } else if (CommandTokenType.MAIN_OR_ARGUMENT.equals(token.getType()) && !CommandItem.ROOT.equals(prevItem)) {
             A1();
         } else {
             throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                    "Want: ARGUMENT_QUOTE, get: " + token.getType() + ". \n " +
+                    "Want: ARGUMENT_QUOTE, get: " + token.getType() + ". \n" +
                     "Please check your command input.");
         }
     }
@@ -275,7 +275,7 @@ public class GrammarAnalyzer {
             next();
         } else {
             throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                    "Want: ARGUMENT, get: " + token.getType() + ". \n " +
+                    "Want: ARGUMENT, get: " + token.getType() + ". \n" +
                     "Please check your command input.");
         }
     }
@@ -291,7 +291,7 @@ public class GrammarAnalyzer {
             }
         } else {
             throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                    "Want: OPT_PREFIX, get: " + token.getType() + ". \n " +
+                    "Want: OPT_PREFIX, get: " + token.getType() + ". \n" +
                     "Please check your command input.");
         }
     }
@@ -335,7 +335,7 @@ public class GrammarAnalyzer {
             next();
         } else {
             throw new CommandSyntaxException("Command type not feat, near: " + token.toString() + ", token idx: " + tokenCount + ". \n" +
-                    "Want: OPT, get: " + token.getType() + ". \n " +
+                    "Want: OPT, get: " + token.getType() + ". \n" +
                     "Please check your command input.");
         }
     }
