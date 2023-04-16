@@ -5,6 +5,8 @@ import com.riicarus.comandante.main.CommandLauncher;
 import com.riicarus.comandante.main.CommandLogger;
 import com.riicarus.comandante.manage.CommandContext;
 
+import java.util.List;
+
 /**
  * [FEATURE INFO]<br/>
  * 内置指令
@@ -25,7 +27,7 @@ public class InnerCommand {
                             context.put(CommandContext.INNER_DATA_PREFIX + "comandante_version", version);
                             CommandLogger.log(version);
                         },
-                        "查看 Comandante 版本号"
+                        "Get Comandante's version"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
@@ -36,7 +38,7 @@ public class InnerCommand {
                             context.put(CommandContext.INNER_DATA_PREFIX + "comandante_author", author);
                             CommandLogger.log(author);
                         },
-                        "查看 Comandante 作者"
+                        "Get Comandante's author"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
@@ -47,7 +49,7 @@ public class InnerCommand {
                             context.put(CommandContext.INNER_DATA_PREFIX + "comandante_doc", doc);
                             CommandLogger.log(doc);
                         },
-                        "查看 Comandante 文档"
+                        "Get Comandante's document link"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
@@ -60,16 +62,18 @@ public class InnerCommand {
                             context.put(CommandContext.INNER_DATA_PREFIX + "comandante_info", info);
                             CommandLogger.log(info);
                         },
-                        "查看 Comandante 信息"
+                        "Get Comandante's information"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
-                .main("list")
-                .opt("command", "c")
+                .opt("list", "l")
                 .executor(
                         context -> {
+                            List<String> commandUsages = CommandLauncher.register().getCommandItemManager().listAllCommandUsage();
+                            context.put(CommandContext.INNER_DATA_PREFIX + "command_list", commandUsages);
+                            commandUsages.forEach(CommandLogger::log);
                         },
-                        "列出所有已注册指令"
+                        "List all registered command's and their usages"
                 );
     }
 }

@@ -4,6 +4,8 @@ import com.riicarus.comandante.executor.CommandExecutor;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -67,7 +69,10 @@ public class CommandItemManager {
     }
 
     /**
-     * Judge if a item is in lexicalItems set.
+     * Judge if a item is in lexicalItems set.<br/>
+     * Note that this function only compares the current item's name and its prev item's serialId, but not compares the item's type,
+     * So we must asume that there's no more than one item with the same name following the prev item.<br/>
+     * So, even for different type of items following the same prev item, they can not have the same name.
      *
      * @param name     item's name
      * @param prevItem previous CommandItem
@@ -186,5 +191,19 @@ public class CommandItemManager {
      */
     public int generateSerialId() {
         return itemCount.incrementAndGet();
+    }
+
+    /**
+     * List all registered commands' usage.
+     *
+     * @return registered command usage list
+     */
+    public List<String> listAllCommandUsage() {
+        List<String> usages = new LinkedList<>();
+        for (CommandExecutor executor : executors.values()) {
+            usages.add(executor.getCommandString() + "\t\t" + executor.getUsage());
+        }
+
+        return usages;
     }
 }

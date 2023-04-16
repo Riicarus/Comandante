@@ -26,6 +26,10 @@ public class CommandExecutor {
      * The usage info of this executor.
      */
     private final String usage;
+    /**
+     * The complete command string of this executor.
+     */
+    private String commandString;
 
     public CommandExecutor(Executable executor, String usage) {
         this.executor = executor;
@@ -57,5 +61,13 @@ public class CommandExecutor {
 
     public String getUsage() {
         return usage;
+    }
+
+    public String getCommandString() {
+        return commandString;
+    }
+
+    public void setCommandString(String commandString) {
+        this.commandString = commandString;
     }
 }

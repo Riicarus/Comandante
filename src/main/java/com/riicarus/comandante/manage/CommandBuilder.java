@@ -22,6 +22,12 @@ import com.riicarus.util.asserts.Asserts;
  */
 public class CommandBuilder {
 
+    private final String FULL_OPT_PREFIX = "--";
+    private final String SHORT_OPT_PREFIX = "-";
+    private final String OPT_SEPARATOR = "/";
+    private final String LEFT_ARGUMENT_PREFIX = "<";
+    private final String RIGHT_ARGUMENT_PREFIX = ">";
+
     /**
      * Item manager is used to build lexical items and construct a grammar rule.
      */
@@ -34,6 +40,11 @@ public class CommandBuilder {
      * Previous built main item in one command.
      */
     private CommandItem prevMainItem;
+    /**
+     * The CommandStrBuilder is used to build command string during building process
+     * and finally form a complete command string ending with a executor.
+     */
+    private final StringBuilder commandStrBuilder = new StringBuilder();
 
     public CommandBuilder(final CommandItemManager commandItemManager) {
         this.commandItemManager = commandItemManager;
@@ -73,6 +84,8 @@ public class CommandBuilder {
         }
         prevMainItem = item;
         prevItem = item;
+
+        commandStrBuilder.append(name).append(" ");
 
         return this;
     }
@@ -118,6 +131,12 @@ public class CommandBuilder {
             prevItem = commandItemManager.getItem(name, prevMainItem);
         }
 
+        commandStrBuilder.append(FULL_OPT_PREFIX).append(name);
+        if (!"".equals(alias)) {
+            commandStrBuilder.append(OPT_SEPARATOR).append(SHORT_OPT_PREFIX).append(alias);
+        }
+        commandStrBuilder.append(" ");
+
         return this;
     }
 
@@ -153,6 +172,8 @@ public class CommandBuilder {
             prevItem = commandItemManager.getItem(FixedLexicalItemValue.ARGUMENT.getValue(), prevItem);
         }
 
+        commandStrBuilder.append(LEFT_ARGUMENT_PREFIX).append(name).append(RIGHT_ARGUMENT_PREFIX).append(" ");
+
         return this;
     }
 
@@ -170,6 +191,9 @@ public class CommandBuilder {
         CommandExecutor commandExecutor = new CommandExecutor(executor, "");
 
         commandItemManager.bindExecutor(prevItem, commandExecutor);
+
+        commandStrBuilder.deleteCharAt(commandStrBuilder.length() - 1);
+        commandExecutor.setCommandString(commandStrBuilder.toString());
     }
 
     /**
@@ -187,6 +211,9 @@ public class CommandBuilder {
         CommandExecutor commandExecutor = new CommandExecutor(executor, usage);
 
         commandItemManager.bindExecutor(prevItem, commandExecutor);
+
+        commandStrBuilder.deleteCharAt(commandStrBuilder.length() - 1);
+        commandExecutor.setCommandString(commandStrBuilder.toString());
     }
 
     /**
