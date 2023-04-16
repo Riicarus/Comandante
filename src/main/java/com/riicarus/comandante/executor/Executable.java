@@ -4,19 +4,19 @@ import com.riicarus.comandante.manage.CommandContext;
 
 /**
  * [FEATURE INFO]<br/>
- * 可执行接口
+ * The executable interface.
  *
  * @author Riicarus
  * @create 2022-11-24 13:16
- * @since 1.0.0
+ * @since 1.0
  */
 public interface Executable {
 
     /**
-     * 执行方法
+     * Execute method uses command context to get or put intermediate data to interact with related executors.
      *
-     * @param context 指令上下文
-     * @throws Exception 执行异常
+     * @param context command context
+     * @throws Exception command execute exception
      */
     void execute(CommandContext context) throws Exception;
 

@@ -6,7 +6,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * [FEATURE INFO]<br/>
- * CommandExecutor, is used to define the executable item's execute() and some related fields.
+ * CommandExecutor is used to define the executable item's execute() method and some related fields.<br/>
+ * It also maintains its use count and usage info for extension. <br/>
  *
  * @author Riicarus
  * @create 2022-10-15 0:09
@@ -14,14 +15,16 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class CommandExecutor {
     /**
-     * executor invoke count
+     * Executor's invoke count
      */
     private final AtomicInteger useCount = new AtomicInteger(0);
     /**
-     * execute interface
+     * Execute interface, built by CommandBuilder.
      */
     private Executable executor;
-
+    /**
+     * The usage info of this executor.
+     */
     private final String usage;
 
     public CommandExecutor(Executable executor, String usage) {
@@ -30,10 +33,10 @@ public class CommandExecutor {
     }
 
     /**
-     * command execute method, invokes the command executor, and will be invoked by CommandDispatcher<br/>
+     * Command execute method, invokes the command executor, and it will be invoked by CommandDispatcher<br/>
      *
-     * @param context command execute context
-     * @throws Exception runtime exception
+     * @param context command context
+     * @throws Exception command execute exception
      */
     public final void execute(CommandContext context) throws Exception {
         useCount.incrementAndGet();
@@ -50,5 +53,9 @@ public class CommandExecutor {
 
     public int getUseCount() {
         return useCount.get();
+    }
+
+    public String getUsage() {
+        return usage;
     }
 }

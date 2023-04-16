@@ -6,8 +6,6 @@ import com.riicarus.comandante.manage.CommandInputHandler;
 import com.riicarus.comandante.manage.CommandRegister;
 import com.riicarus.util.asserts.Asserts;
 
-import java.util.*;
-
 /**
  * [FEATURE INFO]<br/>
  * comandante 交互中心, 维护 指令分发器 和 指令输入控制器, 并控制指令处理线程<br/>
@@ -92,7 +90,7 @@ public class Comandante {
                 String command;
                 try {
                     command = comandante.commandInputHandler.consume();
-                    // comandante.commandDispatcher.dispatch(command);
+                    comandante.commandDispatcher.dispatch(command);
                 } catch (Exception e) {
                     CommandLogger.log(e.getMessage());
                 } finally {

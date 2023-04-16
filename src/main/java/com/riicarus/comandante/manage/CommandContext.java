@@ -1,135 +1,43 @@
 package com.riicarus.comandante.manage;
 
-import com.riicarus.comandante.executor.CommandExecutor;
 import com.riicarus.util.asserts.Asserts;
 import com.riicarus.util.exception.EmptyStringException;
 import com.riicarus.util.exception.NullObjectException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * [FEATURE INFO]<br/>
- * 指令上下文
+ * Command context is used in command execution, it delivers intermediate data during the list of analyzed executors execute.<br/>
  *
  * @author Riicarus
  * @create 2022-11-16 17:43
  * @since 1.0.0
  */
 public class CommandContext {
+
+    public static final String INNER_DATA_PREFIX = "INNER_";
+    public static final String ARG_DATA_PREFIX = "ARG_";
+
     /**
-     * 指令解析时逐步运行产生的数据缓存
+     * The cached intermediate data during command execution.<br/>
+     * Specially, for the inner commands' data, the keys have a particular prefix: "INNER_".<br/>
+     * For the command arguments, the keys have a particular prefix: "ARG_".
      */
-    private final HashMap<String, Object> cacheData = new HashMap<>();
-    /**
-     * 一个执行器执行完需要输出的数据
-     */
-    private final HashMap<String, String> outputData = new HashMap<>();
-    /**
-     * 命令传入的参数
-     */
-    private final HashMap<String, Object> arguments = new HashMap<>();
-    /**
-     * 当前上下文解析的指令字符串分割后的字符串列表
-     */
-    private final List<String> commandStrParts;
-    /**
-     * 当前指令按序解析出的 OptionNode 部分对应的 指令执行器
-     */
-    private final LinkedList<CommandExecutor> optionExecutors = new LinkedList<>();
-    /**
-     * 指令树主干节点对应的指令部分, 为 ExecutionNode 及其 ArgumentNode
-     */
-    private final List<String> commandMainParts;
-    /**
-     * 在 commandMainParts 中删除掉的非主干节点的数量
-     */
-    private int deletedCount = 0;
+    private final HashMap<String, Object> data = new HashMap<>();
 
-    public CommandContext(final List<String> commandStrParts) {
-        this.commandStrParts = commandStrParts;
-        this.commandMainParts = new ArrayList<>(commandStrParts);
+    public void put(String key, Object value) throws NullObjectException, EmptyStringException {
+        Asserts.notEmpty(key, "Key of data in CommandContext can not be null or empty.");
+        Asserts.notNull(value, "Value of data in CommandContext can not be null.");
+
+        getData().put(key, value);
     }
 
-    public void increaseDeletedCount() {
-        deletedCount++;
+    public Object get(String key) {
+        return getData().get(key);
     }
 
-    public void addOptionExecutor(final CommandExecutor commandExecutor) {
-        getOptionExecutors().addLast(commandExecutor);
+    public HashMap<String, Object> getData() {
+        return data;
     }
-
-    public void deleteNotMainPart(int index) {
-        getCommandMainParts().remove(index);
-        increaseDeletedCount();
-    }
-
-    public void putCacheData(String key, Object value) throws NullObjectException, EmptyStringException {
-        Asserts.notEmpty(key, "Key of cacheData in CommandContext can not be null or empty.");
-        Asserts.notNull(value, "Value of cacheData in CommandContext can not be null.");
-
-        getCacheData().put(key, value);
-    }
-
-    public Object getCacheData(String key) {
-        if (getOutputData().containsKey(key)) {
-            removeOutputData(key);
-        }
-        return getCacheData().get(key);
-    }
-
-    public HashMap<String, Object> getCacheData() {
-        return cacheData;
-    }
-
-    public void removeOutputData(String key) {
-        Asserts.notEmpty(key, "Key of outputData in CommandContext can not be null or empty.");
-
-        getOutputData().remove(key);
-    }
-
-    public void putOutputData(String key, String value) {
-        Asserts.notEmpty(key, "Key of outputData in CommandContext can not be null or empty.");
-        Asserts.notNull(value, "Value of outputData in CommandContext can not be null.");
-
-        getOutputData().put(key, value);
-    }
-
-    public HashMap<String, String> getOutputData() {
-        return outputData;
-    }
-
-    public void putArgument(String key, Object value) {
-        Asserts.notEmpty(key, "Key of arguments in CommandContext can not be null or empty.");
-        Asserts.notNull(value, "Value of arguments in CommandContext can not be null.");
-
-        getArguments().put(key, value);
-    }
-
-    public Object getArgument(String key) {
-        return getArguments().get(key);
-    }
-
-    public HashMap<String, Object> getArguments() {
-        return arguments;
-    }
-
-    public List<String> getCommandStrParts() {
-        return commandStrParts;
-    }
-
-    public int getDeletedCount() {
-        return deletedCount;
-    }
-
-    public LinkedList<CommandExecutor> getOptionExecutors() {
-        return optionExecutors;
-    }
-
-    public List<String> getCommandMainParts() {
-        return commandMainParts;
-    }
-
 }
