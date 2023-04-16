@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * [FEATURE INFO]<br/>
- * 内置指令
+ * Inner command.
  *
  * @author Riicarus
  * @create 2022-10-17 17:57
