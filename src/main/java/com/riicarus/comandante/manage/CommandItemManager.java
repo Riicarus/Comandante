@@ -4,8 +4,6 @@ import com.riicarus.comandante.executor.CommandExecutor;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -142,7 +140,7 @@ public class CommandItemManager {
     /**
      * Get a item in optItemsForAlias set.
      *
-     * @param alias     item's alias
+     * @param alias    item's alias
      * @param prevItem previous CommandItem
      * @return CommandItem
      */
@@ -198,12 +196,18 @@ public class CommandItemManager {
      *
      * @return registered command usage list
      */
-    public List<String> listAllCommandUsage() {
-        List<String> usages = new LinkedList<>();
+    public String listAllCommandUsage() {
+        StringBuilder usageBuilder = new StringBuilder();
         for (CommandExecutor executor : executors.values()) {
-            usages.add(executor.getCommandString() + "\t\t" + executor.getUsage());
+            usageBuilder.append(executor.getCommandString())
+                    .append("\t\t")
+                    .append(executor.getUsage())
+                    .append("[")
+                    .append(executor.getUseCount())
+                    .append("]")
+                    .append("\n");
         }
 
-        return usages;
+        return usageBuilder.toString();
     }
 }

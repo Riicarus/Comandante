@@ -15,7 +15,7 @@ public class DemoCommand {
                 .main("echo")
                 .arg("message")
                 .executor(
-                        context -> System.out.println("app echos")
+                        (args, pipedArgs) -> "app echos"
                 );
         CommandLauncher.register().builder()
                 .main("app")
@@ -24,13 +24,13 @@ public class DemoCommand {
                 .opt("color", "c")
                 .arg("color_name")
                 .executor(
-                        context -> System.out.println("app echos message with color")
+                        (args, pipedArgs) -> "app echos message with color"
                 );
         CommandLauncher.register().builder()
                 .main("grep")
                 .arg("value")
                 .executor(
-                        context -> System.out.println("grep ...")
+                        (args, pipedArgs) -> args.toString() + "/" + pipedArgs
                 );
     }
 

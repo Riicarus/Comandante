@@ -1,7 +1,5 @@
 package com.riicarus.comandante.executor;
 
-import com.riicarus.comandante.manage.CommandContext;
-
 /**
  * [FEATURE INFO]<br/>
  * The executable interface.
@@ -11,13 +9,14 @@ import com.riicarus.comandante.manage.CommandContext;
  * @since 1.0
  */
 public interface Executable {
-
     /**
      * Execute method uses command context to get or put intermediate data to interact with related executors.
      *
-     * @param context command context
+     * @param args method arguments
+     * @param pipedArgs method arguments getting from pipeline
+     * @return result
      * @throws Exception command execute exception
      */
-    void execute(CommandContext context) throws Exception;
+    Object execute(Object args, Object pipedArgs) throws Exception;
 
 }

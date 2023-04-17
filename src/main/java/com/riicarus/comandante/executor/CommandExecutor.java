@@ -1,7 +1,5 @@
 package com.riicarus.comandante.executor;
 
-import com.riicarus.comandante.manage.CommandContext;
-
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -19,13 +17,13 @@ public class CommandExecutor {
      */
     private final AtomicInteger useCount = new AtomicInteger(0);
     /**
-     * Execute interface, built by CommandBuilder.
-     */
-    private Executable executor;
-    /**
      * The usage info of this executor.
      */
     private final String usage;
+    /**
+     * Execute interface, built by CommandBuilder.
+     */
+    private Executable executor;
     /**
      * The complete command string of this executor.
      */
@@ -39,12 +37,14 @@ public class CommandExecutor {
     /**
      * Command execute method, invokes the command executor, and it will be invoked by CommandDispatcher<br/>
      *
-     * @param context command context
+     * @param args command's arguments
+     * @param pipedArgs command's arguments getting from pipeline
+     * @return result
      * @throws Exception command execute exception
      */
-    public final void execute(CommandContext context) throws Exception {
+    public final Object execute(Object args, Object pipedArgs) throws Exception {
         useCount.incrementAndGet();
-        executor.execute(context);
+        return executor.execute(args, pipedArgs);
     }
 
     public Executable getExecutor() {

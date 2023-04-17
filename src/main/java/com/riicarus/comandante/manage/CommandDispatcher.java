@@ -2,10 +2,8 @@ package com.riicarus.comandante.manage;
 
 import com.riicarus.comandante.exception.CommandExecutionException;
 import com.riicarus.comandante.exception.CommandNotFoundException;
-import com.riicarus.comandante.executor.AnalyzedExecutor;
+import com.riicarus.comandante.executor.GeneratedExecutor;
 import com.riicarus.util.exception.NullObjectException;
-
-import java.util.List;
 
 /**
  * [FEATURE INFO]<br/>
@@ -45,18 +43,12 @@ public class CommandDispatcher {
      * @throws NullObjectException       runtime exception
      */
     public void dispatch(final String commandStr) throws CommandExecutionException, CommandNotFoundException, NullObjectException {
-        List<AnalyzedExecutor> executors = grammarAnalyzer.analyze(commandStr);
-        if (executors.isEmpty()) {
-            throw new CommandExecutionException("No executable command found.");
-        }
+        GeneratedExecutor executor = grammarAnalyzer.analyze(commandStr);
 
-        CommandContext context = new CommandContext();
-        for (AnalyzedExecutor executor : executors) {
-            try {
-                executor.execute(context);
-            } catch (Exception e) {
-                throw new CommandExecutionException(e);
-            }
+        try {
+            executor.execute();
+        } catch (Exception e) {
+            throw new CommandExecutionException(e);
         }
     }
 

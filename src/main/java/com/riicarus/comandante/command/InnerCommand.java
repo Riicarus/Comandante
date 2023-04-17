@@ -2,10 +2,6 @@ package com.riicarus.comandante.command;
 
 import com.riicarus.comandante.config.CommandConfig;
 import com.riicarus.comandante.main.CommandLauncher;
-import com.riicarus.comandante.main.CommandLogger;
-import com.riicarus.comandante.manage.CommandContext;
-
-import java.util.List;
 
 /**
  * [FEATURE INFO]<br/>
@@ -22,57 +18,37 @@ public class InnerCommand {
                 .main("comandante")
                 .opt("version", "v")
                 .executor(
-                        context -> {
-                            String version = CommandConfig.getVersion();
-                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_version", version);
-                            CommandLogger.log(version);
-                        },
+                        (args, pipedArgs) -> CommandConfig.getVersion(),
                         "Get Comandante's version"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
                 .opt("author", "a")
                 .executor(
-                        context -> {
-                            String author = CommandConfig.getAuthor();
-                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_author", author);
-                            CommandLogger.log(author);
-                        },
+                        (args, pipedArgs) -> CommandConfig.getAuthor(),
                         "Get Comandante's author"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
                 .opt("doc", "d")
                 .executor(
-                        context -> {
-                            String doc = CommandConfig.getDoc();
-                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_doc", doc);
-                            CommandLogger.log(doc);
-                        },
+                        (args, pipedArgs) -> CommandConfig.getDoc(),
                         "Get Comandante's document link"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
                 .opt("info", "i")
                 .executor(
-                        context -> {
-                            String info = "version=" + CommandConfig.getVersion() + "\n" +
-                                    "author=" + CommandConfig.getAuthor() + "\n" +
-                                    "doc_link=" + CommandConfig.getDoc();
-                            context.put(CommandContext.INNER_DATA_PREFIX + "comandante_info", info);
-                            CommandLogger.log(info);
-                        },
+                        (args, pipedArgs) -> "version=" + CommandConfig.getVersion() + "\n" +
+                                "author=" + CommandConfig.getAuthor() + "\n" +
+                                "doc_link=" + CommandConfig.getDoc(),
                         "Get Comandante's information"
                 );
         CommandLauncher.register().builder()
                 .main("comandante")
                 .opt("list", "l")
                 .executor(
-                        context -> {
-                            List<String> commandUsages = CommandLauncher.register().getCommandItemManager().listAllCommandUsage();
-                            context.put(CommandContext.INNER_DATA_PREFIX + "command_list", commandUsages);
-                            commandUsages.forEach(CommandLogger::log);
-                        },
+                        (args, pipedArgs) -> CommandLauncher.register().getCommandItemManager().listAllCommandUsage(),
                         "List all registered command's and their usages"
                 );
     }

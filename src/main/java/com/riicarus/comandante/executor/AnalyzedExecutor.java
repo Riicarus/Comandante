@@ -1,10 +1,7 @@
 package com.riicarus.comandante.executor;
 
-import com.riicarus.comandante.manage.CommandContext;
-
 import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 /**
  * [FEATURE INFO]<br/>
@@ -15,45 +12,51 @@ import java.util.UUID;
  * @since 3.0
  */
 public class AnalyzedExecutor {
-
-    private final CommandExecutor executor;
     /**
-     * Unique id of this analyze executor, used to match executors and arguments.
+     * The command executor needs to be executed.
      */
-    private final String uuid;
+    private CommandExecutor commandExecutor;
     /**
-     * Argument of this executor.
+     * Arguments is the arguments getting from command string.
      */
     private final List<String> arguments = new LinkedList<>();
+    /**
+     * Used in the pipeline feature. The pipeFromExecutor's result will used as the input argument of executor.
+     */
+    private AnalyzedExecutor pipeFromExecutor;
 
-    public AnalyzedExecutor(CommandExecutor executor, List<String> arguments) {
-        this.executor = executor;
-        this.arguments.addAll(arguments);
-        this.uuid = UUID.randomUUID().toString();
+    public CommandExecutor getCommandExecutor() {
+        return commandExecutor;
     }
 
-    public void execute(CommandContext context) throws Exception {
-        context.put(CommandContext.ARG_DATA_PREFIX + getUuid(), arguments);
-        executor.execute(context);
+    public void setCommandExecutor(CommandExecutor commandExecutor) {
+        this.commandExecutor = commandExecutor;
     }
 
-    public CommandExecutor getExecutor() {
-        return executor;
+    public AnalyzedExecutor getPipeFromExecutor() {
+        return pipeFromExecutor;
+    }
+
+    public void setPipeFromExecutor(AnalyzedExecutor pipeFromExecutor) {
+        this.pipeFromExecutor = pipeFromExecutor;
     }
 
     public List<String> getArguments() {
         return arguments;
     }
 
-    public String getUuid() {
-        return uuid;
+    public void setArguments(List<String> arguments) {
+        this.arguments.addAll(arguments);
     }
 
-    @Override
-    public String toString() {
-        return "AnalyzedExecutor{" +
-                "executor=" + executor +
-                ", arguments=" + arguments +
-                '}';
+    public boolean isPipe() {
+        return pipeFromExecutor != null;
+    }
+
+    public Object execute() throws Exception {
+        if (isPipe()) {
+            return commandExecutor.execute(arguments, pipeFromExecutor.execute());
+        }
+        return commandExecutor.execute(arguments, null);
     }
 }
