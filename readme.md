@@ -1,49 +1,59 @@
 # Comandante
->  version: 2.2   
+
+> version: 2.2
 
 ## 概述
+
 Comandante 是一个基于 Java 的命令行插件, 用于提供便捷的指令注册、解析以及执行的功能.  
 Comandante 同时支持自定义多线程处理输入指令.  
 对于一些错误的指令, Comandante 还可以给出一些相关的建议.  
 
+新版 Comandante 的指令解析借鉴了一部分词法/语法分析器的内容, 逻辑更加完善.
+
 ## 基础
+
 ### 指令介绍
+
 #### 指令组成
-一般的, 指令由三个部分组成: `exe`, `opt`, `arg`. 
-- `exe` 表示一个可运行的服务(或程序);   
+
+一般的, 指令由三个部分组成: `main`, `opt`, `arg`.
+
+- `main` 表示一个可执行的事件, 也是指令中的主要节点, 一般可能由多个 action + source 构成;
 - `opt` 表示操作可选的固定参数,  
   必须具有以 `--` 开头的**长指令**, 也可以选择提供以 `-` 开头的**短指令**.  
 - `arg` 表示需要输入的参数.  
 
 > 例1:  
+>
 > - `app --color/-c color_name`
 > - `app echo message`
 
-#### 指令结构设计:
-- 指令树有一个根节点, 没有实际意义, 只保存指令的第一个 `exe` 节点, 我们称这类 `exe` 节点为**主指令节点**.  
-- 指令树主干由 `exe` 节点和 `arg` 节点组成.  
-- 分支节点由 `opt` 及其后续 `arg` 节点组成. 
-- `opt` 节点只能有至多一个 `arg` 子节点.
-- `opt` 节点之后的 `arg` 子节点的子节点只能是 `arg`.    
-- `exe` 节点只能有至多一个 `arg` 子节点.
-- `exe` 节点之后的 `arg` 子节点的子节点可以是除 `opt` 节点外任意类型的节点.
-- `arg` 节点之后不能注册任何 `opt` 节点. 所有的 `opt` 节点都会被注册到当前的 `exe` 节点下.  
+#### 指令结构设计
+
+- 指令中的所有 item 都以 `CommandItem` 的形式保存在 `CommandItemManager` 中统一管理;
+- Item 分为三类: `main`, `opt` 和 `arg`;
+- `main` 之后可以添加任何节点, `main` 可以注册在指令的任何部分;
+- 跟随在一个 `main` 之后的 `opt` 都注册在同一个 `main` item 中, `opt` 可以携带 `arg` 参数;
+- `arg` 可以注册在 `main` 或者 `opt` 之后, 一个 `main` 或者 `opt` 可以有多个 `arg` item;
 
 > 例2:  
-> 在指令 `app --color color_name --font font_main font_next echo message` 中, 主指令节点为 `app`, 指令分支节点为 `--color color_name` 和 `--font font_main font_next`, 去掉指令分支节点, 剩下的就是主干节点 `app echo message`.  
+> 在指令 `app --color color_name --font font_main font_next echo message` 中, `main` item 为 `app` 和 `echo`, `opt` item 及其参数为 `--color color_name` 和 `--font font_main font_next`, 去掉 `opt`, 剩下的就是 `main` 及其参数 `app echo message`.  
 
+#### 指令语义  
 
-#### 指令语义:  
-- 我们将**注册了指令执行器的节点**称为**语义节点**.  
-- 指令树主干上的每一个节点都可以是语义节点.  
-- 一个`opt`分支都**有且只有一个**语义节点, 为其分支的**尾节点**.
-- 指令解析时, 会解析所有`opt`的语义, 并将其执行, 但是只会解析当前指令对应指令树主干节点上的最后一个节点, 如果它有语义, 就执行.  
+- 我们将**注册了指令执行器的节点**称为**语义节点**;  
+- `main`, `opt` 和 `arg` 都可能是语义节点;
+- 一个 `opt` 都**有且只有一个**语义节点, 为其**尾节点**;
+- 指令解析时, 会解析所有 `opt` 的语义, 并将其执行, 但是只会解析当前指令的最后一个 `main` item, 如果它有语义, 就执行.  
+- 对于 pipeline `|`, 会将 pipeline 前指令的执行结果作为参数传入其后的指令中, 如: `comandante -i | grep version`;
+- 对于 command linker `&`, 会是两条指令依次执行;
 
 > 例3:  
-> 在例2的指令中, 两个分支节点都具有语义, 会被最终执行; 指令对应指令树主干结点的部分可能有不止一个语义, 但是我们只关系尾节点 `message` 是否有语义, 如果有, 就也会被执行.  
+> 在例2的指令中, 两个 `opt` 都具有语义, 会被最终执行; `app echo message` 也有语义, 会被执行.
 
-#### 短指令合并:  
-这是一个指令语法糖, 用于将指令中没有参数的 `opt` 短指令合并到一起输入, 更加便捷.  
+#### 短指令合并  
+
+这是一个指令语法糖, 用于将指令中**没有参数**的 `opt` 短指令合并到一起输入, 更加便捷.  
 
 > 例4:  
 > 如果几个连续的短指令写在一起, 可以省略前面的 `-`, 然后将它们合并到一个短指令中.  
@@ -52,55 +62,79 @@ Comandante 同时支持自定义多线程处理输入指令.
 > *插件会自动将它们解析为没有缩写的状态.*
 
 #### 参数传递规则
-由于内部节点解析逻辑优先级不同, 如果参数值和当前同层级的 `exe` 节点名称相同, 会优先将其解析为 `exe` 节点.  
+
+由于内部节点解析逻辑优先级不同, 如果参数值和当前同层级的 `main`  item 名称相同, 会优先将其解析为 `main` item.  
 为避免这个问题, 在可能发生冲突的参数传递时, 可以使用 `'` 将参数括起来, 这样就能保证指令被正确解析为参数.  
 
-同样, 传入指令字符串的节点分割操作是依据 ` `(空格) 来完成的, 如果参数中包含 ` `, 会导致指令解析错误. 我们同样可以使用 `'` 包围参数, 来避免发生错误.  
+由于部分词法解析由空格作为终止符, 如果参数中包含空格, 会导致指令解析错误. 我们同样可以使用 `'` 包围参数, 来避免发生错误.  
 
-如果想要在参数中输入 `'`, 而不是作为参数括符使用, 需要在 `'` 前面加上 `\` 来表示它是一个普通的字符串.   
+如果想要在参数中输入 `'`, 而不是作为参数括符使用, 需要在 `'` 前面加上 `\` 来表示它是一个普通的字符串. 该特性只能在被 `'` 括起来的参数中使用.  
 
 > 例5:  
-> 在例2指令的基础上, 如果我们还有 `app echo time --format format_str` 指令, 这时在 `time` 节点上就可能发生解析冲突.  
+> 在例2指令的基础上, 如果我们还有 `app echo time --format format_str` 指令, 这时在 `time` 上就可能发生解析冲突.  
 > 使用 `'` 包围参数来解决这个冲突:  
 > `app echo 'time'`  
 > 其他参数传递避免冲突的用法:  
-> `app echo 'hello, I've said \'hello\' to you'`
+> `app echo 'hello, I've said \'hello\' to you'`.
+
+#### 指令词法
+
+$$
+\left\{
+  \begin{array}{l}
+  S \to CN \\
+  N \to TCN \mid \epsilon \\
+  C \to MM_1Y \\
+  M_1 \to MM_1 \mid \epsilon \\
+  T \to | \mid \& \\
+  Y \to OY \mid AY \mid \epsilon \\
+  O \to -O_1O_2 \mid --O_1 \\
+  O_2 \to O_1O_2 \mid \epsilon \\
+  A \to A_1 \mid 'A_1'
+  \end{array}
+\right.
+$$
 
 ### 简单使用
-定义一个指令定义类, 包含一个静态的方法, 推荐命名为 `defineCommand()`.  
+
+定义一个指令定义类, 包含一个定义指令的方法, 推荐命名为 `defineCommand()`.  
+
 ```java
-public class DemoCommand extends BaseCommand {
+public class DemoCommand {
 
     public static void defineCommand() {
 
     }
 }
 ```
+
 然后在对应方法中注册指令:  
+
 ```java
 public class DemoCommand {
       // ...
 
     public void defineCommand() {
-        CommandLauncher.register().exe("comandante")
-                .opt("version", "v")
+        CommandLauncher.register().builder()
+                .main("app")
+                .main("echo")
+                .arg("message")
                 .executor(
-                        (args) -> CommandCommandLogger.log(CommandConfig.getVersion()),
-                        "查看 Comandante 版本号"
+                        (args, pipedArgs) -> "app echos"
                 );
 
-        CommandLauncher.register()
-                .exe("app")
-                .opt("color", "c")
-                .arg("color", new StringCommandArgumentType())
+        CommandLauncher.register().builder()
+                .main("grep")
+                .arg("value")
                 .executor(
-                        context -> CommandCommandLogger.log("set app color to "
-                                + ((HashMap<String, String>) context.getData("color")).get("color"))
+                        (args, pipedArgs) -> args.toString() + "/" + pipedArgs
                 );
     }
 }
 ```
+
 启动指令服务:  
+
 ```java
 public class TestMain {
 
@@ -112,121 +146,50 @@ public class TestMain {
     }
 }
 ```
+
 至此, 就可以使用命令插件的基础服务了.  
 
 ## 扩展
+
 ### 执行器
+
 主要是执行器参数的获取问题:  
-执行器方法在调用时会被传入一个 `CommandContext` 对象, 其中的 `arguments` 属性保存了指令解析/执行过程中产生的所有参数.  
+执行器的参数包括了两部分, 一部分是指令中的参数, 另一部分是 pipeline 提供的参数, 定义如下:  
+
 ```java
-private final HashMap<String, Object> arguments = new HashMap<>();
+public interface Executable {
+    /**
+     * Execute method uses command context to get or put intermediate data to interact with related executors.
+     *
+     * @param args method arguments
+     * @param pipedArgs method arguments getting from pipeline
+     * @return result
+     * @throws Exception command execute exception
+     */
+    Object execute(Object args, Object pipedArgs) throws Exception;
+
+}
 ```
-指令传入参数在存入 `arguments` 前, 会自动被根据指令参数在定义时唯一确定的 `CommandArgumentType<T>` 类型, 转换成对应类型的数据.  
 
 #### 指令传入参数
-对于指令中传入参数的获取, 主要有两种:  
-1. 属于 `opt` 节点的参数:
-   ```java
-   CommandLauncher.register()
-        .exe("app")
-        .opt("font", "f")
-        .arg("font_main", new StringCommandArgumentType())
-        .arg("font_next", new StringCommandArgumentType())
-        .executor(
-                context -> CommandLogger.log("set app font to "
-                        + ((HashMap<String, String>) context.getArgument("font")).get("font_main")
-                        + "/"
-                        + ((HashMap<String, String>) context.getArgument("font")).get("font_next"))
-        );
-   ```
-2. 属于 `exe` 节点的参数:  
-   ```java
-   CommandLauncher.register()
-        .exe("app")
-        .exe("echo")
-        .arg("message", new StringCommandArgumentType())
-        .executor(
-                context -> CommandLogger.log("app echo: " + context.getArgument("echo" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "message"))
-        );
 
-   // 多个相连的参数获取 
-   CommandLauncher.register()
-        .exe("app")
-        .exe("echo")
-        .exe("move")
-        .arg("from", new StringCommandArgumentType())
-        .arg("to", new StringCommandArgumentType())
-        .executor(
-                context -> CommandLogger.log("app echo: move from " +
-                        context.getArgument("move" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "from")
-                + " to "
-                + context.getArgument("from" + CommandDispatcher.EXE_ARG_DATA_SEPARATOR + "to"))
-        );
-   ```
+对于指令中传入参数的获取, 不需要手动完成, GrammarAnalyzer 会在分析时自动将对应的参数保存, 在执行时作为 `args` 参数传入, 所以我们只需要在 `args` 中获取对应的值即可.
 
-#### 指令执行产生参数
-在指令执行过程中, 可能会有多个具有语义的部分被执行, 同时产生一些参数, 而后续执行的执行器需要前面产生的参数. 这就引出了一些需要注意的点:  
-1. 有参数传递顺序的语义对应的指令要按顺序输入.  
-2. 需要将产生的参数放入 `CommandContext.cacheData` 中, 提供给之后的执行器使用.
-3. 执行器从 `CommandContext.cacheData` 中获取参数.  
+#### Pipeline 产生参数
 
-```java
-// 向 CommandContext.data 放入参数
-CommandContext#putCacheData(String key, Object value);
-// 从 CommandContext.data 取出参数
-CommandContext#getCacheData(String key);
-```
-
-### 连续语义扩展
-一部分 `opt` 类型指令可能会具有和前一个指令相连的语义, 但是我们的执行器是依次顺序执行的, 不会对相连的 `opt` 对应的执行器进行特殊处理. 这时候需要我们使用到 `CommandContext` 的缓存机制, 来实现对连续语义执行器的语义扩展.  
-这里用到的缓存机制主要包括两个:  
-1. 执行数据缓存(保存在 `CommandContext.cacheData` 中)
-2. 输出数据缓存(保存在 `CommandContext.outputData` 中)
-
-由于在连续语义执行过程中, 例如内置指令: `comandante list --usage/-u --desc limit(int)`. `--usage` 的语义是列出所有的指令使用情况, 而 `--desc limit(int)` 则是将其从高到底排序并取出前 `limit` 个. 在单个语义的情况下, `--usage` 的结果会被打印出来, 但是我们不希望在连续语义的情况下也进行输出, 这是就需要将输出放入输出数据缓存中, 同时将执行结果的数据放入执行数据缓存中, 要求输出数据缓存和执行数据缓存的 `key` 要相同. 如果后续有执行器从执行数据缓存中取出了数据, 那么插件会删除掉输出数据缓存中的数据, 表示对应的语义有相连的语义, 靠前的语义不需要再进行输出.  
-
-以下是插件中内置指令的源码实践:  
-```java
-CommandLauncher.register().exe("comandante").exe("list")
-        .opt("usage", "u")
-        .executor(
-                context -> {
-                    HashMap<String, Integer> commandUsage = CommandLauncher.listCommandUsage();
-                    context.putCacheData("command_usage", commandUsage);
-                    StringBuilder builder = new StringBuilder();
-                    commandUsage.forEach((k, v) -> builder.append(k).append("   usage: ").append(v).append("\n"));
-                    builder.deleteCharAt(builder.length() - 1);
-                    context.putOutputData("command_usage", builder.toString());
-                },
-                "列出指令使用情况"
-        );
-CommandLauncher.register().exe("comandante").exe("list")
-        .opt("desc")
-        .arg("limit", new IntegerCommandArgumentType())
-        .executor(
-                context -> {
-                    int limit = ((HashMap<String, Integer>) context.getArgument("desc")).get("limit");
-                    HashMap<String, Integer> command_usage = (HashMap<String, Integer>) context.getCacheData("command_usage");
-                    LinkedHashMap<String, Integer> commandUsageDesc =
-                            CommandLauncher.listCommandUsageDesc(command_usage, limit);
-                    context.putCacheData("command_usage_desc", commandUsageDesc);
-                    StringBuilder builder = new StringBuilder();
-                    commandUsageDesc.forEach((k, v) -> builder.append(k).append("  usage: ").append(v).append("\n"));
-                    builder.deleteCharAt(builder.length() - 1);
-                    context.putOutputData("command_usage_desc", builder.toString());
-                },
-                "指令使用情况, 正序, 需配合 --usage"
-        );
-```
+和上面类似, 对于使用 pipeline 特性的指令, 执行时, `pipedArgs` 即为所需的参数.
 
 ### IO 扩展
+
 #### 指令输入
+
 Comandante 内置了完善的输入输出机制, 都可以通过 `CommandLauncher` 提供的 API 调用实现.  
 指令输入的接口是 `CommandLauncher.dispatchToCache(String)` 方法, 使用该方法接收外界传入的指令字符串, 并由指令处理线程进行后续分发和执行处理.  
 用户可以自行定义指令的输入方式, 无论是从文件中读取进行批处理还是从控制台输入, 只需要构建好获取指令的逻辑, 然后将获取到的指令通过 `CommandLauncher.dispatchToCache(String)` 方法传给指令插件即可.  
 指令输入支持多线程, `CommandInputHandler` 内部通过生产者消费者模式进行输出指令处理.  
 
 #### 重定向输出
+
 Comandante 同时支持输出重定向, 可以重定向插件内部所有输出到任意的输出流中.  
 该功能由 `CommandLauncher.redirectOutput(OutputStream)` 方法提供, 该方法会设置全局日志输出工具类 `CommandLogger` 的输出流, 来达到全局重定向输出的目的.  
 同时, 该接口支持设置输出流的字符集, 只需要调用 `CommandLauncher.redirectOutut(OutputStream, StandardCharsets)` 方法进行输出重定向即可.  
@@ -238,51 +201,26 @@ Comandante 同时支持输出重定向, 可以重定向插件内部所有输出�
 > 推荐将日志输出流设置为某一个文件, 用于保存运行时的日志.  
 
 ## 内置指令
+
 目前 Comandante 有如下内置指令:  
+
 ```bash
-comandante --help/h                     查看指令帮助
 comandante --author/a                   查看 Comandante 作者
 comandante --doc/d                      查看 Comandante 文档
 comandante --version/v                  查看 Comandante 版本号
 comandante --info/i                     查看 Comandante 信息
-comandante list --asc limit(int)        指令使用情况, 倒序, 需配合 --usage
-comandante list --usage/u               列出指令使用情况
-comandante list --command/c             列出所有已注册指令
-comandante list --desc limit(int)       指令使用情况, 正序, 需配合 --usage
+comandante --list/l                     列出所有已注册指令及其使用情况
 ```
-对所有已加载指令(可以是自定义的指令), 在其 `exe` 节点上, 我们都为其装配了对应的 help 指令, 如:  
-```bash
-comandante --help/-h
-app --help/-h
-```
-help 指令会输出该指令节点下所有的指令搭配, 其中 `option` 节点加上 `--/-` 进行长短指令使用的提示, `argument` 节点会在其后面加上 `(type)` 来描述参数的类型; 如果在注册时设置了执行器的 `usage` 属性, 会在指令后方加入对应的描述, 如:  
-```bash
-app -h
-Command Echo: app -h
-Format: exe --opt/-o arg
-app --help/h 查看指令帮助
-app --color/c color(string) 
-app --font/f font_main(string) font_next(string) 
-app name(string) 
-app echo time hello(string) 
-app echo message(string) 
 
-comandante -h
-Command Echo: comandante -h
-Format: exe --opt/-o arg
-comandante --help/h 查看指令帮助
-comandante --author/a 查看 Comandante 作者
-comandante --doc/d 查看 Comandante 文档
-comandante --version/v 查看 Comandante 版本号
-comandante --info/i 查看 Comandante 信息
-comandante list --all 列出所有已注册指令
-```
+对于自定义指令, 我们推荐使用者为其添加一些 `--help/-h` 指令, 来提高使用体验.
 
 ## API
+
 ### 注册指令
+
 ```java
 // 获取指令构建器
-CommandBuilder commandBuider = CommandLauncher.register();
+CommandBuilder commandBuilder = CommandLauncher.register();
 // 注册 ExecutionCommand 节点
 CommandBuilder#exe(String);
 // 注册 OptionCommand 节点
@@ -293,14 +231,18 @@ CommandBuilder#arg(String, CommandArgumentType<T>);
 CommandBuilder#executor(CommandExecutor);
 CommandBuilder#executor(CommandExecutor, String);
 ```
+
 ### 启动/停止指令处理线程
+
 ```java
 // 启动
 CommandLauncher.enable();
 // 停止
 CommandLauncher.disable();
 ```
+
 ### IO
+
 ```java
 // 重定向输出
 CommandLauncher.redirectOutput(OutputStream);

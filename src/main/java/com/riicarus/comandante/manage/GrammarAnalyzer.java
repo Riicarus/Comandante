@@ -14,7 +14,8 @@ import java.util.List;
 /**
  * [FEATURE INFO]<br/>
  * Grammar analyzer. <br/>
- * The detailed grammar --> To doc.
+ * The detailed grammar --> To doc.<br/>
+ * Every option item will be analyzed and executed. But the main item will only be executed once, which is the last one.
  *
  * @author Riicarus
  * @create 2023-4-13 13:48
